@@ -1,0 +1,10 @@
+---
+import ContactPage from '@/components/contact/ContactPage.astro';
+import MainLayout from '@/layouts/MainLayout.astro';
+
+export const prerender = true;
+---
+
+<MainLayout title='Contacto'>
+  <ContactPage />
+</MainLayout>

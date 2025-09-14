@@ -1,0 +1,9 @@
+---
+import AboutPage from '@/components/about/AboutPage.astro';
+import MainLayout from '@/layouts/MainLayout.astro';
+export const prerender = true;
+---
+
+<MainLayout title='Sobre nosotros'>
+  <AboutPage />
+</MainLayout>

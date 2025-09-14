@@ -1,0 +1,27 @@
+---
+import DashboardPage from '@/components/dashboard/DashboardPage.astro';
+import MainLayout from '@/layouts/MainLayout.astro';
+
+// // Verificar sesión con nuestro sistema
+// const userSession = Astro.cookies.get('user-session');
+// let user = null;
+
+// if (!userSession) {
+//   return Astro.redirect('/login');
+// }
+
+// try {
+//   user = JSON.parse(userSession.value);
+// } catch (e) {
+//   return Astro.redirect('/login');
+// }
+
+// // Si no es admin, redirigir
+// if (user.role !== 'admin') {
+//   return Astro.redirect('/cuenta');
+// }
+---
+
+<MainLayout title='Dashboard - Premiarte'>
+  <DashboardPage />
+</MainLayout>

@@ -1,0 +1,85 @@
+---
+import AuthSection from '@/components/auth/AuthSection';
+import {
+  SignedIn,
+  SignedOut,
+  UserButton,
+  SignInButton,
+} from '@clerk/astro/components';
+
+const navBarLinks = [
+  { name: 'home', href: '/' },
+  { name: 'Categorías', href: '/categorias' },
+  { name: 'Productos', href: '/productos' },
+  { name: 'Sobre nosotros', href: '/sobre-nosotros' },
+  { name: 'Contacto', href: '/contacto' },
+];
+// const user = await Astro.locals.currentUser();
+// const isAdmin = user?.publicMetadata?.role === 'admin';
+
+const currentPath = Astro.url.pathname;
+---
+
+<nav class='bg-slate-900'>
+  <div
+    class='container flex justify-between items-center p-6 mx-auto capitalize text-gray-300'
+  >
+    <div class='flex items-center justify-center'>
+      {
+        navBarLinks.map((link) => (
+          <div>
+            <a href={link.href} class='mx-1.5 sm:mx-6'>
+              {link.name}
+            </a>
+            <div
+              class='border-b-2 border-transparent mx-4'
+              data-href={link.href}
+              id={`menu-line-${link.href.replace('/', 'home')}`}
+            />
+          </div>
+        ))
+      }
+    </div>
+    <!-- <div>
+      <SignedOut>
+        <SignInButton mode='modal' />
+      </SignedOut>
+      <SignedIn>
+        <div class='flex gap-2 items-center'>
+          <UserButton showName />
+          {isAdmin && <a href='/dashboard'>Dashboard</a>}
+        </div>
+      </SignedIn>
+    </div> -->
+    <!-- <AuthSection /> -->
+    <!-- <AuthSection client:load isAdmin={isAdmin} /> -->
+    <AuthSection client:load />
+  </div>
+</nav>
+
+<script>
+  function setActiveMenu() {
+    const currentPath = window.location.pathname;
+
+    // Limpiar todas las líneas
+    document.querySelectorAll('[data-href]').forEach((el) => {
+      el.classList.remove('border-blue-500');
+      el.classList.add('border-transparent');
+      el.removeAttribute('style');
+    });
+
+    // Activar la línea actual
+    const activeElement = document.querySelector(
+      `[data-href="${currentPath}"]`
+    ) as HTMLElement;
+    if (activeElement) {
+      activeElement.classList.remove('border-transparent');
+      activeElement.classList.add('border-blue-500');
+      activeElement.style.viewTransitionName = 'menu-line';
+    }
+  }
+
+  // Ejecutar al cargar y después de transiciones
+  setActiveMenu();
+  document.addEventListener('astro:after-swap', setActiveMenu);
+</script>
