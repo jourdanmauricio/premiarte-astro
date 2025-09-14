@@ -6,7 +6,6 @@ import node from '@astrojs/node';
 import clerk from '@clerk/astro';
 import { dark } from '@clerk/themes';
 import { esES } from '@clerk/localizations';
-
 import db from '@astrojs/db';
 
 // https://astro.build/config
@@ -14,12 +13,16 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
-  integrations: [react(), clerk({
-    localization: esES,
-    appearance: {
-      baseTheme: dark,
-    },
-  }), db()],
+  integrations: [
+    react(),
+    clerk({
+      localization: esES,
+      appearance: {
+        baseTheme: dark,
+      },
+    }),
+    db(),
+  ],
   adapter: node({
     mode: 'standalone',
   }),

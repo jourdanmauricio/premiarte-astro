@@ -1,11 +1,5 @@
 ---
 import AuthSection from '@/components/auth/AuthSection';
-import {
-  SignedIn,
-  SignedOut,
-  UserButton,
-  SignInButton,
-} from '@clerk/astro/components';
 
 const navBarLinks = [
   { name: 'home', href: '/' },
@@ -14,10 +8,6 @@ const navBarLinks = [
   { name: 'Sobre nosotros', href: '/sobre-nosotros' },
   { name: 'Contacto', href: '/contacto' },
 ];
-// const user = await Astro.locals.currentUser();
-// const isAdmin = user?.publicMetadata?.role === 'admin';
-
-const currentPath = Astro.url.pathname;
 ---
 
 <nav class='bg-slate-900'>
@@ -40,19 +30,7 @@ const currentPath = Astro.url.pathname;
         ))
       }
     </div>
-    <!-- <div>
-      <SignedOut>
-        <SignInButton mode='modal' />
-      </SignedOut>
-      <SignedIn>
-        <div class='flex gap-2 items-center'>
-          <UserButton showName />
-          {isAdmin && <a href='/dashboard'>Dashboard</a>}
-        </div>
-      </SignedIn>
-    </div> -->
-    <!-- <AuthSection /> -->
-    <!-- <AuthSection client:load isAdmin={isAdmin} /> -->
+
     <AuthSection client:load />
   </div>
 </nav>
