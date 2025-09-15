@@ -1,4 +1,10 @@
+import { Button } from '@/components/ui/button';
+
 const DashboardHomePage = () => {
+  const handleClick = () => {
+    console.log('click');
+  };
+
   return (
     <div>
       <div className='container mx-auto px-4 py-8'>
@@ -7,6 +13,9 @@ const DashboardHomePage = () => {
             <h1 className='text-3xl font-bold text-gray-900'>
               Dashboard Administrativo
             </h1>
+            <Button className='hover:cursor-pointer' onClick={handleClick}>
+              Button
+            </Button>
             {/* <div className='flex items-center space-x-4'>
          <span className='text-gray-600'>Bienvenido, {user.firstName}</span>
          <UserButton />

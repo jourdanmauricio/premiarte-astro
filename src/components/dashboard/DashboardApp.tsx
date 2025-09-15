@@ -1,6 +1,6 @@
 import { CategoriesPage } from '@/components/dashboard/categories/CategoriesPage';
 import { ConfigPage } from '@/components/dashboard/config/ConfigPage';
-import { DashboardHomePage } from '@/components/dashboard/home/DashboardHomePage,';
+import { DashboardHomePage } from '@/components/dashboard/home/DashboardHomePage';
 import { ProductsPage } from '@/components/dashboard/products/ProductsPage';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
