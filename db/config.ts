@@ -4,6 +4,9 @@ const Images = defineTable({
   columns: {
     id: column.number({ primaryKey: true }),
     url: column.text(),
+    alt: column.text(),
+    tag: column.text({ optional: true }),
+    observation: column.text({ optional: true }),
     createdAt: column.date({ default: NOW }),
     updatedAt: column.date({ default: NOW }),
   },
@@ -15,6 +18,7 @@ const Categories = defineTable({
     name: column.text(),
     description: column.text(),
     image: column.number({ references: () => Images.columns.id }),
+    featured: column.boolean({ default: false }),
     createdAt: column.date({ default: NOW }),
     updatedAt: column.date({ default: NOW }),
   },

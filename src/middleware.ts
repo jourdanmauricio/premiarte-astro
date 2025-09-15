@@ -4,7 +4,10 @@ import {
   clerkClient,
 } from '@clerk/astro/server';
 
-const isProtectedRoutes = createRouteMatcher(['/dashboard(.*)']);
+const isProtectedRoutes = createRouteMatcher([
+  '/dashboard(.*)',
+  '/api/media(.*)',
+]);
 
 // export const onRequest = clerkMiddleware();
 export const onRequest = clerkMiddleware((auth, context) => {

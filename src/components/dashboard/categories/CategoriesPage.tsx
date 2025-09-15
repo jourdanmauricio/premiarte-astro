@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { categoriesService } from '../services/categoriesService';
-import type { Category } from '@/shared/types';
+import { categoriesService } from '../../../lib/services/categoriesService';
 
 const CategoriesPage = () => {
   const {

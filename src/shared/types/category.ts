@@ -14,6 +14,7 @@ export interface CreateCategoryData {
   name: string;
   description: string;
   image?: number;
+  featured?: boolean;
 }
 
 // Tipo para actualizar una categoría
@@ -21,4 +22,5 @@ export interface UpdateCategoryData {
   name?: string;
   description?: string;
   image?: number;
+  featured?: boolean;
 }

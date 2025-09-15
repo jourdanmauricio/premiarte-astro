@@ -2,6 +2,9 @@
 export interface Image {
   id: number;
   url: string;
+  alt: string;
+  tag: string | null;
+  observation: string | null;
   createdAt?: Date;
   updatedAt?: Date;
 }

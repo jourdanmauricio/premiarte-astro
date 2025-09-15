@@ -15,6 +15,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     { path: '/config', label: 'Configuración', icon: '⚙️' },
     { path: '/products', label: 'Productos', icon: '📦' },
     { path: '/categories', label: 'Categorías', icon: '📂' },
+    { path: '/media', label: 'Galería', icon: '🖼️' },
   ];
 
   return (

@@ -27,4 +27,8 @@ export default defineConfig({
     mode: 'standalone',
   }),
   output: 'server',
+  db: {
+    // Para desarrollo local con SQLite persistente
+    forceReset: false, // Evita el reseteo automático
+  },
 });
