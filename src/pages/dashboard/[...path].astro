@@ -1,10 +1,11 @@
 ---
+// src/pages/dashboard/[...path].astro
 import MainLayout from '@/layouts/MainLayout.astro';
 import DashboardApp from '@/components/dashboard/DashboardApp.tsx';
 ---
 
 <MainLayout title='Dashboard - Premiarte'>
-  |<div id='root'>
+  <div id='root'>
     <DashboardApp client:only='react' />
   </div>
 </MainLayout>

@@ -8,6 +8,8 @@ interface Props {
   title: string;
 }
 
+const isDashboard = Astro.url.pathname.startsWith('/dashboard');
+
 const { title } = Astro.props;
 ---
 
@@ -22,8 +24,8 @@ const { title } = Astro.props;
     <ViewTransitions />
   </head>
   <body>
-    <NavBar />
-    <main class='container m-auto px-4'>
+    {!isDashboard && <NavBar />}
+    <main class={isDashboard ? 'w-full' : 'container m-auto px-4'}>
       <slot />
     </main>
   </body>

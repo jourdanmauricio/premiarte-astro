@@ -11,6 +11,8 @@ import {
   Link,
   useLocation,
 } from 'react-router-dom';
+import { useState } from 'react';
+import { Sidebar } from './Sidebar';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,59 +24,38 @@ const queryClient = new QueryClient({
 });
 
 export default function DashboardApp() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter basename='/dashboard'>
-        <div className='flex flex-col h-screen'>
-          {/* Menú de navegación transitorio */}
-          <nav className='bg-gray-800 text-white p-4'>
-            <div className='flex items-center justify-between'>
-              <h1 className='text-xl font-bold'>Dashboard Administrativo</h1>
-              <NavigationMenu />
-            </div>
-          </nav>
+        <div className='flex min-h-screen'>
+          <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
           {/* Contenido principal */}
-          <main className='flex-1 overflow-auto'>
-            <Routes>
-              <Route path='/' element={<DashboardHomePage />} />
-              <Route path='/config' element={<ConfigPage />} />
-              <Route path='/products' element={<ProductsPage />} />
-              <Route path='/categories' element={<CategoriesPage />} />
-            </Routes>
-          </main>
+          <div className='flex-1 flex flex-col lg:ml-0'>
+            {/* Header solo visible en móvil */}
+            <header className='bg-white border-b px-4 py-3 lg:hidden'>
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className='p-2 rounded-md hover:bg-gray-100'
+              >
+                ☰ Dashboard
+              </button>
+            </header>
+
+            <main className='flex-1 p-10 max-w-[1400px] mx-auto'>
+              <Routes>
+                <Route path='/' element={<DashboardHomePage />} />
+                <Route path='/config' element={<ConfigPage />} />
+                <Route path='/products' element={<ProductsPage />} />
+                <Route path='/categories' element={<CategoriesPage />} />
+              </Routes>
+            </main>
+          </div>
         </div>
       </BrowserRouter>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
-  );
-}
-
-function NavigationMenu() {
-  const location = useLocation();
-
-  const menuItems = [
-    { path: '/', label: 'Inicio' },
-    { path: '/config', label: 'Configuración' },
-    { path: '/products', label: 'Productos' },
-    { path: '/categories', label: 'Categorías' },
-  ];
-
-  return (
-    <div className='flex space-x-4'>
-      {menuItems.map((item) => (
-        <Link
-          key={item.path}
-          to={item.path}
-          className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-            location.pathname === item.path
-              ? 'bg-gray-900 text-white'
-              : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-          }`}
-        >
-          {item.label}
-        </Link>
-      ))}
-    </div>
   );
 }
