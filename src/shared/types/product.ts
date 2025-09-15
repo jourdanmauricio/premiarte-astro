@@ -4,14 +4,33 @@ export interface Product {
   name: string;
   price: number;
   description: string;
-  image: {
-    id: number;
-    url: string;
-  } | null;
-  category: {
+  stock: number;
+  isActive: boolean;
+  isFeatured: boolean;
+  retailPrice: number;
+  wholesalePrice: number;
+  discount: number;
+  discountType: 'percentage' | 'fixed';
+  slug: string;
+  relatedProducts: {
     id: number;
     name: string;
-  } | null;
+    slug: string;
+  }[];
+  images:
+    | {
+        id: number;
+        url: string;
+        alt: string;
+      }[]
+    | null;
+  categories:
+    | {
+        id: number;
+        name: string;
+        slug: string;
+      }[]
+    | null;
 }
 
 // Tipo para crear un nuevo producto (sin id)

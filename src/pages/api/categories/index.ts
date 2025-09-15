@@ -1,26 +1,49 @@
+import { prisma } from '@/lib/prisma';
 import type { APIRoute } from 'astro';
-import { Categories, db, eq, Images } from 'astro:db';
 
-export const GET: APIRoute = async ({ request, cookies, redirect }) => {
-  const categories = await db
-    .select({
-      id: Categories.id,
-      name: Categories.name,
-      description: Categories.description,
-      image: {
-        id: Images.id,
-        url: Images.url,
+export const GET: APIRoute = async ({ request, locals }) => {
+  try {
+    // Verificar autenticación
+    const auth = locals.auth();
+    if (!auth?.userId) {
+      return new Response(JSON.stringify({ error: 'No autorizado' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    const categories = await prisma.category.findMany({
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        featured: true,
+        image: {
+          select: {
+            id: true,
+            url: true,
+          },
+        },
       },
-    })
-    .from(Categories)
-    .leftJoin(Images, eq(Categories.image, Images.id));
+    });
 
-  console.log('categories', categories);
+    console.log('categories', categories);
 
-  return new Response(JSON.stringify(categories), {
-    status: 200,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+    return new Response(JSON.stringify(categories), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  } catch (error) {
+    console.error('Error al obtener categorías:', error);
+    return new Response(
+      JSON.stringify({ error: 'Error interno del servidor' }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
+  }
 };

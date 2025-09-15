@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { v2 as cloudinary } from 'cloudinary';
-import { db, Images } from 'astro:db';
+import { prisma } from '@/lib/prisma';
 import { clerkClient } from '@clerk/astro/server';
 
 // Configurar Cloudinary
@@ -42,7 +42,11 @@ export const GET: APIRoute = async (context) => {
       );
     }
 
-    const images = await db.select().from(Images);
+    const images = await prisma.image.findMany({
+      orderBy: {
+        createdAt: 'desc', // Opcional: ordenar por fecha de creación
+      },
+    });
 
     console.log(`GET /api/media - Returning ${images.length} images`);
 
@@ -130,15 +134,14 @@ export const POST: APIRoute = async (context) => {
 
     console.log('formData fields:', { alt, tag, observation });
 
-    const [newImage] = await db
-      .insert(Images)
-      .values({
+    const newImage = await prisma.image.create({
+      data: {
         url: uploadResult.secure_url,
         alt: alt || file.name.split('.')[0], // Usar nombre del archivo como fallback
         tag: tag || null,
         observation: observation || null,
-      })
-      .returning();
+      },
+    });
 
     return new Response(JSON.stringify(newImage), {
       status: 201,

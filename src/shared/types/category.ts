@@ -7,6 +7,7 @@ export interface Category {
     id: number;
     url: string;
   } | null;
+  featured: boolean;
 }
 
 // Tipo para crear una nueva categoría (sin id)

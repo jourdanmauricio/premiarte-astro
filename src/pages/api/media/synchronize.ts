@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { v2 as cloudinary } from 'cloudinary';
-import { db, Images, eq } from 'astro:db';
+import { prisma } from '@/lib/prisma';
 import { clerkClient } from '@clerk/astro/server';
 
 // Configurar Cloudinary
@@ -52,11 +52,11 @@ export const POST: APIRoute = async (context) => {
       .execute();
 
     // Obtener todas las imágenes existentes en la base de datos
-    const existingImages = await db.select().from(Images);
+    const existingImages = await prisma.image.findMany();
 
     // Crear un Set de public_ids existentes para búsqueda rápida
     const existingPublicIds = new Set(
-      existingImages.map((img) => {
+      existingImages.map((img: any) => {
         // Extraer public_id de la URL
         const urlParts = img.url.split('/');
         const fileName = urlParts[urlParts.length - 1];
@@ -72,15 +72,14 @@ export const POST: APIRoute = async (context) => {
     for (const cloudinaryImg of cloudinaryImages.resources) {
       if (!existingPublicIds.has(cloudinaryImg.public_id)) {
         // Imagen no existe en BD, agregarla
-        const [newImage] = await db
-          .insert(Images)
-          .values({
+        const newImage = await prisma.image.create({
+          data: {
             url: cloudinaryImg.secure_url,
             alt: cloudinaryImg.public_id, // Usar public_id como alt temporal
             tag: null,
             observation: null,
-          })
-          .returning();
+          },
+        });
 
         newImages.push(newImage);
         added++;
@@ -104,10 +103,10 @@ export const POST: APIRoute = async (context) => {
         !cloudinaryPublicIds.has(publicId) &&
         existingImg.observation !== 'Eliminar'
       ) {
-        await db
-          .update(Images)
-          .set({ observation: 'Eliminar' })
-          .where(eq(Images.id, existingImg.id));
+        await prisma.image.update({
+          where: { id: existingImg.id },
+          data: { observation: 'Eliminar' },
+        });
         marked++;
       }
     }
@@ -145,5 +144,8 @@ export const POST: APIRoute = async (context) => {
         },
       }
     );
+  } finally {
+    // Importante: cerrar la conexión de Prisma
+    await prisma.$disconnect();
   }
 };

@@ -1,4 +1,5 @@
 import { ArrowDown, ArrowUp, LoaderIcon } from 'lucide-react';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 import {
   type ColumnDef,
@@ -19,9 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-
-import PaginatorClient from '@/components/ui/custom/paginator-client';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { PaginationClient } from '@/components/ui/custom/paginator-client';
 
 type Props<TData, TValue> = {
   data: TData[];
@@ -191,10 +190,10 @@ function CustomTable<TData, TValue>({
         </ScrollArea>
         {isLoading === false && data.length > 0 && (
           <div className='mt-4'>
-            <PaginatorClient
-              totalPages={table.getPageCount() || 1}
-              currentPage={pageIndex}
-              setPageIndex={setPageIndex}
+            <PaginationClient
+              totalPages={table.getPageCount()}
+              currentPage={pageIndex + 1}
+              setPageIndex={(page) => setPageIndex(page - 1)}
             />
           </div>
         )}

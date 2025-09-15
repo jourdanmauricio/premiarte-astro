@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { v2 as cloudinary } from 'cloudinary';
-import { db, Images, eq } from 'astro:db';
+import { prisma } from '@/lib/prisma';
 import { clerkClient } from '@clerk/astro/server';
 
 // Configurar Cloudinary
@@ -54,7 +54,9 @@ export const DELETE: APIRoute = async (context) => {
     }
 
     // Obtener la imagen de la base de datos
-    const [image] = await db.select().from(Images).where(eq(Images.id, id));
+    const image = await prisma.image.findUnique({
+      where: { id },
+    });
 
     if (!image) {
       return new Response(JSON.stringify({ error: 'Imagen no encontrada' }), {
@@ -93,7 +95,9 @@ export const DELETE: APIRoute = async (context) => {
     }
 
     // Solo si Cloudinary se eliminó exitosamente, eliminar de la base de datos
-    await db.delete(Images).where(eq(Images.id, id));
+    await prisma.image.delete({
+      where: { id },
+    });
 
     return new Response(
       JSON.stringify({ message: 'Imagen eliminada correctamente' }),
@@ -164,17 +168,26 @@ export const PUT: APIRoute = async (context) => {
     const { tag, alt, observation } = body;
 
     // Actualizar en la base de datos
-    const [updatedImage] = await db
-      .update(Images)
-      .set({
+    const updatedImage = await prisma.image.update({
+      where: { id },
+      data: {
         tag,
         alt,
         observation,
-      })
-      .where(eq(Images.id, id))
-      .returning();
+      },
+    });
 
-    if (!updatedImage) {
+    return new Response(JSON.stringify(updatedImage), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  } catch (error: any) {
+    console.error('Error al actualizar imagen:', error);
+
+    // Prisma arroja un error específico si no encuentra el registro
+    if (error.code === 'P2025') {
       return new Response(JSON.stringify({ error: 'Imagen no encontrada' }), {
         status: 404,
         headers: {
@@ -183,14 +196,6 @@ export const PUT: APIRoute = async (context) => {
       });
     }
 
-    return new Response(JSON.stringify(updatedImage), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-  } catch (error) {
-    console.error('Error al actualizar imagen:', error);
     return new Response(
       JSON.stringify({ error: 'Error al actualizar la imagen' }),
       {

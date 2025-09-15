@@ -6,7 +6,6 @@ import node from '@astrojs/node';
 import clerk from '@clerk/astro';
 import { dark } from '@clerk/themes';
 import { esES } from '@clerk/localizations';
-import db from '@astrojs/db';
 
 // https://astro.build/config
 export default defineConfig({
@@ -21,7 +20,7 @@ export default defineConfig({
         baseTheme: dark,
       },
     }),
-    db(),
+    // db(),
   ],
   adapter: node({
     mode: 'standalone',
@@ -30,5 +29,6 @@ export default defineConfig({
   db: {
     // Para desarrollo local con SQLite persistente
     forceReset: false, // Evita el reseteo automático
+    file: './local-database.db',
   },
 });
