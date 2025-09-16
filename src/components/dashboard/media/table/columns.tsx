@@ -36,7 +36,7 @@ export const getMediaColumns = ({
         {row.getValue('tag') ?? '-'}
       </div>
     ),
-    size: 100,
+    size: 160,
   },
   {
     accessorKey: 'alt',

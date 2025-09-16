@@ -17,6 +17,7 @@ export default function SubmitButton({
   return (
     <Button
       {...rest}
+      type='submit'
       className={cn('ml-2', rest.className ? rest.className : '')}
       disabled={showSpinner || disabled}
     >

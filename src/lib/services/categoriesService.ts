@@ -36,7 +36,8 @@ class CategoriesService {
     });
 
     if (!response.ok) {
-      throw new Error('Error al crear la categoría');
+      const error = await response.json();
+      throw new Error(error.error || 'Error al crear la categoría');
     }
     return response.json();
   }
@@ -55,7 +56,10 @@ class CategoriesService {
     });
 
     if (!response.ok) {
-      throw new Error(`Error al actualizar la categoría con ID ${id}`);
+      const error = await response.json();
+      throw new Error(
+        error.error || `Error al actualizar la categoría con ID ${id}`
+      );
     }
     return response.json();
   }

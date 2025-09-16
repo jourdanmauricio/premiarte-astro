@@ -14,3 +14,30 @@ export const CategoryFormSchema = z.object({
   imageId: z.number().min(1, { message: 'La imagen es requerida' }),
   featured: z.boolean().optional(),
 });
+
+const HomeMenuSchema = z.object({
+  siteName: z.string().min(1, { message: 'Nombre del sitio requerido' }),
+  logoId: z.number().min(1, { message: 'ID del logo requerido' }),
+});
+
+const HomeSliderSchema = z.object({
+  image: z.number().min(1, { message: 'ID de imagen requerido' }),
+  title: z.string().min(1, { message: 'Título requerido' }),
+  recommended: z.boolean(),
+  text: z.string().optional(),
+  buttonText: z.string().min(1, { message: 'Texto del botón requerido' }),
+  buttonLink: z.string().url({ message: 'URL válida requerida' }),
+});
+
+const HomeSettingsSchema = z.object({
+  menu: HomeMenuSchema,
+  slider: z.array(HomeSliderSchema),
+  // .min(1, { message: 'Al menos un slide requerido' }),
+});
+
+export const SettingsFormSchema = z.object({
+  home: HomeSettingsSchema,
+  // Puedes agregar más secciones aquí
+  // about: AboutConfigSchema,
+  // contact: ContactConfigSchema,
+});

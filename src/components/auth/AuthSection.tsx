@@ -42,9 +42,9 @@ export default function AuthSection(): JSX.Element {
       </SignedOut>
 
       <SignedIn>
-        <div className='flex gap-2 items-center'>
-          <UserButton showName />
+        <div className='flex gap-2 items-center text-gray-300'>
           {isAdmin && <a href='/dashboard'>Dashboard</a>}
+          <UserButton showName />
         </div>
       </SignedIn>
     </div>
