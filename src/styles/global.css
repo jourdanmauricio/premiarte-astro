@@ -128,3 +128,9 @@
 .card-title {
     @apply text-xl font-semibold text-gray-900;
 }
+
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: 0.1s;
+    animation-timing-function: ease-out;
+}
