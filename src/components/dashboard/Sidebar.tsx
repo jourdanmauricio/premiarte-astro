@@ -40,7 +40,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           {/* Header */}
           <div className='p-4 border-b border-gray-700'>
             <div className='flex items-center justify-between'>
-              <h1 className='text-xl font-bold'>Dashboard</h1>
+              <h1 className='text-xl font-bold'>Premiarte</h1>
               <button
                 onClick={onClose}
                 className='lg:hidden p-1 rounded hover:bg-gray-800'
