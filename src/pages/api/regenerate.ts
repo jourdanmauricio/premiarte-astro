@@ -54,21 +54,17 @@ export const POST: APIRoute = async (context) => {
     try {
       console.log(`🔄 Triggering deploy en Coolify: ${coolifyApiUrl}`);
 
-      // Llamar a la API de Coolify para triggear deploy
-      const deployResponse = await fetch(
-        `${coolifyApiUrl}/api/v1/applications/${coolifyApplicationId}/deploy`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${coolifyApiToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            force_rebuild: true,
-            comment: 'Regeneración desde dashboard admin',
-          }),
-        }
-      );
+      // Llamar a la API de Coolify v4 para triggear deploy
+      const deployResponse = await fetch(`${coolifyApiUrl}/api/v1/deploy`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${coolifyApiToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          uuid: coolifyApplicationId,
+        }),
+      });
 
       if (!deployResponse.ok) {
         const errorText = await deployResponse.text();
