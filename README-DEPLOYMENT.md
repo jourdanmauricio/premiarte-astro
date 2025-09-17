@@ -125,9 +125,69 @@ turso db shell premiarte-db < data.sql
 - ✅ **Astro-native**: Recomendado oficialmente
 - ✅ **Edge-ready**: Funciona en edge runtime
 
+## Sistema de Regeneración Automática
+
+### Flujo de regeneración del sitio
+
+El dashboard incluye un sistema automático para regenerar el sitio cuando se modifican datos:
+
+#### 1. **Modificaciones del usuario**
+
+- El admin modifica productos, categorías, imágenes o configuraciones
+- Los cambios se guardan en la base de datos Turso
+- El usuario puede hacer múltiples modificaciones sin prisa
+
+#### 2. **Regeneración bajo demanda**
+
+- En el dashboard hay un botón **"Regenerar Sitio"**
+- Al presionarlo, se confirma la acción
+- El sistema inicia la regeneración automática
+
+#### 3. **Flujo técnico**
+
+```
+Usuario presiona botón → Dashboard → API /regenerate → Coolify → Deploy automático
+```
+
+**Detalle del flujo:**
+
+1. **Frontend**: Llama a `POST /api/regenerate`
+2. **Backend**: Llama a la API de Coolify `POST /api/v1/applications/{ID}/deploy`
+3. **Coolify**: Ejecuta el deploy completo:
+   - Pull del código desde GitHub
+   - Build del proyecto Astro
+   - Deploy de la nueva versión
+   - Actualización automática del sitio
+
+#### 4. **Variables necesarias en Coolify**
+
+Además de las variables de Turso y Clerk, agregar:
+
+```bash
+# Regeneración automática
+COOLIFY_API_URL=http://localhost:8000
+COOLIFY_API_TOKEN=tu_coolify_api_token
+COOLIFY_APPLICATION_ID=tu_application_id
+```
+
+#### 5. **Configuración en Coolify**
+
+1. **Generar API Token**: Settings → API Tokens → Crear nuevo token
+2. **Obtener Application ID**: De la URL del proyecto en Coolify
+3. **Configurar Auto Deploy**: Para que Coolify responda a los comandos de deploy
+
+#### 6. **Ventajas del sistema**
+
+- ✅ **Control total**: El usuario decide cuándo regenerar
+- ✅ **Múltiples cambios**: Puede modificar varios elementos antes de deployar
+- ✅ **Automático**: Una vez confirmado, todo es automático
+- ✅ **Seguro**: Solo usuarios admin pueden triggear deployos
+- ✅ **Sin GitHub intermedio**: Coolify maneja directamente el repositorio
+
 ## Resumen
 
-- **Solo configura variables de Turso y Clerk** en Coolify
+- **Solo configura variables de Turso, Clerk y Coolify** en el panel
 - **Sin volúmenes Docker** - todo en la nube
 - **Sin migraciones complejas** - SQL directo
+- **Regeneración automática** desde el dashboard admin
 - **Rendimiento superior** para aplicaciones Astro

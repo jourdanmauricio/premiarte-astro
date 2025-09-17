@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { Sidebar } from './Sidebar';
 import { MediaPage } from '@/components/dashboard/media/MediaPage';
 import { Toaster } from '@/components/ui/sonner';
+import RegenerateButton from '@/components/dashboard/regenerate/RegenerateButton';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,14 +31,25 @@ export default function DashboardApp() {
 
           {/* Contenido principal */}
           <div className='flex-1 flex flex-col overflow-hidden'>
-            {/* Header solo visible en móvil */}
-            <header className='bg-white border-b px-4 py-3 lg:hidden'>
+            {/* Header */}
+            <header className='bg-white border-b px-4 py-3 flex items-center justify-between'>
+              {/* Botón de menú móvil */}
               <button
                 onClick={() => setSidebarOpen(true)}
-                className='p-2 rounded-md hover:bg-gray-100'
+                className='p-2 rounded-md hover:bg-gray-100 lg:hidden'
               >
                 ☰ Dashboard
               </button>
+
+              {/* Título para desktop */}
+              <h1 className='hidden lg:block text-xl font-semibold text-gray-800'>
+                Panel de Administración
+              </h1>
+
+              {/* Botón de regeneración */}
+              <div className='ml-auto'>
+                <RegenerateButton />
+              </div>
             </header>
 
             <main className='p-10 max-w-[1400px] mx-auto w-full overflow-y-auto h-full'>

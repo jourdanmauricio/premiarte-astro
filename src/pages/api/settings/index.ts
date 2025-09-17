@@ -4,18 +4,7 @@ import { Database } from '@/lib/db';
 // GET - Obtener todas las configuraciones
 export const GET: APIRoute = async (context) => {
   try {
-    // Verificar autenticación
-    const { userId } = context.locals.auth();
-
-    if (!userId) {
-      return new Response(JSON.stringify({ error: 'No autorizado' }), {
-        status: 401,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-    }
-
+    // GET público - no requiere autenticación para mostrar configuraciones en el sitio
     const settings = await Database.getAllSettings();
 
     return new Response(JSON.stringify(settings), {

@@ -14,33 +14,7 @@ cloudinary.config({
 // GET - Obtener todas las imágenes
 export const GET: APIRoute = async (context) => {
   try {
-    // Verificar autenticación
-    const { userId } = context.locals.auth();
-
-    if (!userId) {
-      return new Response(JSON.stringify({ error: 'No autorizado' }), {
-        status: 401,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-    }
-
-    // Verificar que el usuario sea admin
-    const user = await clerkClient(context).users.getUser(userId);
-    if (user.publicMetadata?.role !== 'admin') {
-      return new Response(
-        JSON.stringify({
-          error: 'Acceso denegado. Se requieren permisos de administrador.',
-        }),
-        {
-          status: 403,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-    }
+    // GET público - no requiere autenticación para mostrar imágenes en el sitio
 
     const images = await Database.getAllImages();
 

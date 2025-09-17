@@ -3,16 +3,7 @@ import { Database } from '@/lib/db';
 
 export const GET: APIRoute = async ({ request, locals }) => {
   try {
-    // Verificar autenticación
-    const auth = locals.auth();
-    if (!auth?.userId) {
-      return new Response(JSON.stringify({ error: 'No autorizado' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    // Obtener productos con sus relaciones
+    // GET público - no requiere autenticación para mostrar productos en el sitio
     const products = await Database.getAllProducts();
 
     return new Response(JSON.stringify(products), {

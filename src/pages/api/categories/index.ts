@@ -4,15 +4,7 @@ import { clerkClient } from '@clerk/astro/server';
 
 export const GET: APIRoute = async ({ request, locals }) => {
   try {
-    // Verificar autenticación
-    const auth = locals.auth();
-    if (!auth?.userId) {
-      return new Response(JSON.stringify({ error: 'No autorizado' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
+    // GET público - no requiere autenticación para mostrar categorías en el sitio
     const categories = await Database.getAllCategories();
 
     console.log('categories', categories);
