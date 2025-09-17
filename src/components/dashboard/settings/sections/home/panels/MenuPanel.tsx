@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import type { Image, Settings } from '@/shared/types';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import type z from 'zod';
 
 import { SettingsFormSchema } from '@/shared/schemas';
@@ -13,7 +14,6 @@ import { settingsService } from '@/lib/services/settingsService';
 import { ImageSelector } from '@/components/dashboard/image-selector';
 import InputField from '@/components/ui/custom/input-field';
 import { Form } from '@/components/ui/form';
-import { toast } from 'sonner';
 import SubmitButton from '@/components/ui/custom/submit-button';
 
 const MenuPanel = () => {
@@ -77,22 +77,17 @@ const MenuPanel = () => {
 
   const settingsMutation = useMutation({
     mutationFn: async (data: z.infer<typeof SettingsFormSchema>) => {
-      console.log('🟡 Mutation started');
       const result = await settingsService.updateSetting('home', {
         value: data.home,
       });
-      console.log('🟢 Mutation completed', result);
-      // return result;
     },
     onSuccess: async () => {
-      console.log('✅ Mutation success - BEFORE toast');
       toast.success('Configuración actualizada correctamente');
-      console.log('✅ Mutation success - AFTER toast');
 
-      // await queryClient.invalidateQueries({
-      //   queryKey: ['Settings'],
-      //   refetchType: 'none', // Evita el refetch automático
-      // });
+      await queryClient.invalidateQueries({
+        queryKey: ['Settings'],
+        refetchType: 'none', // Evita el refetch automático
+      });
     },
     onError: (error) => {
       console.error('Error al actualizar la configuración:', error);

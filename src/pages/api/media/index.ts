@@ -71,14 +71,17 @@ export const POST: APIRoute = async (context) => {
       );
     }
 
-    // Obtener datos del body
-    const body = await context.request.json();
-    const { url, alt, tag, observation } = body;
+    // Obtener datos del FormData
+    const formData = await context.request.formData();
+    const file = formData.get('file') as File;
+    const alt = formData.get('alt') as string;
+    const tag = formData.get('tag') as string;
+    const observation = formData.get('observation') as string;
 
     // Validar campos requeridos
-    if (!url || !alt) {
+    if (!file || !alt) {
       return new Response(
-        JSON.stringify({ error: 'URL y alt son campos requeridos' }),
+        JSON.stringify({ error: 'Archivo y alt son campos requeridos' }),
         {
           status: 400,
           headers: {
@@ -88,12 +91,31 @@ export const POST: APIRoute = async (context) => {
       );
     }
 
+    // Subir a Cloudinary
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const uploadResult = await new Promise((resolve, reject) => {
+      cloudinary.uploader
+        .upload_stream(
+          {
+            resource_type: 'auto',
+            folder: 'premiarte',
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        )
+        .end(buffer);
+    });
+
+    const cloudinaryResult = uploadResult as any;
+
     // Crear la imagen en la base de datos
     const newImage = await Database.createImage({
-      url,
+      url: cloudinaryResult.secure_url,
       alt,
-      tag,
-      observation,
+      tag: tag || '',
+      observation: observation || '',
     });
 
     console.log('POST /api/media - Image created:', newImage);
