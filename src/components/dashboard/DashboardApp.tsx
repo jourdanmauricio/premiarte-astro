@@ -9,7 +9,7 @@ import { useState } from 'react';
 import { Sidebar } from './Sidebar';
 import { MediaPage } from '@/components/dashboard/media/MediaPage';
 import { Toaster } from '@/components/ui/sonner';
-import RegenerateButton from '@/components/dashboard/regenerate/RegenerateButton';
+import RegenerateButton from '@/components/ui/custom/RegenerateButton';
 
 const queryClient = new QueryClient({
   defaultOptions: {
