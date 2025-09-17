@@ -15,14 +15,16 @@ RUN npm ci --only=production && npm cache clean --force
 # Etapa de construcción
 FROM base AS builder
 COPY package.json package-lock.json* ./
+# Instalar todas las dependencias (incluyendo devDependencies para prisma)
 RUN npm ci
 
 # Copiar código fuente
 COPY . .
 
-# Construir la aplicación
+# Generar cliente de Prisma y construir la aplicación
 ENV NODE_ENV=production
-RUN npm run build
+RUN npx prisma generate
+RUN npm run build --verbose
 
 # Etapa de producción
 FROM base AS runtime
@@ -35,6 +37,9 @@ RUN adduser --system --uid 1001 astro
 COPY --from=deps --chown=astro:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=astro:nodejs /app/dist ./dist
 COPY --from=builder --chown=astro:nodejs /app/package.json ./package.json
+# Copiar esquema de Prisma y cliente generado
+COPY --from=builder --chown=astro:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=astro:nodejs /app/node_modules/.prisma ./node_modules/.prisma
 
 # Crear directorio para la base de datos SQLite
 RUN mkdir -p /app/data && chown astro:nodejs /app/data
