@@ -1,25 +1,54 @@
-# Guía de Despliegue - Premiarte Astro
+# Guía de Despliegue - Premiarte Astro con Turso
 
-## Configuración con SQLite
+## Configuración con Turso
 
-Tu proyecto usa SQLite tanto en desarrollo como en producción, lo que simplifica mucho el despliegue.
+Tu proyecto ahora usa Turso, una base de datos SQLite distribuida en la nube, siguiendo las [recomendaciones oficiales de Astro](https://docs.astro.build/es/guides/backend/turso/).
 
-### 1. Configuración de la base de datos
+### 1. Configurar base de datos Turso
 
-La base de datos SQLite se almacena en un volumen persistente de Docker:
+#### Instalar Turso CLI
 
-- **Ruta en el contenedor**: `/app/data/production.db`
-- **Variable de entorno**: `DATABASE_URL=file:./data/production.db`
-- **Volumen**: `sqlite_data` (persistente entre reinicios)
+```bash
+curl -sSfL https://get.tur.so/install.sh | bash
+# O con npm
+npm install -g @turso/cli
+```
+
+#### Crear base de datos
+
+```bash
+# Iniciar sesión
+turso auth login
+
+# Crear base de datos
+turso db create premiarte-db
+
+# Obtener URL de conexión
+turso db show premiarte-db --url
+
+# Crear token de autenticación
+turso db tokens create premiarte-db
+```
+
+#### Crear el esquema
+
+```bash
+# Ejecutar el esquema en tu base de datos
+turso db shell premiarte-db < schema.sql
+```
 
 ### 2. Configurar variables de entorno en Coolify
 
-Basándote en `env.example`, configura solo estas variables:
+Solo necesitas configurar estas variables:
 
 ```bash
 # Clerk Authentication (OBLIGATORIAS)
 PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_tu_clave_aqui
 CLERK_SECRET_KEY=sk_live_tu_clave_aqui
+
+# Turso Database (OBLIGATORIAS)
+TURSO_DATABASE_URL=libsql://premiarte-db-tu-usuario.turso.io
+TURSO_AUTH_TOKEN=tu_token_de_turso
 
 # Cloudinary (OPCIONALES)
 CLOUDINARY_CLOUD_NAME=tu_cloud_name
@@ -27,70 +56,78 @@ CLOUDINARY_API_KEY=tu_api_key
 CLOUDINARY_API_SECRET=tu_api_secret
 ```
 
-**No necesitas configurar DATABASE_URL** - se define automáticamente en el docker-compose.
+### 3. Ventajas de usar Turso
 
-### 3. Comandos útiles después del despliegue
+- ✅ **Distribuido globalmente**: Baja latencia en cualquier región
+- ✅ **SQLite compatible**: Mismo SQL que conoces
+- ✅ **Sin gestión de servidores**: Completamente managed
+- ✅ **Escalado automático**: De 0 a millones de consultas
+- ✅ **Réplicas embebidas**: Ultra rápido para lectura
+- ✅ **Branching**: Crea ramas de base de datos como Git
+
+### 4. Comandos útiles de Turso
 
 ```bash
-# Ejecutar migraciones en el contenedor
-docker-compose exec app npx prisma migrate deploy
+# Ver bases de datos
+turso db list
 
-# Generar el cliente de Prisma
-docker-compose exec app npx prisma generate
+# Conectar a shell SQL
+turso db shell premiarte-db
 
-# Ver logs de la aplicación
-docker-compose logs -f app
+# Ver estadísticas
+turso db show premiarte-db
 
-# Acceder al contenedor para debug
-docker-compose exec app sh
+# Crear token (si necesitas regenerar)
+turso db tokens create premiarte-db
 
-# Ver el contenido de la base de datos
-docker-compose exec app npx prisma studio
+# Hacer backup
+turso db dump premiarte-db > backup.sql
 ```
 
-### 4. Estructura del proyecto para Coolify
+### 5. Estructura del proyecto para Coolify
 
-Tu repositorio debe incluir:
+Tu repositorio incluye:
 
-- `Dockerfile`
-- `docker-compose.yml`
-- `prisma/schema.prisma` (con SQLite)
-- Variables de entorno configuradas en Coolify
+- `Dockerfile` - Configurado para Turso
+- `docker-compose.yml` - Sin volúmenes SQLite
+- `schema.sql` - Esquema de base de datos
+- `src/lib/turso.ts` - Cliente de Turso
+- `src/lib/db.ts` - Utilidades de base de datos
 
-### 5. Ventajas de usar SQLite en producción
+### 6. Desarrollo local vs Producción
 
-- ✅ **Simplicidad**: No necesitas configurar servidor de BD separado
-- ✅ **Rendimiento**: Excelente para aplicaciones pequeñas/medianas
-- ✅ **Persistencia**: Los datos se guardan en volumen Docker
-- ✅ **Backups**: Fácil de respaldar (un solo archivo)
-- ✅ **Cero configuración**: Funciona inmediatamente
+**Desarrollo**: Usa la misma base de datos Turso (recomendado)
+**Producción**: Usa la misma configuración, solo cambian las URLs
 
-### 6. Consideraciones importantes
+### 7. Migración de datos (si necesario)
 
-- La base de datos se crea automáticamente al primer arranque
-- Los datos persisten entre reinicios del contenedor
-- El volumen `sqlite_data` contiene tu base de datos
-- Prisma maneja automáticamente las migraciones
+Si tienes datos en SQLite local que necesitas migrar:
 
-### 7. Verificación del despliegue
+```bash
+# Exportar datos desde SQLite
+sqlite3 dev.db .dump > data.sql
+
+# Importar a Turso
+turso db shell premiarte-db < data.sql
+```
+
+### 8. Verificación del despliegue
 
 1. Comprueba que la aplicación responda en tu dominio
 2. Verifica que Clerk funciona correctamente
-3. Prueba las funcionalidades que usan la base de datos
+3. Prueba las operaciones de base de datos
 4. Revisa los logs para errores
 
-### 8. Backup de la base de datos
+## Diferencias principales con Prisma
 
-Para hacer backup de tu base de datos SQLite:
-
-```bash
-# Copiar la base de datos desde el volumen
-docker cp $(docker-compose ps -q app):/app/data/production.db ./backup-$(date +%Y%m%d).db
-```
+- ✅ **Más simple**: SQL directo en lugar de ORM
+- ✅ **Mejor rendimiento**: Menos abstracciones
+- ✅ **Astro-native**: Recomendado oficialmente
+- ✅ **Edge-ready**: Funciona en edge runtime
 
 ## Resumen
 
-- **Solo necesitas configurar las variables de Clerk** en Coolify
-- **SQLite se configura automáticamente** con volumen persistente
-- **Un solo contenedor** - sin complejidad de múltiples servicios
-- **Despliegue simple** y directo
+- **Solo configura variables de Turso y Clerk** en Coolify
+- **Sin volúmenes Docker** - todo en la nube
+- **Sin migraciones complejas** - SQL directo
+- **Rendimiento superior** para aplicaciones Astro

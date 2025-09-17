@@ -14,16 +14,11 @@ services:
       # Variables de entorno para Clerk (configúralas en Coolify)
       - PUBLIC_CLERK_PUBLISHABLE_KEY=${PUBLIC_CLERK_PUBLISHABLE_KEY}
       - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
-      # Variables de entorno para base de datos SQLite
-      - DATABASE_URL=file:./data/production.db
+      # Variables de entorno para Turso (configúralas en Coolify)
+      - TURSO_DATABASE_URL=${TURSO_DATABASE_URL}
+      - TURSO_AUTH_TOKEN=${TURSO_AUTH_TOKEN}
       # Variables adicionales que puedas necesitar
       - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
       - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
-    volumes:
-      - sqlite_data:/app/data
     restart: unless-stopped
-
-volumes:
-  sqlite_data:
-    driver: local

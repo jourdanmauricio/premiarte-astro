@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { prisma } from '@/lib/prisma';
+import { Database } from '@/lib/db';
 import { clerkClient } from '@clerk/astro/server';
 
 export const PUT: APIRoute = async (context) => {
@@ -37,14 +37,18 @@ export const PUT: APIRoute = async (context) => {
     const body = await context.request.json();
     const { value } = body;
 
-    const setting = await prisma.setting.upsert({
-      where: { key: section },
-      update: { value: JSON.stringify(value) },
-      create: {
-        key: section,
-        value: JSON.stringify(value),
-      },
-    });
+    if (!value) {
+      return new Response(JSON.stringify({ error: 'Value es requerido' }), {
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    }
+
+    const setting = await Database.setSetting(section, JSON.stringify(value));
+
+    console.log(`Configuración actualizada para ${section}:`, setting);
 
     return new Response(JSON.stringify(setting), {
       status: 200,
@@ -52,23 +56,8 @@ export const PUT: APIRoute = async (context) => {
         'Content-Type': 'application/json',
       },
     });
-  } catch (error) {
-    console.error('Error al actualizar la configuración de home:', error);
-
-    // Manejar errores específicos de Prisma
-    if (error instanceof Error) {
-      if (error.message.includes('Unique constraint')) {
-        return new Response(
-          JSON.stringify({ error: 'Ya existe una configuración de home' }),
-          {
-            status: 409,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-      }
-    }
+  } catch (error: any) {
+    console.error(`Error al actualizar la configuración de ${section}:`, error);
 
     return new Response(
       JSON.stringify({ error: 'Error interno del servidor' }),

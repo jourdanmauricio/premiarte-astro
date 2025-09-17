@@ -30,7 +30,7 @@ Thumbs.db
 *.tmp
 *.temp
 
-# Base de datos local
+# Base de datos local (ya no necesario con Turso)
 *.db
 *.sqlite
 local-database.db

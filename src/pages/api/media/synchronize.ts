@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
-import { v2 as cloudinary } from 'cloudinary';
-import { prisma } from '@/lib/prisma';
 import { clerkClient } from '@clerk/astro/server';
+import { v2 as cloudinary } from 'cloudinary';
+import { Database } from '@/lib/db';
 
 // Configurar Cloudinary
 cloudinary.config({
@@ -52,7 +52,7 @@ export const POST: APIRoute = async (context) => {
       .execute();
 
     // Obtener todas las imágenes existentes en la base de datos
-    const existingImages = await prisma.image.findMany();
+    const existingImages = await Database.getAllImages();
 
     // Crear un Set de public_ids existentes para búsqueda rápida
     const existingPublicIds = new Set(
@@ -71,72 +71,61 @@ export const POST: APIRoute = async (context) => {
     // Procesar imágenes de Cloudinary
     for (const cloudinaryImg of cloudinaryImages.resources) {
       if (!existingPublicIds.has(cloudinaryImg.public_id)) {
-        // Imagen no existe en BD, agregarla
-        const newImage = await prisma.image.create({
-          data: {
+        try {
+          // Crear nuevo registro en la base de datos
+          const newImage = await Database.createImage({
             url: cloudinaryImg.secure_url,
-            alt: cloudinaryImg.public_id, // Usar public_id como alt temporal
+            alt:
+              cloudinaryImg.display_name ||
+              cloudinaryImg.public_id.split('/').pop() ||
+              'Imagen',
             tag: null,
-            observation: null,
-          },
-        });
+            observation: `Sincronizado desde Cloudinary - ${new Date().toISOString()}`,
+          });
 
-        newImages.push(newImage);
-        added++;
+          newImages.push(newImage);
+          added++;
+          console.log(`Agregada imagen: ${cloudinaryImg.public_id}`);
+        } catch (error) {
+          console.error(
+            `Error al agregar imagen ${cloudinaryImg.public_id}:`,
+            error
+          );
+        }
       } else {
         skipped++;
+        console.log(`Imagen ya existe, omitiendo: ${cloudinaryImg.public_id}`);
       }
     }
 
-    // Marcar imágenes que están en BD pero no en Cloudinary
-    const cloudinaryPublicIds = new Set(
-      cloudinaryImages.resources.map((img: any) => img.public_id)
-    );
+    console.log(`Sincronización completada:
+      - Total en Cloudinary: ${cloudinaryImages.resources.length}
+      - Agregadas: ${added}
+      - Omitidas: ${skipped}
+      - Total en BD: ${existingImages.length + added}`);
 
-    let marked = 0;
-    for (const existingImg of existingImages) {
-      const urlParts = existingImg.url.split('/');
-      const fileName = urlParts[urlParts.length - 1];
-      const publicId = `${cloudinaryFolder}/${fileName.split('.')[0]}`;
-
-      if (
-        !cloudinaryPublicIds.has(publicId) &&
-        existingImg.observation !== 'Eliminar'
-      ) {
-        await prisma.image.update({
-          where: { id: existingImg.id },
-          data: { observation: 'Eliminar' },
-        });
-        marked++;
-      }
-    }
-
-    const summary = {
-      success: true,
-      cloudinaryTotal: cloudinaryImages.resources.length,
-      added,
-      skipped,
-      marked,
-      newImages: newImages.map((img) => ({
-        id: img.id,
-        url: img.url,
-        alt: img.alt,
-      })),
-    };
-
-    return new Response(JSON.stringify(summary), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-  } catch (error) {
-    console.error('Error al sincronizar imágenes:', error);
     return new Response(
       JSON.stringify({
-        error: 'Error al sincronizar las imágenes',
-        details: error instanceof Error ? error.message : 'Error desconocido',
+        message: 'Sincronización completada exitosamente',
+        stats: {
+          cloudinaryTotal: cloudinaryImages.resources.length,
+          added,
+          skipped,
+          totalInDatabase: existingImages.length + added,
+        },
+        newImages,
       }),
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+  } catch (error) {
+    console.error('Error en la sincronización:', error);
+    return new Response(
+      JSON.stringify({ error: 'Error en la sincronización con Cloudinary' }),
       {
         status: 500,
         headers: {
@@ -144,8 +133,5 @@ export const POST: APIRoute = async (context) => {
         },
       }
     );
-  } finally {
-    // Importante: cerrar la conexión de Prisma
-    await prisma.$disconnect();
   }
 };

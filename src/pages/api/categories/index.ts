@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma';
+import { Database } from '@/lib/db';
 import type { APIRoute } from 'astro';
 import { clerkClient } from '@clerk/astro/server';
 
@@ -13,21 +13,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
       });
     }
 
-    const categories = await prisma.category.findMany({
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        description: true,
-        featured: true,
-        image: {
-          select: {
-            id: true,
-            url: true,
-          },
-        },
-      },
-    });
+    const categories = await Database.getAllCategories();
 
     console.log('categories', categories);
 
@@ -80,11 +66,11 @@ export const POST: APIRoute = async (context) => {
       );
     }
 
-    // Obtener datos del cuerpo de la petición
+    // Obtener datos del body
     const body = await context.request.json();
-    const { name, slug, description, imageId, featured = false } = body;
+    const { name, slug, description, imageId, featured } = body;
 
-    // Validar campos requeridos
+    // Validaciones básicas
     if (!name || !slug || !description || !imageId) {
       return new Response(
         JSON.stringify({
@@ -92,64 +78,18 @@ export const POST: APIRoute = async (context) => {
         }),
         {
           status: 400,
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
         }
       );
     }
 
-    // Verificar que el slug no esté duplicado
-    const existingCategory = await prisma.category.findUnique({
-      where: { slug },
-    });
-
-    if (existingCategory) {
-      return new Response(
-        JSON.stringify({ error: 'Ya existe una categoría con ese slug' }),
-        {
-          status: 409,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-    }
-
-    // Verificar que la imagen existe
-    const imageExists = await prisma.image.findUnique({
-      where: { id: parseInt(imageId) },
-    });
-
-    if (!imageExists) {
-      return new Response(
-        JSON.stringify({ error: 'La imagen especificada no existe' }),
-        {
-          status: 400,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-    }
-
-    // Crear la nueva categoría
-    const newCategory = await prisma.category.create({
-      data: {
-        name,
-        slug,
-        description,
-        imageId: parseInt(imageId),
-        featured: Boolean(featured),
-      },
-      include: {
-        image: {
-          select: {
-            id: true,
-            url: true,
-          },
-        },
-      },
+    // Crear la categoría
+    const newCategory = await Database.createCategory({
+      name,
+      slug,
+      description,
+      imageId: parseInt(imageId),
+      featured: Boolean(featured),
     });
 
     return new Response(JSON.stringify(newCategory), {
@@ -158,31 +98,25 @@ export const POST: APIRoute = async (context) => {
         'Content-Type': 'application/json',
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error al crear categoría:', error);
 
-    // Manejar errores específicos de Prisma
-    if (error instanceof Error) {
-      if (error.message.includes('Unique constraint')) {
-        return new Response(
-          JSON.stringify({ error: 'Ya existe una categoría con ese slug' }),
-          {
-            status: 409,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-      }
+    // Manejar errores de constraint (slug duplicado)
+    if (error.message?.includes('UNIQUE constraint failed')) {
+      return new Response(
+        JSON.stringify({ error: 'Ya existe una categoría con ese slug' }),
+        {
+          status: 409,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     return new Response(
       JSON.stringify({ error: 'Error interno del servidor' }),
       {
         status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
       }
     );
   }

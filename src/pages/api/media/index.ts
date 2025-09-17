@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
-import { v2 as cloudinary } from 'cloudinary';
-import { prisma } from '@/lib/prisma';
 import { clerkClient } from '@clerk/astro/server';
+import { v2 as cloudinary } from 'cloudinary';
+import { Database } from '@/lib/db';
 
 // Configurar Cloudinary
 cloudinary.config({
@@ -42,11 +42,7 @@ export const GET: APIRoute = async (context) => {
       );
     }
 
-    const images = await prisma.image.findMany({
-      orderBy: {
-        createdAt: 'desc', // Opcional: ordenar por fecha de creación
-      },
-    });
+    const images = await Database.getAllImages();
 
     console.log(`GET /api/media - Returning ${images.length} images`);
 
@@ -101,12 +97,14 @@ export const POST: APIRoute = async (context) => {
       );
     }
 
-    const formData = await context.request.formData();
-    const file = formData.get('file') as File;
+    // Obtener datos del body
+    const body = await context.request.json();
+    const { url, alt, tag, observation } = body;
 
-    if (!file) {
+    // Validar campos requeridos
+    if (!url || !alt) {
       return new Response(
-        JSON.stringify({ error: 'No se proporcionó ningún archivo' }),
+        JSON.stringify({ error: 'URL y alt son campos requeridos' }),
         {
           status: 400,
           headers: {
@@ -116,32 +114,15 @@ export const POST: APIRoute = async (context) => {
       );
     }
 
-    // Convertir el archivo a base64
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    const base64 = `data:${file.type};base64,${buffer.toString('base64')}`;
-
-    // Subir a Cloudinary
-    const uploadResult = await cloudinary.uploader.upload(base64, {
-      folder: 'Premiarte',
-      resource_type: 'auto',
+    // Crear la imagen en la base de datos
+    const newImage = await Database.createImage({
+      url,
+      alt,
+      tag,
+      observation,
     });
 
-    // Guardar en la base de datos
-    const alt = formData.get('alt') as string;
-    const tag = formData.get('tag') as string;
-    const observation = formData.get('observation') as string;
-
-    console.log('formData fields:', { alt, tag, observation });
-
-    const newImage = await prisma.image.create({
-      data: {
-        url: uploadResult.secure_url,
-        alt: alt || file.name.split('.')[0], // Usar nombre del archivo como fallback
-        tag: tag || null,
-        observation: observation || null,
-      },
-    });
+    console.log('POST /api/media - Image created:', newImage);
 
     return new Response(JSON.stringify(newImage), {
       status: 201,
@@ -150,8 +131,8 @@ export const POST: APIRoute = async (context) => {
       },
     });
   } catch (error) {
-    console.error('Error al subir imagen:', error);
-    return new Response(JSON.stringify({ error: 'Error al subir la imagen' }), {
+    console.error('Error al crear imagen:', error);
+    return new Response(JSON.stringify({ error: 'Error al crear la imagen' }), {
       status: 500,
       headers: {
         'Content-Type': 'application/json',

@@ -21,9 +21,8 @@ RUN npm ci
 # Copiar código fuente
 COPY . .
 
-# Generar cliente de Prisma y construir la aplicación
+# Construir la aplicación
 ENV NODE_ENV=production
-RUN npx prisma generate
 RUN npm run build --verbose
 
 # Etapa de producción
@@ -37,12 +36,8 @@ RUN adduser --system --uid 1001 astro
 COPY --from=deps --chown=astro:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=astro:nodejs /app/dist ./dist
 COPY --from=builder --chown=astro:nodejs /app/package.json ./package.json
-# Copiar esquema de Prisma y cliente generado
-COPY --from=builder --chown=astro:nodejs /app/prisma ./prisma
-COPY --from=builder --chown=astro:nodejs /app/node_modules/.prisma ./node_modules/.prisma
 
-# Crear directorio para la base de datos SQLite
-RUN mkdir -p /app/data && chown astro:nodejs /app/data
+# Ya no necesitamos directorio para SQLite local
 
 # Cambiar al usuario no-root
 USER astro

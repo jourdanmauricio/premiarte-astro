@@ -43,22 +43,16 @@
 
 :root {
     --radius: 0.625rem;
-    /* --background: oklch(1 0 0); */
-    /* --foreground: oklch(0.145 0 0); */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
     --card: oklch(1 0 0);
     --card-foreground: oklch(0.145 0 0);
     --popover: oklch(1 0 0);
     --popover-foreground: oklch(0.145 0 0);
-    /* --primary: oklch(0.205 0 0); */
-    /* --primary-foreground: oklch(0.985 0 0); */
-    --primary: 0 85% 60%; /* Red color */
-    --primary-foreground: 0 0% 98%;
-    /* --secondary: oklch(0.97 0 0); */
-    /* --secondary-foreground: oklch(0.205 0 0); */
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
+    --primary: oklch(0.205 0 0);
+    --primary-foreground: oklch(0.985 0 0);
+    --secondary: oklch(0.97 0 0);
+    --secondary-foreground: oklch(0.205 0 0);
     --muted: oklch(0.97 0 0);
     --muted-foreground: oklch(0.556 0 0);
     --accent: oklch(0.97 0 0);

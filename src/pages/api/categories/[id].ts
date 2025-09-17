@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma';
+import { Database } from '@/lib/db';
 import type { APIRoute } from 'astro';
 import { clerkClient } from '@clerk/astro/server';
 
@@ -49,9 +49,7 @@ export const PUT: APIRoute = async (context) => {
     }
 
     // Verificar que la categoría existe
-    const existingCategory = await prisma.category.findUnique({
-      where: { id: categoryId },
-    });
+    const existingCategory = await Database.getCategoryById(categoryId);
 
     if (!existingCategory) {
       return new Response(
@@ -71,9 +69,7 @@ export const PUT: APIRoute = async (context) => {
 
     // Si se proporciona un slug, verificar que no esté duplicado
     if (slug && slug !== existingCategory.slug) {
-      const slugExists = await prisma.category.findUnique({
-        where: { slug },
-      });
+      const slugExists = await Database.getCategoryBySlug(slug);
 
       if (slugExists) {
         return new Response(
@@ -90,9 +86,7 @@ export const PUT: APIRoute = async (context) => {
 
     // Si se proporciona un imageId, verificar que la imagen existe
     if (imageId) {
-      const imageExists = await prisma.image.findUnique({
-        where: { id: parseInt(imageId) },
-      });
+      const imageExists = await Database.getImageById(parseInt(imageId));
 
       if (!imageExists) {
         return new Response(
@@ -116,18 +110,10 @@ export const PUT: APIRoute = async (context) => {
     if (featured !== undefined) updateData.featured = Boolean(featured);
 
     // Actualizar la categoría
-    const updatedCategory = await prisma.category.update({
-      where: { id: categoryId },
-      data: updateData,
-      include: {
-        image: {
-          select: {
-            id: true,
-            url: true,
-          },
-        },
-      },
-    });
+    const updatedCategory = await Database.updateCategory(
+      categoryId,
+      updateData
+    );
 
     return new Response(JSON.stringify(updatedCategory), {
       status: 200,
@@ -135,22 +121,20 @@ export const PUT: APIRoute = async (context) => {
         'Content-Type': 'application/json',
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error al actualizar categoría:', error);
 
-    // Manejar errores específicos de Prisma
-    if (error instanceof Error) {
-      if (error.message.includes('Unique constraint')) {
-        return new Response(
-          JSON.stringify({ error: 'Ya existe una categoría con ese slug' }),
-          {
-            status: 409,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-      }
+    // Manejar errores de constraint
+    if (error.message?.includes('UNIQUE constraint failed')) {
+      return new Response(
+        JSON.stringify({ error: 'Ya existe una categoría con ese slug' }),
+        {
+          status: 409,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
     }
 
     return new Response(
@@ -212,9 +196,7 @@ export const DELETE: APIRoute = async (context) => {
     }
 
     // Verificar que la categoría existe
-    const existingCategory = await prisma.category.findUnique({
-      where: { id: categoryId },
-    });
+    const existingCategory = await Database.getCategoryById(categoryId);
 
     if (!existingCategory) {
       return new Response(
@@ -229,9 +211,7 @@ export const DELETE: APIRoute = async (context) => {
     }
 
     // Verificar si hay productos asociados a esta categoría
-    const productsCount = await prisma.product.count({
-      where: { categoryId: categoryId },
-    });
+    const productsCount = await Database.countProductsByCategory(categoryId);
 
     if (productsCount > 0) {
       return new Response(
@@ -248,12 +228,10 @@ export const DELETE: APIRoute = async (context) => {
     }
 
     // Eliminar la categoría
-    await prisma.category.delete({
-      where: { id: categoryId },
-    });
+    await Database.deleteCategory(categoryId);
 
     return new Response(
-      JSON.stringify({ message: 'Categoría eliminada correctamente' }),
+      JSON.stringify({ message: 'Categoría eliminada exitosamente' }),
       {
         status: 200,
         headers: {
@@ -263,7 +241,6 @@ export const DELETE: APIRoute = async (context) => {
     );
   } catch (error) {
     console.error('Error al eliminar categoría:', error);
-
     return new Response(
       JSON.stringify({ error: 'Error interno del servidor' }),
       {

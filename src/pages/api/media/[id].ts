@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { v2 as cloudinary } from 'cloudinary';
-import { prisma } from '@/lib/prisma';
+import { Database } from '@/lib/db';
 import { clerkClient } from '@clerk/astro/server';
 
 // Configurar Cloudinary
@@ -54,9 +54,7 @@ export const DELETE: APIRoute = async (context) => {
     }
 
     // Obtener la imagen de la base de datos
-    const image = await prisma.image.findUnique({
-      where: { id },
-    });
+    const image = await Database.getImageById(id);
 
     if (!image) {
       return new Response(JSON.stringify({ error: 'Imagen no encontrada' }), {
@@ -68,7 +66,7 @@ export const DELETE: APIRoute = async (context) => {
     }
 
     // Extraer el public_id de la URL de Cloudinary
-    const urlParts = image.url.split('/');
+    const urlParts = String(image.url).split('/');
     const fileName = urlParts[urlParts.length - 1];
     const publicId = `Premiarte/${fileName.split('.')[0]}`;
 
@@ -95,9 +93,7 @@ export const DELETE: APIRoute = async (context) => {
     }
 
     // Solo si Cloudinary se eliminó exitosamente, eliminar de la base de datos
-    await prisma.image.delete({
-      where: { id },
-    });
+    await Database.deleteImage(id);
 
     return new Response(
       JSON.stringify({ message: 'Imagen eliminada correctamente' }),
@@ -164,18 +160,28 @@ export const PUT: APIRoute = async (context) => {
       });
     }
 
+    // Verificar que la imagen existe
+    const existingImage = await Database.getImageById(id);
+    if (!existingImage) {
+      return new Response(JSON.stringify({ error: 'Imagen no encontrada' }), {
+        status: 404,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    }
+
     const body = await context.request.json();
     const { tag, alt, observation } = body;
 
     // Actualizar en la base de datos
-    const updatedImage = await prisma.image.update({
-      where: { id },
-      data: {
-        tag,
-        alt,
-        observation,
-      },
+    const updatedImage = await Database.updateImage(id, {
+      tag,
+      alt,
+      observation,
     });
+
+    console.log('Imagen actualizada:', updatedImage);
 
     return new Response(JSON.stringify(updatedImage), {
       status: 200,
@@ -185,16 +191,6 @@ export const PUT: APIRoute = async (context) => {
     });
   } catch (error: any) {
     console.error('Error al actualizar imagen:', error);
-
-    // Prisma arroja un error específico si no encuentra el registro
-    if (error.code === 'P2025') {
-      return new Response(JSON.stringify({ error: 'Imagen no encontrada' }), {
-        status: 404,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-    }
 
     return new Response(
       JSON.stringify({ error: 'Error al actualizar la imagen' }),

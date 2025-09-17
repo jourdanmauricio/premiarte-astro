@@ -1,6 +1,7 @@
 ---
 import AuthSection from '@/components/auth/AuthSection';
-import { prisma } from '@/lib/prisma';
+import { Database } from '@/lib/db';
+import { turso } from '@/lib/turso';
 import type { Settings } from '@/shared/types';
 
 const navBarLinks = [
@@ -11,25 +12,19 @@ const navBarLinks = [
   { name: 'Contacto', href: '/contacto' },
 ];
 
-// Acceder directamente a la base de datos en lugar de usar el servicio HTTP
-const settings = (await prisma.setting.findMany({
-  select: {
-    id: true,
-    key: true,
-    value: true,
-    createdAt: true,
-    updatedAt: true,
-  },
-})) as Settings[];
+// Obtener configuraciones de la base de datos
+const settings = (await Database.getAllSettings()) as unknown as Settings[];
 
 const homeSettings = settings.find((s) => s.key === 'home');
 const home = JSON.parse(homeSettings?.value || '{}');
 
 const logoImage = home.menu?.logoId
-  ? await prisma.image.findUnique({
-      where: { id: home.menu.logoId },
-      select: { url: true, alt: true },
-    })
+  ? await turso
+      .execute({
+        sql: 'SELECT url, alt FROM Image WHERE id = ?',
+        args: [home.menu.logoId],
+      })
+      .then((result) => result.rows[0] || null)
   : null;
 
 console.log('logoImage', logoImage);
@@ -41,9 +36,17 @@ console.log('logoImage', logoImage);
   <div class='container flex justify-between items-center p-6 mx-auto'>
     <div class='text-gray-300'>
       <div class='flex items-center justify-center'>
-        <img src={logoImage.url} alt='logoImage.alt' class='w-10 h-10' />
+        {
+          logoImage && (
+            <img
+              src={String(logoImage.url)}
+              alt={String(logoImage.alt)}
+              class='w-10 h-10'
+            />
+          )
+        }
         <a href='/' class='text-2xl font-bold'>
-          {home.menu.siteName}
+          {home.menu?.siteName || 'Premiarte'}
         </a>
       </div>
     </div>
