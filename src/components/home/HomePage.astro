@@ -1,9 +1,58 @@
 ---
+import { ReactSlider } from './ReactSlider';
+import { Database } from '@/lib/db';
+import { turso } from '@/lib/turso';
+import type { Settings } from '@/shared/types';
 
+export interface Slide {
+	image: number;
+	title: string;
+	recommended: false;
+	text: string;
+	buttonText: string;
+	buttonLink: string;
+	imageDet: { url: string; alt: string };
+}
+
+const settings = (await Database.getAllSettings()) as unknown as Settings[];
+
+const homeSettings = settings.find((s) => s.key === 'home');
+
+const parsedValue = JSON.parse(homeSettings?.value || '[]');
+const slider = parsedValue.slider;
+
+const sliderWithImages = await Promise.all(
+	slider.map(async (slide: Slide) => {
+		// Si la diapositiva tiene un ID de imagen, busca los datos.
+		if (slide.image) {
+			const imageData = await turso
+				.execute({
+					sql: 'SELECT url, alt FROM Image WHERE id = ?',
+					args: [slide.image],
+				})
+				.then((result) => result.rows[0] || null);
+
+			// Si la imagen se encuentra, actualiza el objeto del slide.
+			if (imageData) {
+				return {
+					...slide,
+					imageDet: {
+						url: imageData.url,
+						alt: imageData.alt,
+					},
+				};
+			}
+		}
+		// Si no hay imagen o no se encuentra, devuelve el slide original.
+		return slide;
+	})
+);
+
+console.log('slider', slider);
 ---
 
-<div id="container">
-	<h1 class="text-red-500">Premiarte</h1> 
-	Home
+<div id='container'>
+	<section>
+		<ReactSlider client:load slider={sliderWithImages} />
+	</section>
 </div>
-

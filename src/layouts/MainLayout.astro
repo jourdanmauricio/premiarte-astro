@@ -45,9 +45,7 @@ const { title } = Astro.props;
       </div>
     </div>
     {!isDashboard && <NavBar />}
-    <main
-      class={isDashboard ? 'w-full overflow-x-hidden' : 'container m-auto px-4'}
-    >
+    <main class={isDashboard ? 'w-full overflow-x-hidden' : 'container m-auto'}>
       <slot />
     </main>
   </body>
