@@ -2,15 +2,10 @@ import type z from 'zod';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { type UseFormReturn } from 'react-hook-form';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { toast } from 'sonner';
-import { Form } from '@/components/ui/form';
 import type { Image, Settings } from '@/shared/types';
 import { SettingsFormSchema } from '@/shared/schemas';
 import InputField from '@/components/ui/custom/input-field';
-import SubmitButton from '@/components/ui/custom/submit-button';
-import { settingsService } from '@/lib/services/settingsService';
 import { ImageSelector } from '@/components/dashboard/image-selector';
 
 interface MenuPanelProps {
@@ -21,8 +16,6 @@ interface MenuPanelProps {
 
 const MenuPanel = ({ form, images, settingsData }: MenuPanelProps) => {
   const [imageSelectorOpen, setImageSelectorOpen] = useState(false);
-
-  const queryClient = useQueryClient();
 
   const selectedImage = images?.find(
     (img) => img.id === form.watch('home.menu.logoId')
@@ -39,6 +32,7 @@ const MenuPanel = ({ form, images, settingsData }: MenuPanelProps) => {
 
   return (
     <>
+      <h2 className='text-xl font-bold text-gray-900'>Menu</h2>
       <div className='flex gap-12 items-center p-6'>
         <div className='space-y-2 w-full'>
           <label className='text-sm font-medium'>Imagen</label>

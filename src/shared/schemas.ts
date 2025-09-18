@@ -25,8 +25,8 @@ const HomeSliderSchema = z.object({
   title: z.string().min(1, { message: 'Título requerido' }),
   recommended: z.boolean(),
   text: z.string().optional(),
-  buttonText: z.string().min(1, { message: 'Texto del botón requerido' }),
-  buttonLink: z.string().url({ message: 'URL válida requerida' }),
+  buttonText: z.string().optional(),
+  buttonLink: z.string().optional(),
 });
 
 const HomeSettingsSchema = z.object({

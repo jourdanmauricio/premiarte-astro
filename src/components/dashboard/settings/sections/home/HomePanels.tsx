@@ -1,5 +1,5 @@
 import type z from 'zod';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -13,9 +13,10 @@ import { mediaService } from '@/lib/services/mediaService';
 import SubmitButton from '@/components/ui/custom/submit-button';
 import { settingsService } from '@/lib/services/settingsService';
 import { MenuPanel } from '@/components/dashboard/settings/sections/home/panels/MenuPanel';
+import { SliderPanel } from '@/components/dashboard/settings/sections/home/panels/SliderPanel';
+import { Separator } from '@/components/ui/separator';
 
 const HomePanels = () => {
-  // const isInitialized = useRef(false);
   const queryClient = useQueryClient();
 
   const { data: images } = useQuery<Image[]>({
@@ -54,7 +55,6 @@ const HomePanels = () => {
           console.error('Error parsing home config:', error);
         }
       }
-      // isInitialized.current = true;
     }
   }, [settingsData]);
 
@@ -96,8 +96,16 @@ const HomePanels = () => {
             images={images || []}
             settingsData={settingsData || []}
           />
+          <Separator className='my-4' orientation='horizontal' />
+          <SliderPanel
+            form={form}
+            images={images || []}
+            settingsData={settingsData || []}
+          />
+
+          <div className='h-40' />
           <div className='flex justify-end gap-2'>
-            <Button type='button' variant='outline'>
+            <Button type='button' className='min-w-[150px]' variant='outline'>
               Cancelar
             </Button>
             <SubmitButton
