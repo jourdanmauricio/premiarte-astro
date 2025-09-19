@@ -29,9 +29,19 @@ const HomeSliderSchema = z.object({
   buttonLink: z.string().optional(),
 });
 
+const HomeHeroSchema = z.object({
+  imageId: z.number().min(1, { message: 'ID de imagen requerido' }),
+  title: z.string().min(1, { message: 'Título requerido' }),
+  text: z.string().optional(),
+  buttonText: z.string().optional(),
+  buttonLink: z.string().optional(),
+  logoId: z.number().min(1, { message: 'ID de imagen requerido' }),
+});
+
 const HomeSettingsSchema = z.object({
   menu: HomeMenuSchema,
   slider: z.array(HomeSliderSchema),
+  hero: HomeHeroSchema,
   // .min(1, { message: 'Al menos un slide requerido' }),
 });
 

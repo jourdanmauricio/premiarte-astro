@@ -11,10 +11,9 @@ import { ImageSelector } from '@/components/dashboard/image-selector';
 interface MenuPanelProps {
   form: UseFormReturn<z.infer<typeof SettingsFormSchema>>;
   images: Image[];
-  settingsData: Settings[];
 }
 
-const MenuPanel = ({ form, images, settingsData }: MenuPanelProps) => {
+const MenuPanel = ({ form, images }: MenuPanelProps) => {
   const [imageSelectorOpen, setImageSelectorOpen] = useState(false);
 
   const selectedImage = images?.find(

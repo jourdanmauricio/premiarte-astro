@@ -12,9 +12,10 @@ import type { Image, Settings } from '@/shared/types';
 import { mediaService } from '@/lib/services/mediaService';
 import SubmitButton from '@/components/ui/custom/submit-button';
 import { settingsService } from '@/lib/services/settingsService';
-import { MenuPanel } from '@/components/dashboard/settings/sections/home/panels/MenuPanel';
-import { SliderPanel } from '@/components/dashboard/settings/sections/home/panels/SliderPanel';
+import { MenuPanel } from '@/components/dashboard/settings/sections/home/panels/menu-panel/MenuPanel';
+import { SliderPanel } from '@/components/dashboard/settings/sections/home/panels/slider-panel/SliderPanel';
 import { Separator } from '@/components/ui/separator';
+import HeroPanel from '@/components/dashboard/settings/sections/home/panels/hero-panel/HeroPanel';
 
 const HomePanels = () => {
   const queryClient = useQueryClient();
@@ -38,6 +39,14 @@ const HomePanels = () => {
           logoId: 0,
         },
         slider: [],
+        hero: {
+          logoId: 0,
+          imageId: 0,
+          title: '',
+          text: '',
+          buttonText: '',
+          buttonLink: '',
+        },
       },
     },
   });
@@ -91,17 +100,17 @@ const HomePanels = () => {
     <div className='flex flex-col gap-4'>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit, onError)}>
-          <MenuPanel
-            form={form}
-            images={images || []}
-            settingsData={settingsData || []}
-          />
+          <MenuPanel form={form} images={images || []} />
           <Separator className='my-4' orientation='horizontal' />
           <SliderPanel
             form={form}
             images={images || []}
             settingsData={settingsData || []}
           />
+
+          <Separator className='my-4' orientation='horizontal' />
+
+          <HeroPanel form={form} images={images || []} />
 
           <div className='h-40' />
           <div className='flex justify-end gap-2'>

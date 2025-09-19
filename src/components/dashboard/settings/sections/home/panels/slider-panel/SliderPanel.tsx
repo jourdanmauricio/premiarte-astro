@@ -9,7 +9,7 @@ import { getSlideColumns } from './table/slideColumns';
 import type { SettingsFormSchema } from '@/shared/schemas';
 import { CustomTable } from '@/components/ui/custom/CustomTable';
 import CustomAlertDialog from '@/components/ui/custom/custom-alert-dialog';
-import { SlideModal } from '@/components/dashboard/settings/sections/home/panels/SlideModal';
+import { SlideModal } from '@/components/dashboard/settings/sections/home/panels/slider-panel/SlideModal';
 
 interface Props {
   form: UseFormReturn<z.infer<typeof SettingsFormSchema>>;
