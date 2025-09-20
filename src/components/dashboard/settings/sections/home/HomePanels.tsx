@@ -48,7 +48,7 @@ const HomePanels = () => {
           buttonText: '',
           buttonLink: '',
         },
-        products: {
+        featuredProducts: {
           title: '',
           text: '',
           buttonText: '',

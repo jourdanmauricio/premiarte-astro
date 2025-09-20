@@ -1,0 +1,56 @@
+---
+import { Badge } from '@/components/ui/badge';
+import Image from 'astro/components/Image.astro';
+import { SearchIcon } from 'lucide-react';
+
+// fetch products
+const { product } = Astro.props;
+---
+
+<a href={`/productos/${product.slug}`} class=''>
+  <div
+    class='aspect-square overflow-hidden rounded-sm bg-background hover:cursor-pointer relative'
+  >
+    <Image
+      src={product.images[0]?.url || '/placeholder.svg'}
+      alt={product.images[0]?.alt || 'Product image'}
+      width={250}
+      height={250}
+      class='h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 img-appear'
+      style={{
+        // viewTransitionName: transitionNames.image,
+      }}
+    />
+
+    <div
+      class='absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-500 group-hover:opacity-100'
+    >
+      <button
+        class=`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background 
+        transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 
+        disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary 
+        text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2`
+      >
+        <SearchIcon className='mr-2 h-4 w-4' />
+        Ver detalle
+        {product.id}
+      </button>
+    </div>
+  </div>
+  <div class='mt-4 space-y-1 text-center'>
+    <div
+      class='mb-2 border border-muted-foreground px-2 py-1 text-sm w-fit mx-auto rounded-full'
+    >
+      {product.categories[0].name}
+    </div>
+    <h3
+      class='font-medium'
+      style={{
+        // viewTransitionName: transitionNames.title
+      }}
+    >
+      {product.name}
+    </h3>
+    <div class='flex justify-center gap-2'></div>
+  </div>
+</a>

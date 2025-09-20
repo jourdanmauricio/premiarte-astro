@@ -1,5 +1,9 @@
 ---
 const { featuredProducts } = Astro.props;
+import ProductsCard from '@/components/home/ProductsCard.astro';
+import { Database } from '@/lib/db';
+
+const products = await Database.getAllProducts();
 ---
 
 <section class='container relative px-4 py-16 md:px-20 md:py-24 lg:py-32'>
@@ -22,7 +26,15 @@ const { featuredProducts } = Astro.props;
         )
       }
 
-      {/* <GridItems /> */}
+      <div class='flex flex-wrap justify-center gap-20 pt-24'>
+        {
+          products.map((product) => (
+            <div class='img-appear group relative w-64'>
+              <ProductsCard product={product} />
+            </div>
+          ))
+        }
+      </div>
 
       <div class='mt-20 text-center'>
         <button
