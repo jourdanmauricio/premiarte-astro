@@ -26,13 +26,13 @@ export default function DashboardApp() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter basename='/dashboard'>
-        <div className='flex min-h-screen h-full'>
+        <div className='h-screen overflow-hidden'>
           <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
           {/* Contenido principal */}
-          <div className='flex-1 flex flex-col overflow-hidden'>
+          <div className='h-full lg:ml-48 flex flex-col'>
             {/* Header */}
-            <header className='bg-white border-b px-4 py-3 flex items-center justify-between'>
+            <header className='bg-white border-b px-4 py-3 flex items-center justify-between flex-shrink-0'>
               {/* Botón de menú móvil */}
               <button
                 onClick={() => setSidebarOpen(true)}
@@ -52,14 +52,16 @@ export default function DashboardApp() {
               </div>
             </header>
 
-            <main className='p-10 max-w-[1400px] mx-auto w-full overflow-y-auto h-full'>
-              <Routes>
-                <Route path='/' element={<DashboardHomePage />} />
-                <Route path='/config' element={<ConfigPage />} />
-                <Route path='/products' element={<ProductsPage />} />
-                <Route path='/categories' element={<CategoriesPage />} />
-                <Route path='/media' element={<MediaPage />} />
-              </Routes>
+            <main className='flex-1 overflow-y-auto'>
+              <div className='p-10 max-w-[1400px] mx-auto w-full'>
+                <Routes>
+                  <Route path='/' element={<DashboardHomePage />} />
+                  <Route path='/config' element={<ConfigPage />} />
+                  <Route path='/products' element={<ProductsPage />} />
+                  <Route path='/categories' element={<CategoriesPage />} />
+                  <Route path='/media' element={<MediaPage />} />
+                </Routes>
+              </div>
             </main>
           </div>
         </div>
