@@ -16,11 +16,10 @@ export interface Product {
   wholesalePrice?: number | undefined;
   discount?: number | undefined;
   discountType: 'percentage' | 'fixed';
+  priceUpdatedAt?: string;
   relatedProducts: number[] | null;
   images: number[] | null;
-  categories:
-      number[]
-    | null;
+  categories: Category[] | null;
 }
 
 export interface ProductWithDetails extends Product {
@@ -29,13 +28,15 @@ export interface ProductWithDetails extends Product {
 }
 
 // Opción 1: Extender de Product omitiendo campos que se generan automáticamente
-export interface CreateProductData extends Omit<Product, 'id' | 'slug'> {
+export interface CreateProductData extends Omit<Product, 'id' | 'slug' | 'categories'> {
   // El slug se puede generar automáticamente del nombre
   // El id se genera automáticamente por la base de datos
+  categories: (number | undefined)[] | null ;
 }
 
 // Tipo para actualizar un producto
-export interface UpdateProductData extends Omit<Product, 'id' | 'slug'> {
+export interface UpdateProductData extends Omit<Product, 'id' | 'slug' | 'categories'> {
   // El slug se puede generar automáticamente del nombre
   // El id se genera automáticamente por la base de datos
+  categories: (number | undefined)[] | null ;
 }

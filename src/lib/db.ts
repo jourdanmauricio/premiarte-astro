@@ -124,7 +124,7 @@ export class Database {
 
   static async countProductsByCategory(categoryId: number) {
     const { rows } = await turso.execute({
-      sql: 'SELECT COUNT(*) as count FROM Product WHERE categoryId = ?',
+      sql: 'SELECT COUNT(*) as count FROM ProductCategory WHERE categoryId = ?',
       args: [categoryId],
     });
     return rows[0]?.count || 0;
@@ -146,11 +146,12 @@ export class Database {
       ORDER BY p.createdAt DESC
     `);
 
-    // Para cada producto, obtener sus imágenes y categorías
+    // Para cada producto, obtener sus imágenes, categorías y productos relacionados
     const productsWithRelations = await Promise.all(
       rows.map(async (row) => {
-        const images = await this.getProductImages(row.id);
-        const categories = await this.getProductCategories(row.id);
+        const images = await this.getProductImages(Number(row.id));
+        const categories = await this.getProductCategories(Number(row.id));
+        const relatedProducts = await this.getProductRelatedProducts(Number(row.id));
         
         return {
           ...row,
@@ -158,7 +159,7 @@ export class Database {
           isFeatured: Boolean(row.isFeatured),
           images,
           categories,
-          relatedProducts: [], // TODO: Implementar relatedProducts
+          relatedProducts,
         };
       })
     );
@@ -175,8 +176,9 @@ export class Database {
     if (!rows[0]) return null;
 
     const product = rows[0];
-    const images = await this.getProductImages(id);
-    const categories = await this.getProductCategories(id);
+    const images = await this.getProductImages(Number(id));
+    const categories = await this.getProductCategories(Number(id));
+    const relatedProducts = await this.getProductRelatedProducts(Number(id));
 
     return {
       ...product,
@@ -184,7 +186,7 @@ export class Database {
       isFeatured: Boolean(product.isFeatured),
       images,
       categories,
-      relatedProducts: [], // TODO: Implementar relatedProducts
+      relatedProducts,
     };
   }
 
@@ -196,10 +198,19 @@ export class Database {
     return rows[0] || null;
   }
 
+  static async getProductBySku(sku: string) {
+    const { rows } = await turso.execute({
+      sql: 'SELECT * FROM Product WHERE sku = ?',
+      args: [sku],
+    });
+    return rows[0] || null;
+  }
+
   static async createProduct(data: {
     name: string;
     slug: string;
     description: string;
+    sku?: string;
     price?: number;
     stock?: number;
     isActive?: boolean;
@@ -216,16 +227,17 @@ export class Database {
     const { rows } = await turso.execute({
       sql: `
         INSERT INTO Product (
-          name, slug, description, price, stock, isActive, isFeatured,
+          name, slug, description, sku, price, stock, isActive, isFeatured,
           retailPrice, wholesalePrice, discount, discountType
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         RETURNING *
       `,
       args: [
         data.name,
         data.slug,
         data.description,
+        data.sku || null,
         data.price || 0,
         data.stock || 0,
         data.isActive ?? true,
@@ -241,16 +253,21 @@ export class Database {
 
     // Asociar imágenes si se proporcionaron
     if (data.images && data.images.length > 0) {
-      await this.setProductImages(product.id, data.images);
+      await this.setProductImages(Number(product.id), data.images);
     }
 
     // Asociar categorías si se proporcionaron
     if (data.categories && data.categories.length > 0) {
-      await this.setProductCategories(product.id, data.categories);
+      await this.setProductCategories(Number(product.id), data.categories);
+    }
+
+    // Asociar productos relacionados si se proporcionaron
+    if (data.relatedProducts && data.relatedProducts.length > 0) {
+      await this.setProductRelatedProducts(Number(product.id), data.relatedProducts);
     }
 
     // Retornar producto completo
-    return this.getProductById(product.id);
+    return this.getProductById(Number(product.id));
   }
 
   static async updateProduct(
@@ -259,6 +276,7 @@ export class Database {
       name?: string;
       slug?: string;
       description?: string;
+      sku?: string;
       price?: number;
       stock?: number;
       isActive?: boolean;
@@ -272,6 +290,7 @@ export class Database {
       relatedProducts?: number[];
     }
   ) {
+    console.log('Database.updateProduct - ID:', id, 'Data:', JSON.stringify(data, null, 2));
     const updates = [];
     const args = [];
 
@@ -286,6 +305,10 @@ export class Database {
     if (data.description !== undefined) {
       updates.push('description = ?');
       args.push(data.description);
+    }
+    if (data.sku !== undefined) {
+      updates.push('sku = ?');
+      args.push(data.sku);
     }
     if (data.price !== undefined) {
       updates.push('price = ?');
@@ -320,6 +343,11 @@ export class Database {
       args.push(data.discountType);
     }
 
+    // Si se actualiza el precio, actualizar también priceUpdatedAt
+    if (data.price !== undefined || data.retailPrice !== undefined || data.wholesalePrice !== undefined) {
+      updates.push('priceUpdatedAt = CURRENT_TIMESTAMP');
+    }
+
     updates.push('updatedAt = CURRENT_TIMESTAMP');
     args.push(id);
 
@@ -337,6 +365,11 @@ export class Database {
     // Actualizar categorías si se proporcionaron
     if (data.categories !== undefined) {
       await this.setProductCategories(id, data.categories);
+    }
+
+    // Actualizar productos relacionados si se proporcionaron
+    if (data.relatedProducts !== undefined) {
+      await this.setProductRelatedProducts(id, data.relatedProducts);
     }
 
     // Retornar producto actualizado
@@ -365,7 +398,30 @@ export class Database {
       args: [productId],
     });
 
-    return rows.map(row => row.id); // Retornar solo los IDs como esperan los tipos
+    return rows.map(row => ({
+      id: row.id,
+      url: row.url,
+      alt: row.alt,
+      tag: row.tag,
+      observation: row.observation,
+      order_index: row.order_index,
+      isPrimary: Boolean(row.isPrimary),
+    }));
+  }
+
+  // Método auxiliar para obtener solo IDs de imágenes (para compatibilidad)
+  static async getProductImageIds(productId: number) {
+    const { rows } = await turso.execute({
+      sql: `
+        SELECT pi.imageId
+        FROM ProductImage pi
+        WHERE pi.productId = ?
+        ORDER BY pi.isPrimary DESC, pi.order_index ASC
+      `,
+      args: [productId],
+    });
+
+    return rows.map(row => row.imageId);
   }
 
   static async setProductImages(productId: number, imageIds: number[]) {
@@ -375,18 +431,12 @@ export class Database {
       args: [productId],
     });
 
-    // Agregar nuevas relaciones
+    // Agregar nuevas relaciones una por una
     if (imageIds.length > 0) {
       for (let i = 0; i < imageIds.length; i++) {
-        const imageId = imageIds[i];
-        const isPrimary = i === 0; // La primera imagen es la principal
-        
         await turso.execute({
-          sql: `
-            INSERT INTO ProductImage (productId, imageId, order_index, isPrimary)
-            VALUES (?, ?, ?, ?)
-          `,
-          args: [productId, imageId, i, isPrimary],
+          sql: 'INSERT INTO ProductImage (productId, imageId, order_index, isPrimary) VALUES (?, ?, ?, ?)',
+          args: [productId, imageIds[i], i, i === 0 ? 1 : 0],
         });
       }
     }
@@ -394,6 +444,35 @@ export class Database {
 
   // Métodos auxiliares para manejar categorías de productos
   static async getProductCategories(productId: number) {
+    const { rows } = await turso.execute({
+      sql: `
+        SELECT c.id, c.name, c.slug, c.description, c.featured, c.imageId,
+               i.url as imageUrl, i.alt as imageAlt
+        FROM ProductCategory pc
+        JOIN Category c ON pc.categoryId = c.id
+        LEFT JOIN Image i ON c.imageId = i.id
+        WHERE pc.productId = ?
+        ORDER BY pc.createdAt ASC
+      `,
+      args: [productId],
+    });
+
+    return rows.map(row => ({
+      id: row.id,
+      name: row.name,
+      slug: row.slug,
+      description: row.description,
+      featured: Boolean(row.featured),
+      image: row.imageId ? {
+        id: row.imageId,
+        url: row.imageUrl,
+        alt: row.imageAlt,
+      } : null,
+    }));
+  }
+
+  // Método auxiliar para obtener solo IDs de categorías (para compatibilidad)
+  static async getProductCategoryIds(productId: number) {
     const { rows } = await turso.execute({
       sql: `
         SELECT pc.categoryId
@@ -404,26 +483,62 @@ export class Database {
       args: [productId],
     });
 
-    return rows.map(row => row.categoryId); // Retornar solo los IDs como esperan los tipos
+    return rows.map(row => row.categoryId);
   }
 
   static async setProductCategories(productId: number, categoryIds: number[]) {
+    console.log('Database.setProductCategories - productId:', productId, 'categoryIds:', categoryIds);
+    
     // Eliminar relaciones existentes
     await turso.execute({
       sql: 'DELETE FROM ProductCategory WHERE productId = ?',
       args: [productId],
     });
 
-    // Agregar nuevas relaciones
+    // Agregar nuevas relaciones una por una
     if (categoryIds.length > 0) {
       for (const categoryId of categoryIds) {
         await turso.execute({
-          sql: `
-            INSERT INTO ProductCategory (productId, categoryId)
-            VALUES (?, ?)
-          `,
+          sql: 'INSERT INTO ProductCategory (productId, categoryId) VALUES (?, ?)',
           args: [productId, categoryId],
         });
+      }
+    }
+  }
+
+  // PRODUCTOS RELACIONADOS
+  static async getProductRelatedProducts(productId: number): Promise<number[]> {
+    const { rows } = await turso.execute({
+      sql: `
+        SELECT pr.relatedProductId
+        FROM ProductRelated pr
+        WHERE pr.productId = ?
+        ORDER BY pr.createdAt ASC
+      `,
+      args: [productId],
+    });
+    return rows.map(row => Number(row.relatedProductId));
+  }
+
+  static async setProductRelatedProducts(productId: number, relatedProductIds: number[]) {
+    console.log('Database.setProductRelatedProducts - productId:', productId, 'relatedProductIds:', relatedProductIds);
+    
+    // Eliminar relaciones existentes
+    await turso.execute({
+      sql: 'DELETE FROM ProductRelated WHERE productId = ?',
+      args: [productId],
+    });
+
+    // Agregar nuevas relaciones una por una
+    if (relatedProductIds.length > 0) {
+      for (const relatedProductId of relatedProductIds) {
+        // Evitar auto-referencias
+        if (relatedProductId !== productId) {
+          await turso.execute({
+            sql: 'INSERT INTO ProductRelated (productId, relatedProductId) VALUES (?, ?)',
+            args: [productId, relatedProductId],
+          });
+        }
       }
     }
   }

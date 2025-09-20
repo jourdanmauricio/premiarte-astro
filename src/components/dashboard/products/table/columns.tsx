@@ -39,6 +39,7 @@ export const getProductColumns = ({
         </div>
       );
     },
+    enableSorting: false,
   },
   {
     accessorKey: 'name',
@@ -50,7 +51,13 @@ export const getProductColumns = ({
       return <TruncatedCell value={product.name} linesMax={2} />;
     },
   },
-
+  {
+    accessorKey: 'sku',
+    header: 'SKU',
+    size: 100,
+    minSize: 80,
+    cell: ({ row }) => row.original.sku ?? '-',
+  },
   {
     accessorKey: 'price',
     header: 'PRECIO',
@@ -77,6 +84,10 @@ export const getProductColumns = ({
     cell: ({ row }) => {
       const product = row.original;
       if (!product.categories || product.categories.length === 0) {
+        return <span className='text-gray-400 text-xs'>Sin categoría</span>;
+      }
+
+      if (!product.detCategories || product.detCategories.length === 0) {
         return <span className='text-gray-400 text-xs'>Sin categoría</span>;
       }
 

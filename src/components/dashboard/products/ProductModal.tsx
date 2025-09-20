@@ -3,7 +3,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import SubmitButton from '@/components/ui/custom/submit-button';
@@ -59,16 +58,27 @@ const ProductModal = ({ open, closeModal, product }: ProductModalProps) => {
   const form = useForm<z.infer<typeof ProductFromSchema>>({
     resolver: zodResolver(ProductFromSchema),
     defaultValues:
-      mode === 'EDIT' && product
+      mode === 'EDIT' && product && 'slug' in product
         ? {
             name: product.name,
             slug: product.slug,
             description: product.description,
-            images: product.images || [],
+            images: Array.isArray(product.images)
+              ? product.images.map((img: any) =>
+                  typeof img === 'object' ? img.id : img
+                )
+              : [],
             isFeatured: product.isFeatured,
             isActive: product.isActive,
             relatedProducts: product.relatedProducts || [],
-            categories: product.categories || [],
+            categories: Array.isArray(product.categories)
+              ? product.categories.map(
+                  (cat: any) =>
+                    typeof cat === 'object'
+                      ? cat // Mantener objeto completo para el CategorySelector
+                      : { id: cat, name: '', slug: '' } // Si es solo ID, crear objeto mínimo
+                )
+              : [],
             price: product.price ? product.price.toString() : '',
             sku: product.sku ? product.sku.toString() : '',
             stock: product.stock ? product.stock.toString() : '',
@@ -88,6 +98,7 @@ const ProductModal = ({ open, closeModal, product }: ProductModalProps) => {
     mutationFn: async (data: z.infer<typeof ProductFromSchema>) => {
       const productData = {
         ...data,
+        // Convertir strings a números para los campos numéricos
         price: data.price ? parseFloat(data.price) : undefined,
         stock: data.stock ? parseInt(data.stock) : undefined,
         retailPrice: data.retailPrice
@@ -98,6 +109,7 @@ const ProductModal = ({ open, closeModal, product }: ProductModalProps) => {
           : undefined,
         discount: data.discount ? parseFloat(data.discount) : undefined,
         discountType: data.discountType || 'percentage',
+        categories: data.categories.map((category) => category.id),
       };
 
       if (mode === 'EDIT' && product?.id) {
@@ -107,8 +119,12 @@ const ProductModal = ({ open, closeModal, product }: ProductModalProps) => {
       }
     },
     onSuccess: async () => {
-      // Invalidar y refrescar inmediatamente
-      await queryClient.invalidateQueries({ queryKey: ['products'] });
+      // Invalidar todas las consultas relacionadas para mantener selectores actualizados
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['products'] }),
+        queryClient.invalidateQueries({ queryKey: ['categories'] }),
+        queryClient.invalidateQueries({ queryKey: ['images'] }),
+      ]);
       toast.success(
         mode === 'CREATE'
           ? 'Producto creado correctamente'
@@ -118,9 +134,9 @@ const ProductModal = ({ open, closeModal, product }: ProductModalProps) => {
       form.reset();
     },
     onError: (error) => {
-      console.error('Error al guardar la categoría:', error);
+      console.error('Error al guardar el producto:', error);
       toast.error(
-        error instanceof Error ? error.message : 'Error al guardar la categoría'
+        error instanceof Error ? error.message : 'Error al guardar el producto'
       );
     },
   });

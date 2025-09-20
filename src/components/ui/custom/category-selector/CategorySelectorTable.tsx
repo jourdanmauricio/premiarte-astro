@@ -22,7 +22,6 @@ import {
 import { LoaderIcon } from 'lucide-react';
 import { useFormContext, type UseFormReturn } from 'react-hook-form';
 
-// import { ResponseAccumulatorDto, ResponseConceptDto } from '@/shared/types';
 import { FormItem, FormLabel } from '@/components/ui/form';
 import {
   Select,
@@ -82,6 +81,28 @@ export function CategorySelectorTable<TValue>({
       : false;
   };
 
+  // Helper function to get selected IDs from current form value
+  const getSelectedIdsFromFormValue = () => {
+    const currentValue = form.getValues(nameSchema);
+    if (!currentValue || !Array.isArray(currentValue)) return [];
+
+    // Si el valor actual es un array de objetos con id
+    if (
+      currentValue.length > 0 &&
+      typeof currentValue[0] === 'object' &&
+      currentValue[0]?.id
+    ) {
+      return currentValue.map((item: Category) => item.id);
+    }
+
+    // Si es un array de números (IDs), lo devolvemos tal como está
+    if (currentValue.length > 0 && typeof currentValue[0] === 'number') {
+      return currentValue;
+    }
+
+    return [];
+  };
+
   const table = useReactTable({
     data: data ?? [],
     columns,
@@ -91,27 +112,31 @@ export function CategorySelectorTable<TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     state: {
       rowSelection:
-        form
-          .getValues(nameSchema)
-          ?.reduce((acc: { [key: string]: boolean }, id: string) => {
-            acc[id] = true;
+        getSelectedIdsFromFormValue()?.reduce(
+          (acc: { [key: string]: boolean }, id: number) => {
+            acc[id.toString()] = true;
             return acc;
-          }, {}) || {},
-      columnVisibility: {
-        canPrint: false,
-      },
+          },
+          {}
+        ) || {},
     },
     globalFilterFn,
     onRowSelectionChange: (updater: Updater<RowSelectionState>) => {
-      setRowSelection(updater); // Actualiza el estado de selección de filas
+      setRowSelection(updater);
 
       const newRowSelection =
         typeof updater === 'function' ? updater(rowSelection) : updater;
       const selectedIds = Object.keys(newRowSelection)
         .filter((id) => newRowSelection[id])
-        .map((id) => parseInt(id, 10)); // Convertir strings a numbers
+        .map((id) => parseInt(id, 10));
 
-      form.setValue(nameSchema, selectedIds);
+      // Buscar los objetos completos de las categorías seleccionadas
+      const selectedCategories = data.filter((category) =>
+        selectedIds.includes(category.id)
+      );
+
+      // Guardar los objetos completos en lugar de solo los IDs
+      form.setValue(nameSchema, selectedCategories, { shouldDirty: true });
       form.clearErrors(nameSchema);
       if (form.formState.isSubmitted) form.trigger(nameSchema);
     },
@@ -119,17 +144,20 @@ export function CategorySelectorTable<TValue>({
 
   useEffect(() => {
     if (data && data.length > 0) {
-      const initialSelectedIds: number[] = form.getValues(nameSchema) || [];
-      const initialRowSelection = initialSelectedIds.reduce(
+      const selectedIds = getSelectedIdsFromFormValue();
+      console.log('selectedIds from form value:', selectedIds);
+
+      const initialRowSelection = selectedIds.reduce(
         (acc: { [key: string]: boolean }, id: number) => {
-          acc[id.toString()] = true; // Convertir number a string para las claves del objeto
+          acc[id.toString()] = true;
           return acc;
         },
         {}
       );
+      console.log('initialRowSelection', initialRowSelection);
       setRowSelection(initialRowSelection);
     }
-  }, [form]);
+  }, [data, form]);
 
   const { rows } = table.getRowModel();
 

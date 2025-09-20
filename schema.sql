@@ -43,6 +43,8 @@ CREATE TABLE IF NOT EXISTS Product (
   discount INTEGER NOT NULL,
   discountType TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE,
+  sku TEXT UNIQUE,
+  priceUpdatedAt DATETIME,
   createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
   updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
 );
@@ -69,4 +71,18 @@ CREATE TABLE IF NOT EXISTS ProductCategory (
   FOREIGN KEY (productId) REFERENCES Product(id) ON DELETE CASCADE,
   FOREIGN KEY (categoryId) REFERENCES Category(id) ON DELETE CASCADE,
   UNIQUE(productId, categoryId) -- Evita duplicados
-); 
+);
+
+-- Tabla intermedia para productos relacionados
+CREATE TABLE IF NOT EXISTS ProductRelated (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  productId INTEGER NOT NULL,
+  relatedProductId INTEGER NOT NULL,
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (productId) REFERENCES Product(id) ON DELETE CASCADE,
+  FOREIGN KEY (relatedProductId) REFERENCES Product(id) ON DELETE CASCADE,
+  UNIQUE(productId, relatedProductId) -- Evita duplicados
+);
+
+-- Índices adicionales
+CREATE UNIQUE INDEX IF NOT EXISTS idx_product_sku_unique ON Product(sku) WHERE sku IS NOT NULL; 

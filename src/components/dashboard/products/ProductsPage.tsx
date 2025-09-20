@@ -1,6 +1,6 @@
 import { toast } from 'sonner';
 import { useCallback, useMemo, useState } from 'react';
-import { PlusIcon, RefreshCwIcon } from 'lucide-react';
+import { PlusIcon, DownloadIcon, UploadIcon } from 'lucide-react';
 import type { SortingState } from '@tanstack/react-table';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -9,15 +9,12 @@ import { Button } from '@/components/ui/button';
 import CustomAlertDialog from '@/components/ui/custom/custom-alert-dialog';
 import { CustomTable } from '@/components/ui/custom/CustomTable';
 import { productsService } from '@/lib/services/productsService';
-import type {
-  Category,
-  Image,
-  Product,
-  ProductWithDetails,
-} from '@/shared/types';
+import type { Product, ProductWithDetails } from '@/shared/types';
 import { ProductModal } from '@/components/dashboard/products/ProductModal';
+import { UploadResultsModal } from '@/components/dashboard/products/UploadResultsModal';
 import { categoriesService } from '@/lib/services';
 import { mediaService } from '@/lib/services/mediaService';
+import * as XLSX from 'xlsx';
 
 const ProductsPage = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -25,72 +22,47 @@ const ProductsPage = () => {
   const [productModalIsOpen, setProductModalIsOpen] = useState(false);
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
   const [currentRow, setCurrentRow] = useState<Product | null>(null);
+  const [uploadModalIsOpen, setUploadModalIsOpen] = useState(false);
+  const [uploadResults, setUploadResults] = useState<{
+    created: number;
+    updated: number;
+    errors: number;
+    errorDetails: string[];
+  } | null>(null);
 
   const queryClient = useQueryClient();
 
+  // Solo necesitamos obtener productos - ya vienen con categorías e imágenes completas
   const {
-    data: imagesData,
-    isLoading: isLoadingImages,
-    error: errorImages,
+    data: productsData,
+    isLoading,
+    error,
+    refetch,
   } = useQuery({
-    queryKey: ['images'],
-    queryFn: async () => {
-      const response = await mediaService.getImages();
-      console.log('Images response:', response);
-      return response;
-    },
-    refetchOnWindowFocus: false,
-  });
-
-  const {
-    data: categoriesData,
-    isLoading: isLoadingCategories,
-    error: errorCategories,
-  } = useQuery({
-    queryKey: ['categories'],
-    queryFn: async () => {
-      const response = await categoriesService.getCategories();
-      console.log('Categories response:', response);
-      return response;
-    },
-    refetchOnWindowFocus: false,
-  });
-
-  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['products'],
     queryFn: async () => {
       const response = await productsService.getProducts();
       console.log('Products response:', response);
-      const productsDetail: ProductWithDetails[] = response.map(
-        (product: Product) => {
-          const categories: Category[] = [];
-          const images: Image[] = [];
-
-          product.categories?.forEach((categoryId: number) => {
-            const category = categoriesData?.find(
-              (category: Category) => category.id === categoryId
-            );
-            if (category) {
-              categories.push(category);
-            }
-          });
-          product.images?.forEach((imageId: number) => {
-            const image = imagesData?.find(
-              (image: Image) => image.id === imageId
-            );
-            if (image) {
-              images.push(image);
-            }
-          });
-          return { ...product, detCategories: categories, detImages: images };
-        }
-      );
-      return productsDetail;
+      return response;
     },
-
     refetchOnWindowFocus: false,
-    enabled: !!categoriesData && !!imagesData,
   });
+
+  console.log('productsData', productsData);
+
+  // Los datos ya vienen completos del backend, solo necesitamos mapearlos al tipo esperado
+  const data = useMemo(() => {
+    if (!productsData) return [];
+
+    const productsDetail: ProductWithDetails[] = productsData.map(
+      (product: any) => ({
+        ...product,
+        detCategories: product.categories || [], // Ya vienen completas del backend
+        detImages: product.images || [], // Ya vienen completas del backend
+      })
+    );
+    return productsDetail;
+  }, [productsData]);
 
   const deleteMutation = useMutation({
     mutationFn: (productId: number) => productsService.deleteProduct(productId),
@@ -123,8 +95,12 @@ const ProductsPage = () => {
       setCurrentRow(null);
     },
     onSettled: () => {
-      // Refetch para asegurar sincronización
-      queryClient.invalidateQueries({ queryKey: ['products'] });
+      // Refetch para asegurar sincronización de todas las consultas
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['products'] }),
+        queryClient.invalidateQueries({ queryKey: ['categories'] }),
+        queryClient.invalidateQueries({ queryKey: ['images'] }),
+      ]);
     },
   });
 
@@ -158,6 +134,128 @@ const ProductsPage = () => {
     }
   };
 
+  const handleUploadExcel = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
+      toast.error('Por favor selecciona un archivo Excel (.xlsx o .xls)');
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/products/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Error al procesar el archivo');
+      }
+
+      setUploadResults(result);
+      setUploadModalIsOpen(true);
+
+      // Refrescar todas las consultas para mantener selectores actualizados
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['products'] }),
+        queryClient.invalidateQueries({ queryKey: ['categories'] }),
+        queryClient.invalidateQueries({ queryKey: ['images'] }),
+      ]);
+
+      toast.success('Archivo procesado exitosamente');
+    } catch (error) {
+      console.error('Error al cargar archivo:', error);
+      toast.error('Error al procesar el archivo Excel');
+    }
+
+    // Limpiar el input
+    event.target.value = '';
+  };
+
+  const handleDownloadTemplate = () => {
+    if (!data || data.length === 0) {
+      toast.error('No hay productos para descargar');
+      return;
+    }
+
+    try {
+      // Preparar datos para Excel (solo campos simples, sin categorías, imágenes ni descuentos)
+      const excelData = data.map((product) => ({
+        SKU: product.sku || '', // Campo obligatorio para identificación
+        Nombre: product.name,
+        Precio: product.price,
+        Descripción: product.description,
+        Stock: product.stock,
+        Precio_Retail: product.retailPrice,
+        Precio_Mayorista: product.wholesalePrice,
+        Slug: product.slug,
+        Activo: product.isActive ? 'Sí' : 'No',
+        Destacado: product.isFeatured ? 'Sí' : 'No',
+        Fecha_Actualización_Precio: product.priceUpdatedAt
+          ? new Date(product.priceUpdatedAt).toLocaleDateString('es-ES')
+          : '',
+      }));
+
+      // Solo usar los datos existentes (sin filas vacías adicionales)
+
+      // Crear workbook
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(excelData);
+
+      // Función para ajustar automáticamente el ancho de las columnas
+      const autoFitColumns = (
+        worksheet: XLSX.WorkSheet,
+        worksheetData: (string | number | null | undefined)[][]
+      ) => {
+        const colWidths = worksheetData[0].map((_, colIndex) => {
+          const maxWidth = Math.max(
+            ...worksheetData.map((row) => {
+              const cell = row[colIndex];
+              return cell ? cell.toString().length + 2 : 10;
+            })
+          );
+
+          // Limitar el ancho máximo de la columna descripción (triple del tamaño anterior)
+          if (colIndex === 3) {
+            // Columna "Descripción"
+            return { wch: Math.min(maxWidth, 150) };
+          }
+
+          return { wch: maxWidth };
+        });
+        worksheet['!cols'] = colWidths;
+      };
+
+      // Convertir datos a array 2D para autoFitColumns
+      const worksheetData = [
+        Object.keys(excelData[0]), // Encabezados
+        ...excelData.map((row) => Object.values(row)), // Datos
+      ];
+
+      autoFitColumns(ws, worksheetData);
+
+      // Agregar hoja al workbook
+      XLSX.utils.book_append_sheet(wb, ws, 'Productos');
+
+      // Generar archivo y descargar
+      const fileName = `productos-${new Date().toISOString().split('T')[0]}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+
+      toast.success('Productos descargados exitosamente');
+    } catch (error) {
+      console.error('Error al generar archivo:', error);
+      toast.error('Error al descargar los productos');
+    }
+  };
+
   // Filtro global simple - por ahora sin filtros específicos
   const globalFilterFn = () => {
     return true;
@@ -170,6 +268,25 @@ const ProductsPage = () => {
           Gestión de Productos
         </h2>
         <div className='flex items-center gap-2'>
+          <Button variant='outline' onClick={handleDownloadTemplate}>
+            <DownloadIcon className='size-5 mr-2' />
+            Descargar Productos
+          </Button>
+          <div className='relative'>
+            <input
+              type='file'
+              accept='.xlsx,.xls'
+              onChange={handleUploadExcel}
+              className='absolute inset-0 w-full h-full opacity-0 cursor-pointer'
+              id='excel-upload'
+            />
+            <Button variant='outline' asChild>
+              <label htmlFor='excel-upload' className='cursor-pointer'>
+                <UploadIcon className='size-5 mr-2' />
+                Cargar Excel
+              </label>
+            </Button>
+          </div>
           <Button variant='default' onClick={handleAddProduct}>
             <PlusIcon className='size-5 mr-2' />
             Agregar Producto
@@ -214,6 +331,17 @@ const ProductsPage = () => {
           open={productModalIsOpen}
           closeModal={() => setProductModalIsOpen(false)}
           product={currentRow}
+        />
+      )}
+
+      {uploadModalIsOpen && uploadResults && (
+        <UploadResultsModal
+          open={uploadModalIsOpen}
+          onClose={() => {
+            setUploadModalIsOpen(false);
+            setUploadResults(null);
+          }}
+          results={uploadResults}
         />
       )}
     </div>

@@ -22,16 +22,6 @@ import {
 import { LoaderIcon } from 'lucide-react';
 import { useFormContext, type UseFormReturn } from 'react-hook-form';
 
-import { FormItem, FormLabel } from '@/components/ui/form';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-} from '@/components/ui/select';
-import { SelectValue } from '@radix-ui/react-select';
-import { cn } from '@/lib/utils';
 import type { Product } from '@/shared/types';
 
 interface ProductSelectorTableProps<TValue> {
@@ -106,11 +96,16 @@ export function ProductSelectorTable<TValue>({
 
       const newRowSelection =
         typeof updater === 'function' ? updater(rowSelection) : updater;
-      const selectedIds = Object.keys(newRowSelection).filter(
-        (id) => newRowSelection[id]
-      );
 
-      form.setValue(nameSchema, selectedIds);
+      const selectedIds = Object.keys(newRowSelection)
+        .filter((id) => newRowSelection[id])
+        .map((id) => parseInt(id, 10)); // Convertir strings a numbers
+
+      // const selectedIds = Object.keys(newRowSelection).filter(
+      //   (id) => newRowSelection[id]
+      // );
+
+      form.setValue(nameSchema, selectedIds, { shouldDirty: true });
       form.clearErrors(nameSchema);
       if (form.formState.isSubmitted) form.trigger(nameSchema);
     },

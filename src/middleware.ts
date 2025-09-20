@@ -7,6 +7,10 @@ import {
 const isProtectedRoutes = createRouteMatcher([
   '/dashboard(.*)',
   '/api/media(.*)',
+  '/api/products(.*)',
+  '/api/categories(.*)',
+  '/api/settings(.*)',
+  '/api/regenerate(.*)',
 ]);
 
 // export const onRequest = clerkMiddleware();

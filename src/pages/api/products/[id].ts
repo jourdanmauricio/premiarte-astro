@@ -65,6 +65,8 @@ export const PUT: APIRoute = async (context) => {
 
     // Obtener datos del cuerpo de la petición
     const body = await context.request.json();
+    console.log('Datos recibidos en PUT:', JSON.stringify(body, null, 2));
+    
     const {
       name,
       slug,
@@ -83,7 +85,7 @@ export const PUT: APIRoute = async (context) => {
     } = body;
 
     // Si se proporciona un slug, verificar que no esté duplicado
-    if (slug && slug !== existingProduct.slug) {
+    if (slug && existingProduct && 'slug' in existingProduct && slug !== existingProduct.slug) {
       const slugExists = await Database.getProductBySlug(slug);
 
       if (slugExists) {
@@ -104,17 +106,19 @@ export const PUT: APIRoute = async (context) => {
     if (name !== undefined) updateData.name = name;
     if (slug !== undefined) updateData.slug = slug;
     if (description !== undefined) updateData.description = description;
-    if (price !== undefined) updateData.price = parseFloat(price);
-    if (stock !== undefined) updateData.stock = parseInt(stock);
-    if (isActive !== undefined) updateData.isActive = Boolean(isActive);
-    if (isFeatured !== undefined) updateData.isFeatured = Boolean(isFeatured);
-    if (retailPrice !== undefined) updateData.retailPrice = parseFloat(retailPrice);
-    if (wholesalePrice !== undefined) updateData.wholesalePrice = parseFloat(wholesalePrice);
-    if (discount !== undefined) updateData.discount = parseFloat(discount);
+    if (price !== undefined) updateData.price = price;
+    if (stock !== undefined) updateData.stock = stock;
+    if (isActive !== undefined) updateData.isActive = isActive;
+    if (isFeatured !== undefined) updateData.isFeatured = isFeatured;
+    if (retailPrice !== undefined) updateData.retailPrice = retailPrice;
+    if (wholesalePrice !== undefined) updateData.wholesalePrice = wholesalePrice;
+    if (discount !== undefined) updateData.discount = discount;
     if (discountType !== undefined) updateData.discountType = discountType;
     if (images !== undefined) updateData.images = images;
     if (categories !== undefined) updateData.categories = categories;
     if (relatedProducts !== undefined) updateData.relatedProducts = relatedProducts;
+
+    console.log('Datos preparados para actualizar:', JSON.stringify(updateData, null, 2));
 
     // Actualizar el producto
     const updatedProduct = await Database.updateProduct(
