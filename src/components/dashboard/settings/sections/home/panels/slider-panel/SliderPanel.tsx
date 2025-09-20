@@ -94,10 +94,10 @@ const SliderPanel = ({ form, images, settingsData }: Props) => {
     currentSlideIndex !== null ? slides[currentSlideIndex] : null;
 
   return (
-    <div className=' py-4 w-full mt-6'>
+    <>
       <div className='flex justify-between items-center mb-6'>
         <h2 className='text-xl font-bold text-gray-900'>Slider Principal</h2>
-        <div className='flex items-center gap-2'>
+        <div className='flex items-center gap-2 px-6'>
           <span className='text-sm text-gray-500'>
             {slides.length} slide{slides.length !== 1 ? 's' : ''}
           </span>
@@ -108,18 +108,20 @@ const SliderPanel = ({ form, images, settingsData }: Props) => {
         </div>
       </div>
 
-      <CustomTable
-        data={enrichedSlides}
-        columns={columns}
-        isLoading={false}
-        globalFilter={{}}
-        error={false}
-        sorting={[]}
-        handleSorting={() => {}}
-        pageIndex={0}
-        setPageIndex={() => {}}
-        globalFilterFn={() => true}
-      />
+      <div className='px-6'>
+        <CustomTable
+          data={enrichedSlides}
+          columns={columns}
+          isLoading={false}
+          globalFilter={{}}
+          error={false}
+          sorting={[]}
+          handleSorting={() => {}}
+          pageIndex={0}
+          setPageIndex={() => {}}
+          globalFilterFn={() => true}
+        />
+      </div>
 
       {/* Modal de confirmación de eliminación */}
       {deleteModalIsOpen && currentSlideIndex !== null && (
@@ -151,7 +153,7 @@ const SliderPanel = ({ form, images, settingsData }: Props) => {
           form={form}
         />
       )}
-    </div>
+    </>
   );
 };
 

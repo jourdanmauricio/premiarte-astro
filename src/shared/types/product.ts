@@ -1,52 +1,41 @@
+import type { Category } from "@/shared/types/category";
+import type { Image } from "@/shared/types/image";
+
 // Tipo para los productos
 export interface Product {
   id: number;
   name: string;
-  price: number;
+  slug: string;
+  price?: number;
+  sku?: string;
   description: string;
-  stock: number;
+  stock?: number;
   isActive: boolean;
   isFeatured: boolean;
-  retailPrice: number;
-  wholesalePrice: number;
-  discount: number;
+  retailPrice?: number | undefined;
+  wholesalePrice?: number | undefined;
+  discount?: number | undefined;
   discountType: 'percentage' | 'fixed';
-  slug: string;
-  relatedProducts: {
-    id: number;
-    name: string;
-    slug: string;
-  }[];
-  images:
-    | {
-        id: number;
-        url: string;
-        alt: string;
-      }[]
-    | null;
+  relatedProducts: number[] | null;
+  images: number[] | null;
   categories:
-    | {
-        id: number;
-        name: string;
-        slug: string;
-      }[]
+      number[]
     | null;
 }
 
-// Tipo para crear un nuevo producto (sin id)
-export interface CreateProductData {
-  name: string;
-  price: number;
-  description: string;
-  image?: number;
-  category?: number;
+export interface ProductWithDetails extends Product {
+  detCategories: Category[];
+  detImages: Image[];
+}
+
+// Opción 1: Extender de Product omitiendo campos que se generan automáticamente
+export interface CreateProductData extends Omit<Product, 'id' | 'slug'> {
+  // El slug se puede generar automáticamente del nombre
+  // El id se genera automáticamente por la base de datos
 }
 
 // Tipo para actualizar un producto
-export interface UpdateProductData {
-  name?: string;
-  price?: number;
-  description?: string;
-  image?: number;
-  category?: number;
+export interface UpdateProductData extends Omit<Product, 'id' | 'slug'> {
+  // El slug se puede generar automáticamente del nombre
+  // El id se genera automáticamente por la base de datos
 }

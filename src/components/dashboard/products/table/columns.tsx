@@ -2,7 +2,7 @@ import { type ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { EditIcon, Trash2Icon } from 'lucide-react';
 import { TruncatedCell } from '@/components/ui/custom/truncatedCell';
-import type { Product } from '@/shared/types';
+import type { Product, ProductWithDetails } from '@/shared/types';
 
 type DataTableColumnsProps = {
   onEdit: (product: Product) => void;
@@ -12,7 +12,7 @@ type DataTableColumnsProps = {
 export const getProductColumns = ({
   onEdit,
   onDelete,
-}: DataTableColumnsProps): ColumnDef<Product>[] => [
+}: DataTableColumnsProps): ColumnDef<ProductWithDetails>[] => [
   {
     accessorKey: 'images',
     header: 'IMAGEN',
@@ -21,7 +21,7 @@ export const getProductColumns = ({
     maxSize: 100,
     cell: ({ row }) => {
       const product = row.original;
-      const firstImage = product.images?.[0];
+      const firstImage = product.detImages?.[0];
 
       return (
         <div className='flex items-center justify-center'>
@@ -50,16 +50,7 @@ export const getProductColumns = ({
       return <TruncatedCell value={product.name} linesMax={2} />;
     },
   },
-  // {
-  //   accessorKey: 'description',
-  //   header: 'DESCRIPCIÓN',
-  //   size: 250,
-  //   minSize: 200,
-  //   cell: ({ row }) => {
-  //     const product = row.original;
-  //     return <TruncatedCell value={product.description} linesMax={2} />;
-  //   },
-  // },
+
   {
     accessorKey: 'price',
     header: 'PRECIO',
@@ -89,7 +80,7 @@ export const getProductColumns = ({
         return <span className='text-gray-400 text-xs'>Sin categoría</span>;
       }
 
-      const categoryNames = product.categories
+      const categoryNames = product.detCategories
         .map((cat) => cat.name)
         .join(', ');
       return <TruncatedCell value={categoryNames} linesMax={2} />;

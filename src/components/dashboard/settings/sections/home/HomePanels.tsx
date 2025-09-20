@@ -16,6 +16,7 @@ import { MenuPanel } from '@/components/dashboard/settings/sections/home/panels/
 import { SliderPanel } from '@/components/dashboard/settings/sections/home/panels/slider-panel/SliderPanel';
 import { Separator } from '@/components/ui/separator';
 import HeroPanel from '@/components/dashboard/settings/sections/home/panels/hero-panel/HeroPanel';
+import { FeaturedProductsPanel } from '@/components/dashboard/settings/sections/home/panels/products-panel/FeatuedProductsPanel';
 
 const HomePanels = () => {
   const queryClient = useQueryClient();
@@ -42,6 +43,12 @@ const HomePanels = () => {
         hero: {
           logoId: 0,
           imageId: 0,
+          title: '',
+          text: '',
+          buttonText: '',
+          buttonLink: '',
+        },
+        products: {
           title: '',
           text: '',
           buttonText: '',
@@ -112,7 +119,10 @@ const HomePanels = () => {
 
           <HeroPanel form={form} images={images || []} />
 
-          <div className='h-40' />
+          <Separator className='my-4' orientation='horizontal' />
+
+          <FeaturedProductsPanel form={form} />
+
           <div className='flex justify-end gap-2'>
             <Button type='button' className='min-w-[150px]' variant='outline'>
               Cancelar

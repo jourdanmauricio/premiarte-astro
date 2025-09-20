@@ -1,6 +1,7 @@
 ---
 import Hero from '@/components/home/Hero.astro';
 import { ReactSlider } from './ReactSlider';
+import FeaturedProducts from '@/components/home/FeaturedProducts.astro';
 import { Database } from '@/lib/db';
 import { turso } from '@/lib/turso';
 import type { Settings } from '@/shared/types';
@@ -63,6 +64,8 @@ const heroImageLogoData = await turso
     args: [hero.logoId],
   })
   .then((result) => result.rows[0] || null);
+
+const featuredProducts = parsedValue.featuredProducts;
 ---
 
 <div id='container'>
@@ -73,5 +76,6 @@ const heroImageLogoData = await turso
       heroImageData={heroImageData}
       heroImageLogoData={heroImageLogoData}
     />
+    <FeaturedProducts featuredProducts={featuredProducts} />
   </section>
 </div>

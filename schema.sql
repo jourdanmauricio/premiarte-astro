@@ -43,8 +43,30 @@ CREATE TABLE IF NOT EXISTS Product (
   discount INTEGER NOT NULL,
   discountType TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE,
-  categoryId INTEGER,
   createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (categoryId) REFERENCES Category(id)
+  updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabla intermedia para la relación muchos a muchos entre Product e Image
+CREATE TABLE IF NOT EXISTS ProductImage (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  productId INTEGER NOT NULL,
+  imageId INTEGER NOT NULL,
+  order_index INTEGER DEFAULT 0, -- Para ordenar las imágenes del producto
+  isPrimary BOOLEAN DEFAULT FALSE, -- Para marcar la imagen principal
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (productId) REFERENCES Product(id) ON DELETE CASCADE,
+  FOREIGN KEY (imageId) REFERENCES Image(id) ON DELETE CASCADE,
+  UNIQUE(productId, imageId) -- Evita duplicados
+);
+
+-- Tabla intermedia para la relación muchos a muchos entre Product y Category
+CREATE TABLE IF NOT EXISTS ProductCategory (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  productId INTEGER NOT NULL,
+  categoryId INTEGER NOT NULL,
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (productId) REFERENCES Product(id) ON DELETE CASCADE,
+  FOREIGN KEY (categoryId) REFERENCES Category(id) ON DELETE CASCADE,
+  UNIQUE(productId, categoryId) -- Evita duplicados
 ); 

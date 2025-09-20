@@ -141,30 +141,291 @@ export class Database {
   // PRODUCTOS
   static async getAllProducts() {
     const { rows } = await turso.execute(`
-      SELECT 
-        p.*,
-        c.name as categoryName,
-        c.slug as categorySlug
+      SELECT p.*
       FROM Product p
-      LEFT JOIN Category c ON p.categoryId = c.id
       ORDER BY p.createdAt DESC
     `);
 
-    return rows.map((row) => ({
-      ...row,
-      isActive: Boolean(row.isActive),
-      isFeatured: Boolean(row.isFeatured),
-      category: row.categoryName
-        ? {
-            id: row.categoryId,
-            name: row.categoryName,
-            slug: row.categorySlug,
-          }
-        : null,
-      images: null, // Temporal
-      categories: null, // Temporal
-      relatedProducts: [], // Temporal
-    }));
+    // Para cada producto, obtener sus imágenes y categorías
+    const productsWithRelations = await Promise.all(
+      rows.map(async (row) => {
+        const images = await this.getProductImages(row.id);
+        const categories = await this.getProductCategories(row.id);
+        
+        return {
+          ...row,
+          isActive: Boolean(row.isActive),
+          isFeatured: Boolean(row.isFeatured),
+          images,
+          categories,
+          relatedProducts: [], // TODO: Implementar relatedProducts
+        };
+      })
+    );
+
+    return productsWithRelations;
+  }
+
+  static async getProductById(id: number) {
+    const { rows } = await turso.execute({
+      sql: `SELECT * FROM Product WHERE id = ?`,
+      args: [id],
+    });
+
+    if (!rows[0]) return null;
+
+    const product = rows[0];
+    const images = await this.getProductImages(id);
+    const categories = await this.getProductCategories(id);
+
+    return {
+      ...product,
+      isActive: Boolean(product.isActive),
+      isFeatured: Boolean(product.isFeatured),
+      images,
+      categories,
+      relatedProducts: [], // TODO: Implementar relatedProducts
+    };
+  }
+
+  static async getProductBySlug(slug: string) {
+    const { rows } = await turso.execute({
+      sql: 'SELECT * FROM Product WHERE slug = ?',
+      args: [slug],
+    });
+    return rows[0] || null;
+  }
+
+  static async createProduct(data: {
+    name: string;
+    slug: string;
+    description: string;
+    price?: number;
+    stock?: number;
+    isActive?: boolean;
+    isFeatured?: boolean;
+    retailPrice?: number;
+    wholesalePrice?: number;
+    discount?: number;
+    discountType?: string;
+    images?: number[];
+    categories?: number[];
+    relatedProducts?: number[];
+  }) {
+    // Crear el producto
+    const { rows } = await turso.execute({
+      sql: `
+        INSERT INTO Product (
+          name, slug, description, price, stock, isActive, isFeatured,
+          retailPrice, wholesalePrice, discount, discountType
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        RETURNING *
+      `,
+      args: [
+        data.name,
+        data.slug,
+        data.description,
+        data.price || 0,
+        data.stock || 0,
+        data.isActive ?? true,
+        data.isFeatured ?? false,
+        data.retailPrice || 0,
+        data.wholesalePrice || 0,
+        data.discount || 0,
+        data.discountType || 'percentage',
+      ],
+    });
+
+    const product = rows[0];
+
+    // Asociar imágenes si se proporcionaron
+    if (data.images && data.images.length > 0) {
+      await this.setProductImages(product.id, data.images);
+    }
+
+    // Asociar categorías si se proporcionaron
+    if (data.categories && data.categories.length > 0) {
+      await this.setProductCategories(product.id, data.categories);
+    }
+
+    // Retornar producto completo
+    return this.getProductById(product.id);
+  }
+
+  static async updateProduct(
+    id: number,
+    data: {
+      name?: string;
+      slug?: string;
+      description?: string;
+      price?: number;
+      stock?: number;
+      isActive?: boolean;
+      isFeatured?: boolean;
+      retailPrice?: number;
+      wholesalePrice?: number;
+      discount?: number;
+      discountType?: string;
+      images?: number[];
+      categories?: number[];
+      relatedProducts?: number[];
+    }
+  ) {
+    const updates = [];
+    const args = [];
+
+    if (data.name !== undefined) {
+      updates.push('name = ?');
+      args.push(data.name);
+    }
+    if (data.slug !== undefined) {
+      updates.push('slug = ?');
+      args.push(data.slug);
+    }
+    if (data.description !== undefined) {
+      updates.push('description = ?');
+      args.push(data.description);
+    }
+    if (data.price !== undefined) {
+      updates.push('price = ?');
+      args.push(data.price);
+    }
+    if (data.stock !== undefined) {
+      updates.push('stock = ?');
+      args.push(data.stock);
+    }
+    if (data.isActive !== undefined) {
+      updates.push('isActive = ?');
+      args.push(data.isActive);
+    }
+    if (data.isFeatured !== undefined) {
+      updates.push('isFeatured = ?');
+      args.push(data.isFeatured);
+    }
+    if (data.retailPrice !== undefined) {
+      updates.push('retailPrice = ?');
+      args.push(data.retailPrice);
+    }
+    if (data.wholesalePrice !== undefined) {
+      updates.push('wholesalePrice = ?');
+      args.push(data.wholesalePrice);
+    }
+    if (data.discount !== undefined) {
+      updates.push('discount = ?');
+      args.push(data.discount);
+    }
+    if (data.discountType !== undefined) {
+      updates.push('discountType = ?');
+      args.push(data.discountType);
+    }
+
+    updates.push('updatedAt = CURRENT_TIMESTAMP');
+    args.push(id);
+
+    // Actualizar producto
+    await turso.execute({
+      sql: `UPDATE Product SET ${updates.join(', ')} WHERE id = ?`,
+      args,
+    });
+
+    // Actualizar imágenes si se proporcionaron
+    if (data.images !== undefined) {
+      await this.setProductImages(id, data.images);
+    }
+
+    // Actualizar categorías si se proporcionaron
+    if (data.categories !== undefined) {
+      await this.setProductCategories(id, data.categories);
+    }
+
+    // Retornar producto actualizado
+    return this.getProductById(id);
+  }
+
+  static async deleteProduct(id: number) {
+    // Las relaciones ProductImage se eliminan automáticamente por CASCADE
+    await turso.execute({
+      sql: 'DELETE FROM Product WHERE id = ?',
+      args: [id],
+    });
+    return true;
+  }
+
+  // Métodos auxiliares para manejar imágenes de productos
+  static async getProductImages(productId: number) {
+    const { rows } = await turso.execute({
+      sql: `
+        SELECT pi.order_index, pi.isPrimary, i.id, i.url, i.alt, i.tag, i.observation
+        FROM ProductImage pi
+        JOIN Image i ON pi.imageId = i.id
+        WHERE pi.productId = ?
+        ORDER BY pi.isPrimary DESC, pi.order_index ASC
+      `,
+      args: [productId],
+    });
+
+    return rows.map(row => row.id); // Retornar solo los IDs como esperan los tipos
+  }
+
+  static async setProductImages(productId: number, imageIds: number[]) {
+    // Eliminar relaciones existentes
+    await turso.execute({
+      sql: 'DELETE FROM ProductImage WHERE productId = ?',
+      args: [productId],
+    });
+
+    // Agregar nuevas relaciones
+    if (imageIds.length > 0) {
+      for (let i = 0; i < imageIds.length; i++) {
+        const imageId = imageIds[i];
+        const isPrimary = i === 0; // La primera imagen es la principal
+        
+        await turso.execute({
+          sql: `
+            INSERT INTO ProductImage (productId, imageId, order_index, isPrimary)
+            VALUES (?, ?, ?, ?)
+          `,
+          args: [productId, imageId, i, isPrimary],
+        });
+      }
+    }
+  }
+
+  // Métodos auxiliares para manejar categorías de productos
+  static async getProductCategories(productId: number) {
+    const { rows } = await turso.execute({
+      sql: `
+        SELECT pc.categoryId
+        FROM ProductCategory pc
+        WHERE pc.productId = ?
+        ORDER BY pc.createdAt ASC
+      `,
+      args: [productId],
+    });
+
+    return rows.map(row => row.categoryId); // Retornar solo los IDs como esperan los tipos
+  }
+
+  static async setProductCategories(productId: number, categoryIds: number[]) {
+    // Eliminar relaciones existentes
+    await turso.execute({
+      sql: 'DELETE FROM ProductCategory WHERE productId = ?',
+      args: [productId],
+    });
+
+    // Agregar nuevas relaciones
+    if (categoryIds.length > 0) {
+      for (const categoryId of categoryIds) {
+        await turso.execute({
+          sql: `
+            INSERT INTO ProductCategory (productId, categoryId)
+            VALUES (?, ?)
+          `,
+          args: [productId, categoryId],
+        });
+      }
+    }
   }
 
   // IMÁGENES

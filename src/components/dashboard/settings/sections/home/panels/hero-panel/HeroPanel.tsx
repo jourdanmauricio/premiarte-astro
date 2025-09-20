@@ -46,7 +46,7 @@ const HeroPanel = ({ form, images }: HeroPanelProps) => {
   return (
     <>
       <h2 className='text-xl font-bold text-gray-900'>Hero</h2>
-      <div className='grid grid-cols-2 gap-4'>
+      <div className='grid grid-cols-2 gap-4 p-8'>
         <div className='space-y-2 w-full'>
           <label className='text-sm font-medium'>Logo Imagen</label>
           <div className='flex items-center gap-4'>

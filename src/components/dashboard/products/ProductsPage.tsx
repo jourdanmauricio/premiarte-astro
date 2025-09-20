@@ -9,24 +9,87 @@ import { Button } from '@/components/ui/button';
 import CustomAlertDialog from '@/components/ui/custom/custom-alert-dialog';
 import { CustomTable } from '@/components/ui/custom/CustomTable';
 import { productsService } from '@/lib/services/productsService';
-import type { Product } from '@/shared/types';
+import type {
+  Category,
+  Image,
+  Product,
+  ProductWithDetails,
+} from '@/shared/types';
+import { ProductModal } from '@/components/dashboard/products/ProductModal';
+import { categoriesService } from '@/lib/services';
+import { mediaService } from '@/lib/services/mediaService';
 
 const ProductsPage = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pageIndex, setPageIndex] = useState(0);
+  const [productModalIsOpen, setProductModalIsOpen] = useState(false);
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
   const [currentRow, setCurrentRow] = useState<Product | null>(null);
 
   const queryClient = useQueryClient();
+
+  const {
+    data: imagesData,
+    isLoading: isLoadingImages,
+    error: errorImages,
+  } = useQuery({
+    queryKey: ['images'],
+    queryFn: async () => {
+      const response = await mediaService.getImages();
+      console.log('Images response:', response);
+      return response;
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const {
+    data: categoriesData,
+    isLoading: isLoadingCategories,
+    error: errorCategories,
+  } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const response = await categoriesService.getCategories();
+      console.log('Categories response:', response);
+      return response;
+    },
+    refetchOnWindowFocus: false,
+  });
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['products'],
     queryFn: async () => {
       const response = await productsService.getProducts();
       console.log('Products response:', response);
-      return response;
+      const productsDetail: ProductWithDetails[] = response.map(
+        (product: Product) => {
+          const categories: Category[] = [];
+          const images: Image[] = [];
+
+          product.categories?.forEach((categoryId: number) => {
+            const category = categoriesData?.find(
+              (category: Category) => category.id === categoryId
+            );
+            if (category) {
+              categories.push(category);
+            }
+          });
+          product.images?.forEach((imageId: number) => {
+            const image = imagesData?.find(
+              (image: Image) => image.id === imageId
+            );
+            if (image) {
+              images.push(image);
+            }
+          });
+          return { ...product, detCategories: categories, detImages: images };
+        }
+      );
+      return productsDetail;
     },
+
     refetchOnWindowFocus: false,
+    enabled: !!categoriesData && !!imagesData,
   });
 
   const deleteMutation = useMutation({
@@ -71,9 +134,8 @@ const ProductsPage = () => {
   }, []);
 
   const onEdit = useCallback(async (product: Product) => {
-    console.log('Editar producto:', product);
-    // TODO: Implementar modal de edición
-    toast.info('Funcionalidad de edición pendiente de implementar');
+    setCurrentRow(product);
+    setProductModalIsOpen(true);
   }, []);
 
   const columns = useMemo(
@@ -86,14 +148,8 @@ const ProductsPage = () => {
   );
 
   const handleAddProduct = () => {
-    console.log('Agregar producto');
-    // TODO: Implementar modal de creación
-    toast.info('Funcionalidad de creación pendiente de implementar');
-  };
-
-  const handleRefresh = () => {
-    refetch();
-    toast.success('Lista de productos actualizada');
+    setCurrentRow(null);
+    setProductModalIsOpen(true);
   };
 
   const handleConfirmDelete = () => {
@@ -114,16 +170,6 @@ const ProductsPage = () => {
           Gestión de Productos
         </h2>
         <div className='flex items-center gap-2'>
-          <Button
-            variant='ghost'
-            onClick={handleRefresh}
-            disabled={isLoading}
-            title='Actualizar lista'
-          >
-            <RefreshCwIcon
-              className={`size-5 ${isLoading ? 'animate-spin' : ''}`}
-            />
-          </Button>
           <Button variant='default' onClick={handleAddProduct}>
             <PlusIcon className='size-5 mr-2' />
             Agregar Producto
@@ -160,6 +206,14 @@ const ProductsPage = () => {
               setCurrentRow(null);
             }
           }}
+        />
+      )}
+
+      {productModalIsOpen && (
+        <ProductModal
+          open={productModalIsOpen}
+          closeModal={() => setProductModalIsOpen(false)}
+          product={currentRow}
         />
       )}
     </div>
