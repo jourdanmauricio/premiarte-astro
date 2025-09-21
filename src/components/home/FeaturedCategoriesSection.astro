@@ -1,9 +1,9 @@
 ---
-const { featuredProducts } = Astro.props;
-import ProductsCard from '@/components/home/ProductsCard.astro';
+const { featuredCategories } = Astro.props;
+import CategoryCard from '@/components/home/CategoryCard.astro';
 import { Database } from '@/lib/db';
 
-const products = await Database.getAllProducts({ featured: true });
+const categories = await Database.getAllCategories({ featured: true });
 ---
 
 <section class='container relative px-4 py-16 md:px-20 md:py-24 lg:py-32'>
@@ -15,42 +15,46 @@ const products = await Database.getAllProducts({ featured: true });
         <span
           class='bg-gradient-to-r from-orange-600 via-red-600 to-orange-700 bg-clip-text text-transparent drop-shadow-sm'
         >
-          {featuredProducts.title || 'Premiarte'}
+          {featuredCategories.title || 'Premiarte'}
         </span>
       </h2>
       {
-        featuredProducts.text && (
+        featuredCategories.text && (
           <div class='text-lg leading-relaxed text-muted-foreground md:text-xl mt-8 w-full'>
-            <p class='text-center'>{featuredProducts.text}</p>
+            <p class='text-center'>{featuredCategories.text}</p>
           </div>
         )
       }
 
       <div class='flex flex-wrap justify-center gap-20 pt-24'>
         {
-          products.map((product) => (
+          categories.map((category) => (
             <div class='img-appear group relative w-64'>
-              <ProductsCard product={product} />
+              <CategoryCard category={category} />
             </div>
           ))
         }
       </div>
 
-      <div class='mt-20 text-center'>
-        <button
-          class='border border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex
+      {
+        featuredCategories.buttonLink && featuredCategories.buttonText && (
+          <div class='mt-20 text-center'>
+            <button
+              class='border border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex
           items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background
           transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
           focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none
           [&_svg]:size-4 [&_svg]:shrink-0 px-6 py-4'
-        >
-          <a href={featuredProducts.buttonLink}>
-            <span class='text-xl text-orange-500'>
-              {featuredProducts.buttonText}
-            </span>
-          </a>
-        </button>
-      </div>
+            >
+              <a href={featuredCategories.buttonLink}>
+                <span class='text-xl text-orange-500'>
+                  {featuredCategories.buttonText}
+                </span>
+              </a>
+            </button>
+          </div>
+        )
+      }
     </div>
   </div>
 </section>

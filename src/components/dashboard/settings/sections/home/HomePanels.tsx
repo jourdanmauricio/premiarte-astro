@@ -19,6 +19,7 @@ import HeroPanel from '@/components/dashboard/settings/sections/home/panels/hero
 import { FeaturedProductsPanel } from '@/components/dashboard/settings/sections/home/panels/products-panel/FeatuedProductsPanel';
 import TestimonialsPanel from '@/components/dashboard/settings/sections/home/panels/testimonials-panel/TestimonialsPanel';
 import ServicesPanel from '@/components/dashboard/settings/sections/home/panels/services-panel/servicesPanel';
+import { FeaturedCategoriesPanel } from '@/components/dashboard/settings/sections/home/panels/categories-panel/FeaturedCategoriesPanel';
 
 const HomePanels = () => {
   const queryClient = useQueryClient();
@@ -63,6 +64,12 @@ const HomePanels = () => {
         testimonials: {
           title: '',
           testimonials: [],
+        },
+        featuredCategories: {
+          title: '',
+          text: '',
+          buttonText: '',
+          buttonLink: '',
         },
       },
     },
@@ -134,6 +141,10 @@ const HomePanels = () => {
           <Separator className='my-4' orientation='horizontal' />
 
           <ServicesPanel form={form} images={images || []} />
+
+          <Separator className='my-4' orientation='horizontal' />
+
+          <FeaturedCategoriesPanel form={form} />
 
           <Separator className='my-4' orientation='horizontal' />
 

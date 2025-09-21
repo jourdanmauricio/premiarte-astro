@@ -7,6 +7,7 @@ import { turso } from '@/lib/turso';
 import type { Settings } from '@/shared/types';
 import Testimonials from '@/components/home/Testimonials';
 import { ServicesSection } from '@/components/home/Services';
+import FeaturedCategoriesSection from '@/components/home/FeaturedCategoriesSection.astro';
 
 export interface Slide {
   image: number;
@@ -113,6 +114,8 @@ const servicesWithImages = await Promise.all(
     return service;
   })
 );
+
+const featuredCategories = parsedValue.featuredCategories;
 ---
 
 <div id='container'>
@@ -130,6 +133,8 @@ const servicesWithImages = await Promise.all(
       subtitle={services.subtitle}
       services={servicesWithImages}
     />
+
+    <FeaturedCategoriesSection featuredCategories={featuredCategories} />
 
     <Testimonials testimonials={testimonials} />
   </section>

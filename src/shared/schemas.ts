@@ -87,6 +87,12 @@ const HomeSettingsSchema = z.object({
       image: z.number().min(1, { message: 'Imagen requerida' }),
     })),
   }),
+  featuredCategories: z.object({
+    title: z.string().min(1, { message: 'Título requerido' }),
+    text: z.string().optional(),
+    buttonText: z.string().optional(),
+    buttonLink: z.string().optional(),
+  }),
 });
 
 export const SettingsFormSchema = z.object({

@@ -3,15 +3,22 @@ import { turso } from './turso';
 // Utilidades para trabajar con Turso
 export class Database {
   // CATEGORÍAS
-  static async getAllCategories() {
-    const { rows } = await turso.execute(`
+  static async getAllCategories({ featured }: { featured?: boolean }) {
+    const query = `
       SELECT 
         c.id, c.name, c.slug, c.description, c.featured,
         i.id as imageId, i.url as imageUrl
       FROM Category c
       LEFT JOIN Image i ON c.imageId = i.id
+      ${featured ? 'WHERE c.featured = ?' : ''}
       ORDER BY c.createdAt DESC
-    `);
+    `;
+
+    const { rows } = await turso.execute({
+      sql: query,
+      args: featured ? [featured] : []
+    });
+    
 
     return rows.map((row) => ({
       id: row.id,
@@ -139,12 +146,19 @@ export class Database {
   }
 
   // PRODUCTOS
-  static async getAllProducts() {
-    const { rows } = await turso.execute(`
+  static async getAllProducts({ featured }: { featured?: boolean }) {
+
+    const query = `
       SELECT p.*
       FROM Product p
+      ${featured ? 'WHERE p.isFeatured = ?' : ''}
       ORDER BY p.createdAt DESC
-    `);
+    `;
+
+    const { rows } = await turso.execute({
+      sql: query,
+      args: featured ? [featured] : []
+    });
 
     // Para cada producto, obtener sus imágenes, categorías y productos relacionados
     const productsWithRelations = await Promise.all(

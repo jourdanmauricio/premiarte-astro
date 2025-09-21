@@ -5,7 +5,7 @@ import { clerkClient } from '@clerk/astro/server';
 export const GET: APIRoute = async ({ request, locals }) => {
   try {
     // GET público - no requiere autenticación para mostrar productos en el sitio
-    const products = await Database.getAllProducts();
+    const products = await Database.getAllProducts({});
 
     return new Response(JSON.stringify(products), {
       status: 200,
