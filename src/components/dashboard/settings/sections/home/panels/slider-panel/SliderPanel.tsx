@@ -4,7 +4,7 @@ import { useState, useCallback, useMemo } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
-import type { Image, Settings } from '@/shared/types';
+import type { Image } from '@/shared/types';
 import { getSlideColumns } from './table/slideColumns';
 import type { SettingsFormSchema } from '@/shared/schemas';
 import { CustomTable } from '@/components/ui/custom/CustomTable';
@@ -14,13 +14,9 @@ import { SlideModal } from '@/components/dashboard/settings/sections/home/panels
 interface Props {
   form: UseFormReturn<z.infer<typeof SettingsFormSchema>>;
   images: Image[];
-  settingsData: Settings[];
 }
 
-// Tipo para los slides en el form
-type SlideFormData = z.infer<typeof SettingsFormSchema>['home']['slider'][0];
-
-const SliderPanel = ({ form, images, settingsData }: Props) => {
+const SliderPanel = ({ form, images }: Props) => {
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
   const [slideModalIsOpen, setSlideModalIsOpen] = useState(false);
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number | null>(

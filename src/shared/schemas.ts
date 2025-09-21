@@ -70,6 +70,14 @@ const HomeSettingsSchema = z.object({
   slider: z.array(HomeSliderSchema),
   hero: HomeHeroSchema,
   featuredProducts: HomeFeaturedProductsSchema,
+  testimonials: z.object({
+    title: z.string().min(1, { message: 'Título requerido' }),
+    testimonials: z.array(z.object({
+      name: z.string().min(1, { message: 'Nombre requerido' }),
+      rating: z.string().min(1, { message: 'Puntuación requerida' }),
+      description: z.string().min(1, { message: 'Descripción requerida' }),
+    })),
+  }),
 });
 
 export const SettingsFormSchema = z.object({

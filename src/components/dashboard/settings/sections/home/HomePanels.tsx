@@ -17,6 +17,7 @@ import { SliderPanel } from '@/components/dashboard/settings/sections/home/panel
 import { Separator } from '@/components/ui/separator';
 import HeroPanel from '@/components/dashboard/settings/sections/home/panels/hero-panel/HeroPanel';
 import { FeaturedProductsPanel } from '@/components/dashboard/settings/sections/home/panels/products-panel/FeatuedProductsPanel';
+import TestimonialsPanel from '@/components/dashboard/settings/sections/home/panels/testimonials-panel/TestimonialsPanel';
 
 const HomePanels = () => {
   const queryClient = useQueryClient();
@@ -53,6 +54,10 @@ const HomePanels = () => {
           text: '',
           buttonText: '',
           buttonLink: '',
+        },
+        testimonials: {
+          title: '',
+          testimonials: [],
         },
       },
     },
@@ -108,12 +113,10 @@ const HomePanels = () => {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit, onError)}>
           <MenuPanel form={form} images={images || []} />
+
           <Separator className='my-4' orientation='horizontal' />
-          <SliderPanel
-            form={form}
-            images={images || []}
-            settingsData={settingsData || []}
-          />
+
+          <SliderPanel form={form} images={images || []} />
 
           <Separator className='my-4' orientation='horizontal' />
 
@@ -122,6 +125,10 @@ const HomePanels = () => {
           <Separator className='my-4' orientation='horizontal' />
 
           <FeaturedProductsPanel form={form} />
+
+          <Separator className='my-4' orientation='horizontal' />
+
+          <TestimonialsPanel form={form} />
 
           <div className='flex justify-end gap-2'>
             <Button type='button' className='min-w-[150px]' variant='outline'>
