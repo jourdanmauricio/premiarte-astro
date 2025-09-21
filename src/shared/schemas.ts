@@ -78,6 +78,15 @@ const HomeSettingsSchema = z.object({
       description: z.string().min(1, { message: 'Descripción requerida' }),
     })),
   }),
+  services: z.object({
+    title: z.string().min(1, { message: 'Título requerido' }),
+    subtitle: z.string().optional(),
+    services: z.array(z.object({
+      title: z.string().min(1, { message: 'Título requerido' }),
+      description: z.string().min(1, { message: 'Descripción requerida' }),
+      image: z.number().min(1, { message: 'Imagen requerida' }),
+    })),
+  }),
 });
 
 export const SettingsFormSchema = z.object({

@@ -5,6 +5,8 @@ import FeaturedProducts from '@/components/home/FeaturedProducts.astro';
 import { Database } from '@/lib/db';
 import { turso } from '@/lib/turso';
 import type { Settings } from '@/shared/types';
+import Testimonials from '@/components/home/Testimonials';
+import { ServicesSection } from '@/components/home/Services';
 
 export interface Slide {
   image: number;
@@ -14,6 +16,20 @@ export interface Slide {
   buttonText: string;
   buttonLink: string;
   imageDet: { url: string; alt: string };
+}
+
+export interface Service {
+  id: number;
+  image: number;
+  title: string;
+  description: string;
+  imageDet: { url: string; alt: string };
+}
+
+export interface Services {
+  title: string;
+  subtitle: string;
+  services: Service[];
 }
 
 const settings = (await Database.getAllSettings()) as unknown as Settings[];
@@ -66,6 +82,37 @@ const heroImageLogoData = await turso
   .then((result) => result.rows[0] || null);
 
 const featuredProducts = parsedValue.featuredProducts;
+
+const testimonials = parsedValue.testimonials;
+
+const services = parsedValue.services;
+
+const servicesWithImages = await Promise.all(
+  services.services.map(async (service: Service) => {
+    if (service.image) {
+      const imageData = await turso
+        .execute({
+          sql: 'SELECT url, alt FROM Image WHERE id = ?',
+          args: [service.image],
+        })
+        .then((result) => result.rows[0] || null);
+
+      // Si la imagen se encuentra, actualiza el objeto del slide.
+      if (imageData) {
+        return {
+          ...service,
+          imageDet: {
+            url: imageData.url,
+            alt: imageData.alt,
+          },
+        };
+      }
+    }
+    // Si no hay imagen o no se encuentra, devuelve el slide original.
+
+    return service;
+  })
+);
 ---
 
 <div id='container'>
@@ -77,5 +124,13 @@ const featuredProducts = parsedValue.featuredProducts;
       heroImageLogoData={heroImageLogoData}
     />
     <FeaturedProducts featuredProducts={featuredProducts} />
+
+    <ServicesSection
+      title={services.title}
+      subtitle={services.subtitle}
+      services={servicesWithImages}
+    />
+
+    <Testimonials testimonials={testimonials} />
   </section>
 </div>
