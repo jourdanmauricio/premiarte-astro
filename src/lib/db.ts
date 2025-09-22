@@ -2,6 +2,44 @@ import { turso } from './turso';
 
 // Utilidades para trabajar con Turso
 export class Database {
+  // NEWSLETTER
+  static async getAllNewsletter() {
+    const { rows } = await turso.execute({
+      sql: 'SELECT * FROM NewsletterSubscriber ORDER BY createdAt DESC',
+      args: [],
+    });
+    return rows;
+  }
+
+  static async deleteNewsletter(id: number) {
+    await turso.execute({
+      sql: 'DELETE FROM NewsletterSubscriber WHERE id = ?',
+      args: [id],
+    });
+    return true;
+  }
+
+  static async getNewsletterById(id: number) {
+    const { rows } = await turso.execute({
+      sql: 'SELECT * FROM NewsletterSubscriber WHERE id = ?',
+      args: [id],
+    });
+    return rows[0] || null;
+  }
+
+  static async updateNewsletter(
+    id: number,
+    data: {
+      isActive?: boolean;
+    }
+  ) {
+    const { rows } = await turso.execute({
+      sql: 'UPDATE NewsletterSubscriber SET isActive = ? WHERE id = ?',
+      args: [data.isActive ?? true, id],
+    });
+    return rows[0] || null;
+  }
+
   // CATEGORÍAS
   static async getAllCategories({ featured }: { featured?: boolean }) {
     const query = `
@@ -16,9 +54,8 @@ export class Database {
 
     const { rows } = await turso.execute({
       sql: query,
-      args: featured ? [featured] : []
+      args: featured ? [featured] : [],
     });
-    
 
     return rows.map((row) => ({
       id: row.id,
@@ -147,7 +184,6 @@ export class Database {
 
   // PRODUCTOS
   static async getAllProducts({ featured }: { featured?: boolean }) {
-
     const query = `
       SELECT p.*
       FROM Product p
@@ -157,7 +193,7 @@ export class Database {
 
     const { rows } = await turso.execute({
       sql: query,
-      args: featured ? [featured] : []
+      args: featured ? [featured] : [],
     });
 
     // Para cada producto, obtener sus imágenes, categorías y productos relacionados
@@ -165,8 +201,10 @@ export class Database {
       rows.map(async (row) => {
         const images = await this.getProductImages(Number(row.id));
         const categories = await this.getProductCategories(Number(row.id));
-        const relatedProducts = await this.getProductRelatedProducts(Number(row.id));
-        
+        const relatedProducts = await this.getProductRelatedProducts(
+          Number(row.id)
+        );
+
         return {
           ...row,
           isActive: Boolean(row.isActive),
@@ -277,7 +315,10 @@ export class Database {
 
     // Asociar productos relacionados si se proporcionaron
     if (data.relatedProducts && data.relatedProducts.length > 0) {
-      await this.setProductRelatedProducts(Number(product.id), data.relatedProducts);
+      await this.setProductRelatedProducts(
+        Number(product.id),
+        data.relatedProducts
+      );
     }
 
     // Retornar producto completo
@@ -304,7 +345,12 @@ export class Database {
       relatedProducts?: number[];
     }
   ) {
-    console.log('Database.updateProduct - ID:', id, 'Data:', JSON.stringify(data, null, 2));
+    console.log(
+      'Database.updateProduct - ID:',
+      id,
+      'Data:',
+      JSON.stringify(data, null, 2)
+    );
     const updates = [];
     const args = [];
 
@@ -358,7 +404,11 @@ export class Database {
     }
 
     // Si se actualiza el precio, actualizar también priceUpdatedAt
-    if (data.price !== undefined || data.retailPrice !== undefined || data.wholesalePrice !== undefined) {
+    if (
+      data.price !== undefined ||
+      data.retailPrice !== undefined ||
+      data.wholesalePrice !== undefined
+    ) {
       updates.push('priceUpdatedAt = CURRENT_TIMESTAMP');
     }
 
@@ -412,7 +462,7 @@ export class Database {
       args: [productId],
     });
 
-    return rows.map(row => ({
+    return rows.map((row) => ({
       id: row.id,
       url: row.url,
       alt: row.alt,
@@ -435,7 +485,7 @@ export class Database {
       args: [productId],
     });
 
-    return rows.map(row => row.imageId);
+    return rows.map((row) => row.imageId);
   }
 
   static async setProductImages(productId: number, imageIds: number[]) {
@@ -471,17 +521,19 @@ export class Database {
       args: [productId],
     });
 
-    return rows.map(row => ({
+    return rows.map((row) => ({
       id: row.id,
       name: row.name,
       slug: row.slug,
       description: row.description,
       featured: Boolean(row.featured),
-      image: row.imageId ? {
-        id: row.imageId,
-        url: row.imageUrl,
-        alt: row.imageAlt,
-      } : null,
+      image: row.imageId
+        ? {
+            id: row.imageId,
+            url: row.imageUrl,
+            alt: row.imageAlt,
+          }
+        : null,
     }));
   }
 
@@ -497,12 +549,17 @@ export class Database {
       args: [productId],
     });
 
-    return rows.map(row => row.categoryId);
+    return rows.map((row) => row.categoryId);
   }
 
   static async setProductCategories(productId: number, categoryIds: number[]) {
-    console.log('Database.setProductCategories - productId:', productId, 'categoryIds:', categoryIds);
-    
+    console.log(
+      'Database.setProductCategories - productId:',
+      productId,
+      'categoryIds:',
+      categoryIds
+    );
+
     // Eliminar relaciones existentes
     await turso.execute({
       sql: 'DELETE FROM ProductCategory WHERE productId = ?',
@@ -531,12 +588,20 @@ export class Database {
       `,
       args: [productId],
     });
-    return rows.map(row => Number(row.relatedProductId));
+    return rows.map((row) => Number(row.relatedProductId));
   }
 
-  static async setProductRelatedProducts(productId: number, relatedProductIds: number[]) {
-    console.log('Database.setProductRelatedProducts - productId:', productId, 'relatedProductIds:', relatedProductIds);
-    
+  static async setProductRelatedProducts(
+    productId: number,
+    relatedProductIds: number[]
+  ) {
+    console.log(
+      'Database.setProductRelatedProducts - productId:',
+      productId,
+      'relatedProductIds:',
+      relatedProductIds
+    );
+
     // Eliminar relaciones existentes
     await turso.execute({
       sql: 'DELETE FROM ProductRelated WHERE productId = ?',
@@ -656,6 +721,76 @@ export class Database {
         RETURNING *
       `,
       args: [key, value],
+    });
+    return rows[0];
+  }
+
+  // NEWSLETTER SUBSCRIBERS
+  static async createNewsletterSubscriber(data: {
+    name: string;
+    email: string;
+  }) {
+    const { rows } = await turso.execute({
+      sql: `
+        INSERT INTO NewsletterSubscriber (name, email)
+        VALUES (?, ?)
+        RETURNING *
+      `,
+      args: [data.name, data.email],
+    });
+    return rows[0];
+  }
+
+  static async getNewsletterSubscriberByEmail(email: string) {
+    const { rows } = await turso.execute({
+      sql: `
+        SELECT * FROM NewsletterSubscriber 
+        WHERE email = ?
+      `,
+      args: [email],
+    });
+    return rows[0] || null;
+  }
+
+  static async reactivateNewsletterSubscriber(email: string) {
+    const { rows } = await turso.execute({
+      sql: `
+        UPDATE NewsletterSubscriber 
+        SET isActive = TRUE, unsubscribedAt = NULL, updatedAt = CURRENT_TIMESTAMP
+        WHERE email = ?
+        RETURNING *
+      `,
+      args: [email],
+    });
+    return rows[0];
+  }
+
+  static async getAllNewsletterSubscribers({
+    active,
+  }: { active?: boolean } = {}) {
+    const query = `
+      SELECT * FROM NewsletterSubscriber
+      ${active !== undefined ? 'WHERE isActive = ?' : ''}
+      ORDER BY subscribedAt DESC
+    `;
+
+    const { rows } = await turso.execute({
+      sql: query,
+      args: active !== undefined ? [active] : [],
+    });
+
+    return rows;
+  }
+
+  static async unsubscribeFromNewsletter(email: string) {
+    const { rows } = await turso.execute({
+      sql: `
+        UPDATE NewsletterSubscriber 
+        SET isActive = FALSE, unsubscribedAt = CURRENT_TIMESTAMP, updatedAt = CURRENT_TIMESTAMP
+        WHERE email = ?
+        RETURNING *
+      `,
+      args: [email],
     });
     return rows[0];
   }

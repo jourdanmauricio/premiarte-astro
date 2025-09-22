@@ -40,3 +40,4 @@ export interface UpdateProductData extends Omit<Product, 'id' | 'slug' | 'catego
   // El id se genera automáticamente por la base de datos
   categories: (number | undefined)[] | null ;
 }
+

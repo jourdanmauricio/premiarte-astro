@@ -10,6 +10,7 @@ import { Sidebar } from './Sidebar';
 import { MediaPage } from '@/components/dashboard/media/MediaPage';
 import { Toaster } from '@/components/ui/sonner';
 import RegenerateButton from '@/components/ui/custom/RegenerateButton';
+import { NewsletterPage } from '@/components/dashboard/newsletter/NewsletterPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -60,6 +61,7 @@ export default function DashboardApp() {
                   <Route path='/products' element={<ProductsPage />} />
                   <Route path='/categories' element={<CategoriesPage />} />
                   <Route path='/media' element={<MediaPage />} />
+                  <Route path='/newsletter' element={<NewsletterPage />} />
                 </Routes>
               </div>
             </main>

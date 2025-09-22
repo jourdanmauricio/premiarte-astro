@@ -1,8 +1,9 @@
-import { registerUser } from '@/actions/auth';
+
+import { subscribeToNewsletter } from '@/actions/newsletter/subscribe.action';
 
 export const server = {
   // actions
 
-  // auth
-  registerUser,
+  // newsletter
+  subscribeToNewsletter,
 };

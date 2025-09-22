@@ -84,5 +84,19 @@ CREATE TABLE IF NOT EXISTS ProductRelated (
   UNIQUE(productId, relatedProductId) -- Evita duplicados
 );
 
+-- Tabla para suscriptores del newsletter
+CREATE TABLE IF NOT EXISTS NewsletterSubscriber (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
+  isActive BOOLEAN DEFAULT TRUE,
+  subscribedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  unsubscribedAt DATETIME,
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Índices adicionales
-CREATE UNIQUE INDEX IF NOT EXISTS idx_product_sku_unique ON Product(sku) WHERE sku IS NOT NULL; 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_product_sku_unique ON Product(sku) WHERE sku IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_newsletter_email_unique ON NewsletterSubscriber(email);
+

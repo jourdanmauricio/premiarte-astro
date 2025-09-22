@@ -8,6 +8,7 @@ import type { Settings } from '@/shared/types';
 import Testimonials from '@/components/home/Testimonials';
 import { ServicesSection } from '@/components/home/Services';
 import FeaturedCategoriesSection from '@/components/home/FeaturedCategoriesSection.astro';
+import NewsletterSection from '@/components/home/NewsletterSection';
 
 export interface Slide {
   image: number;
@@ -137,5 +138,7 @@ const featuredCategories = parsedValue.featuredCategories;
     <FeaturedCategoriesSection featuredCategories={featuredCategories} />
 
     <Testimonials testimonials={testimonials} />
+
+    <NewsletterSection client:visible />
   </section>
 </div>
