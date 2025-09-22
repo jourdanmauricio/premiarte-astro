@@ -13,15 +13,20 @@ export const getProductsByCategory = defineAction({
   handler: async ({ page, limit, category }) => {
     page = page <= 0 ? 1 : page;
 
-    const categoryData = await Database.getCategoryBySlug(category ?? '');
+    let totalProducts = 0;
+    let categoryData = null;
+
+    if (category !== 'productos') {
+      categoryData = await Database.getCategoryBySlug(category ?? '');
+      totalProducts = Number(
+        await Database.countProductsByCategory(Number(categoryData?.id ?? 0))
+      );
+    } else {
+      totalProducts = Number(await Database.countProducts());
+    }
 
     console.log('category', category);
     console.log('categoryData', categoryData);
-
-    const totalProducts = Number(
-      await Database.countProductsByCategory(Number(categoryData?.id ?? 0))
-    );
-
     console.log('totalProducts', totalProducts);
     const totalPages = Math.ceil(totalProducts / limit);
 
@@ -35,11 +40,20 @@ export const getProductsByCategory = defineAction({
     console.log('page', page);
     console.log('limit', limit);
 
-    const productsQuery = await Database.getAllProductsByCategory({
-      categoryId: Number(categoryData?.id ?? 0),
-      page,
-      limit,
-    });
+    let productsQuery = [];
+
+    if (category !== 'productos') {
+      productsQuery = await Database.getAllProductsByCategory({
+        categoryId: Number(categoryData?.id ?? 0),
+        page,
+        limit,
+      });
+    } else {
+      productsQuery = await Database.getAllProducts({
+        page,
+        limit,
+      });
+    }
 
     return {
       products: productsQuery,
