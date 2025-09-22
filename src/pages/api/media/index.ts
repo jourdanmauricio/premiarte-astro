@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
-import { clerkClient } from '@clerk/astro/server';
 import { v2 as cloudinary } from 'cloudinary';
 import { Database } from '@/lib/db';
+import { verifyAdminAuth } from '@/lib/utils';
 
 // Configurar Cloudinary
 cloudinary.config({
@@ -44,31 +44,9 @@ export const GET: APIRoute = async (context) => {
 export const POST: APIRoute = async (context) => {
   try {
     // Verificar autenticación
-    const { userId } = context.locals.auth();
-
-    if (!userId) {
-      return new Response(JSON.stringify({ error: 'No autorizado' }), {
-        status: 401,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-    }
-
-    // Verificar que el usuario sea admin
-    const user = await clerkClient(context).users.getUser(userId);
-    if (user.publicMetadata?.role !== 'admin') {
-      return new Response(
-        JSON.stringify({
-          error: 'Acceso denegado. Se requieren permisos de administrador.',
-        }),
-        {
-          status: 403,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+    const authResult = await verifyAdminAuth(context);
+    if (!authResult.success) {
+      return authResult.response;
     }
 
     // Obtener datos del FormData

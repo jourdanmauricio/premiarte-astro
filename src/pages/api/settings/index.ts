@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { Database } from '@/lib/db';
+import { verifyAdminAuth } from '@/lib/utils';
 
 // GET - Obtener todas las configuraciones
 export const GET: APIRoute = async (context) => {
@@ -31,15 +32,9 @@ export const GET: APIRoute = async (context) => {
 export const POST: APIRoute = async (context) => {
   try {
     // Verificar autenticación
-    const { userId } = context.locals.auth();
-
-    if (!userId) {
-      return new Response(JSON.stringify({ error: 'No autorizado' }), {
-        status: 401,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+    const authResult = await verifyAdminAuth(context);
+    if (!authResult.success) {
+      return authResult.response;
     }
 
     const body = await context.request.json();

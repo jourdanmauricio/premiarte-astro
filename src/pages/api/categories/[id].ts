@@ -1,36 +1,15 @@
 import { Database } from '@/lib/db';
 import type { APIRoute } from 'astro';
 import { clerkClient } from '@clerk/astro/server';
+import { verifyAdminAuth } from '@/lib/utils';
 
 // PUT - Actualizar categoría existente
 export const PUT: APIRoute = async (context) => {
   try {
     // Verificar autenticación
-    const { userId } = context.locals.auth();
-
-    if (!userId) {
-      return new Response(JSON.stringify({ error: 'No autorizado' }), {
-        status: 401,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-    }
-
-    // Verificar que el usuario sea admin
-    const user = await clerkClient(context).users.getUser(userId);
-    if (user.publicMetadata?.role !== 'admin') {
-      return new Response(
-        JSON.stringify({
-          error: 'Acceso denegado. Se requieren permisos de administrador.',
-        }),
-        {
-          status: 403,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+    const authResult = await verifyAdminAuth(context);
+    if (!authResult.success) {
+      return authResult.response;
     }
 
     // Obtener ID de la categoría
@@ -153,31 +132,9 @@ export const PUT: APIRoute = async (context) => {
 export const DELETE: APIRoute = async (context) => {
   try {
     // Verificar autenticación
-    const { userId } = context.locals.auth();
-
-    if (!userId) {
-      return new Response(JSON.stringify({ error: 'No autorizado' }), {
-        status: 401,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-    }
-
-    // Verificar que el usuario sea admin
-    const user = await clerkClient(context).users.getUser(userId);
-    if (user.publicMetadata?.role !== 'admin') {
-      return new Response(
-        JSON.stringify({
-          error: 'Acceso denegado. Se requieren permisos de administrador.',
-        }),
-        {
-          status: 403,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+    const authResult = await verifyAdminAuth(context);
+    if (!authResult.success) {
+      return authResult.response;
     }
 
     // Obtener ID de la categoría
@@ -211,7 +168,9 @@ export const DELETE: APIRoute = async (context) => {
     }
 
     // Verificar si hay productos asociados a esta categoría
-    const productsCount = await Database.countProductsByCategory(categoryId);
+    const productsCount = Number(
+      await Database.countProductsByCategory(categoryId)
+    );
 
     if (productsCount > 0) {
       return new Response(

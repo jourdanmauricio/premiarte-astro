@@ -1,6 +1,6 @@
 import { Database } from '@/lib/db';
 import type { APIRoute } from 'astro';
-import { clerkClient } from '@clerk/astro/server';
+import { verifyAdminAuth } from '@/lib/utils';
 
 export const GET: APIRoute = async ({ request, locals }) => {
   try {
@@ -29,31 +29,9 @@ export const GET: APIRoute = async ({ request, locals }) => {
 export const POST: APIRoute = async (context) => {
   try {
     // Verificar autenticación
-    const { userId } = context.locals.auth();
-
-    if (!userId) {
-      return new Response(JSON.stringify({ error: 'No autorizado' }), {
-        status: 401,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-    }
-
-    // Verificar que el usuario sea admin
-    const user = await clerkClient(context).users.getUser(userId);
-    if (user.publicMetadata?.role !== 'admin') {
-      return new Response(
-        JSON.stringify({
-          error: 'Acceso denegado. Se requieren permisos de administrador.',
-        }),
-        {
-          status: 403,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+    const authResult = await verifyAdminAuth(context);
+    if (!authResult.success) {
+      return authResult.response;
     }
 
     // Obtener datos del body
@@ -73,7 +51,7 @@ export const POST: APIRoute = async (context) => {
       discountType,
       images,
       categories,
-      relatedProducts
+      relatedProducts,
     } = body;
 
     // Validaciones básicas
@@ -105,7 +83,7 @@ export const POST: APIRoute = async (context) => {
       discountType: discountType || 'percentage',
       images: images || [],
       categories: categories || [],
-      relatedProducts: relatedProducts || []
+      relatedProducts: relatedProducts || [],
     });
 
     return new Response(JSON.stringify(newProduct), {

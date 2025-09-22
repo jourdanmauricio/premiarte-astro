@@ -1,36 +1,14 @@
 import { Database } from '@/lib/db';
 import type { APIRoute } from 'astro';
-import { clerkClient } from '@clerk/astro/server';
 import * as XLSX from 'xlsx';
+import { verifyAdminAuth } from '@/lib/utils';
 
 export const POST: APIRoute = async (context) => {
   try {
     // Verificar autenticación
-    const { userId } = context.locals.auth();
-
-    if (!userId) {
-      return new Response(JSON.stringify({ error: 'No autorizado' }), {
-        status: 401,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-    }
-
-    // Verificar que el usuario sea admin
-    const user = await clerkClient(context).users.getUser(userId);
-    if (user.publicMetadata?.role !== 'admin') {
-      return new Response(
-        JSON.stringify({
-          error: 'Acceso denegado. Se requieren permisos de administrador.',
-        }),
-        {
-          status: 403,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+    const authResult = await verifyAdminAuth(context);
+    if (!authResult.success) {
+      return authResult.response;
     }
 
     // Obtener el archivo del FormData
@@ -98,10 +76,22 @@ export const POST: APIRoute = async (context) => {
           price: row.Precio ? parseFloat(row.Precio) : 0,
           stock: row.Stock ? parseInt(row.Stock) : 0,
           retailPrice: row.Precio_Retail ? parseFloat(row.Precio_Retail) : 0,
-          wholesalePrice: row.Precio_Mayorista ? parseFloat(row.Precio_Mayorista) : 0,
-          slug: row.Slug ? row.Slug.toString().trim() : row.Nombre.toString().toLowerCase().replace(/\s+/g, '-'),
-          isActive: row.Activo === 'Sí' || row.Activo === 'Si' || row.Activo === 'S' || row.Activo === true,
-          isFeatured: row.Destacado === 'Sí' || row.Destacado === 'Si' || row.Destacado === 'S' || row.Destacado === true,
+          wholesalePrice: row.Precio_Mayorista
+            ? parseFloat(row.Precio_Mayorista)
+            : 0,
+          slug: row.Slug
+            ? row.Slug.toString().trim()
+            : row.Nombre.toString().toLowerCase().replace(/\s+/g, '-'),
+          isActive:
+            row.Activo === 'Sí' ||
+            row.Activo === 'Si' ||
+            row.Activo === 'S' ||
+            row.Activo === true,
+          isFeatured:
+            row.Destacado === 'Sí' ||
+            row.Destacado === 'Si' ||
+            row.Destacado === 'S' ||
+            row.Destacado === true,
         };
 
         // Verificar si el producto existe por SKU
@@ -109,17 +99,11 @@ export const POST: APIRoute = async (context) => {
 
         if (existingProduct) {
           // Actualizar producto existente
-          await Database.updateProduct(existingProduct.id, {
-            ...productData,
-            priceUpdatedAt: new Date().toISOString(), // Actualizar fecha de actualización de precio
-          });
+          await Database.updateProduct(Number(existingProduct.id), productData);
           results.updated++;
         } else {
           // Crear nuevo producto
-          await Database.createProduct({
-            ...productData,
-            priceUpdatedAt: new Date().toISOString(), // Establecer fecha de actualización de precio
-          });
+          await Database.createProduct(productData);
           results.created++;
         }
       } catch (error) {

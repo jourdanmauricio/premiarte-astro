@@ -1,36 +1,15 @@
 import { Database } from '@/lib/db';
 import type { APIRoute } from 'astro';
 import { clerkClient } from '@clerk/astro/server';
+import { verifyAdminAuth } from '@/lib/utils';
 
 // PUT - Actualizar producto existente
 export const PUT: APIRoute = async (context) => {
   try {
     // Verificar autenticación
-    const { userId } = context.locals.auth();
-
-    if (!userId) {
-      return new Response(JSON.stringify({ error: 'No autorizado' }), {
-        status: 401,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-    }
-
-    // Verificar que el usuario sea admin
-    const user = await clerkClient(context).users.getUser(userId);
-    if (user.publicMetadata?.role !== 'admin') {
-      return new Response(
-        JSON.stringify({
-          error: 'Acceso denegado. Se requieren permisos de administrador.',
-        }),
-        {
-          status: 403,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+    const authResult = await verifyAdminAuth(context);
+    if (!authResult.success) {
+      return authResult.response;
     }
 
     // Obtener ID del producto
@@ -52,21 +31,18 @@ export const PUT: APIRoute = async (context) => {
     const existingProduct = await Database.getProductById(productId);
 
     if (!existingProduct) {
-      return new Response(
-        JSON.stringify({ error: 'Producto no encontrado' }),
-        {
-          status: 404,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      return new Response(JSON.stringify({ error: 'Producto no encontrado' }), {
+        status: 404,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
     }
 
     // Obtener datos del cuerpo de la petición
     const body = await context.request.json();
     console.log('Datos recibidos en PUT:', JSON.stringify(body, null, 2));
-    
+
     const {
       name,
       slug,
@@ -81,11 +57,16 @@ export const PUT: APIRoute = async (context) => {
       discountType,
       images,
       categories,
-      relatedProducts
+      relatedProducts,
     } = body;
 
     // Si se proporciona un slug, verificar que no esté duplicado
-    if (slug && existingProduct && 'slug' in existingProduct && slug !== existingProduct.slug) {
+    if (
+      slug &&
+      existingProduct &&
+      'slug' in existingProduct &&
+      slug !== existingProduct.slug
+    ) {
       const slugExists = await Database.getProductBySlug(slug);
 
       if (slugExists) {
@@ -111,20 +92,22 @@ export const PUT: APIRoute = async (context) => {
     if (isActive !== undefined) updateData.isActive = isActive;
     if (isFeatured !== undefined) updateData.isFeatured = isFeatured;
     if (retailPrice !== undefined) updateData.retailPrice = retailPrice;
-    if (wholesalePrice !== undefined) updateData.wholesalePrice = wholesalePrice;
+    if (wholesalePrice !== undefined)
+      updateData.wholesalePrice = wholesalePrice;
     if (discount !== undefined) updateData.discount = discount;
     if (discountType !== undefined) updateData.discountType = discountType;
     if (images !== undefined) updateData.images = images;
     if (categories !== undefined) updateData.categories = categories;
-    if (relatedProducts !== undefined) updateData.relatedProducts = relatedProducts;
+    if (relatedProducts !== undefined)
+      updateData.relatedProducts = relatedProducts;
 
-    console.log('Datos preparados para actualizar:', JSON.stringify(updateData, null, 2));
+    console.log(
+      'Datos preparados para actualizar:',
+      JSON.stringify(updateData, null, 2)
+    );
 
     // Actualizar el producto
-    const updatedProduct = await Database.updateProduct(
-      productId,
-      updateData
-    );
+    const updatedProduct = await Database.updateProduct(productId, updateData);
 
     return new Response(JSON.stringify(updatedProduct), {
       status: 200,
@@ -164,31 +147,9 @@ export const PUT: APIRoute = async (context) => {
 export const DELETE: APIRoute = async (context) => {
   try {
     // Verificar autenticación
-    const { userId } = context.locals.auth();
-
-    if (!userId) {
-      return new Response(JSON.stringify({ error: 'No autorizado' }), {
-        status: 401,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-    }
-
-    // Verificar que el usuario sea admin
-    const user = await clerkClient(context).users.getUser(userId);
-    if (user.publicMetadata?.role !== 'admin') {
-      return new Response(
-        JSON.stringify({
-          error: 'Acceso denegado. Se requieren permisos de administrador.',
-        }),
-        {
-          status: 403,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+    const authResult = await verifyAdminAuth(context);
+    if (!authResult.success) {
+      return authResult.response;
     }
 
     // Obtener ID del producto
@@ -210,15 +171,12 @@ export const DELETE: APIRoute = async (context) => {
     const existingProduct = await Database.getProductById(productId);
 
     if (!existingProduct) {
-      return new Response(
-        JSON.stringify({ error: 'Producto no encontrado' }),
-        {
-          status: 404,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      return new Response(JSON.stringify({ error: 'Producto no encontrado' }), {
+        status: 404,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
     }
 
     // Eliminar el producto (las relaciones se eliminan automáticamente por CASCADE)
@@ -269,15 +227,12 @@ export const GET: APIRoute = async (context) => {
     const product = await Database.getProductById(productId);
 
     if (!product) {
-      return new Response(
-        JSON.stringify({ error: 'Producto no encontrado' }),
-        {
-          status: 404,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      return new Response(JSON.stringify({ error: 'Producto no encontrado' }), {
+        status: 404,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
     }
 
     return new Response(JSON.stringify(product), {
