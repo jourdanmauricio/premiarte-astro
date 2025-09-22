@@ -8,8 +8,6 @@ export const GET: APIRoute = async ({ request, locals }) => {
     // GET público - no requiere autenticación para mostrar categorías en el sitio
     const categories = await Database.getAllCategories({});
 
-    console.log('categories', categories);
-
     return new Response(JSON.stringify(categories), {
       status: 200,
       headers: {
@@ -17,7 +15,6 @@ export const GET: APIRoute = async ({ request, locals }) => {
       },
     });
   } catch (error) {
-    console.error('Error al obtener categorías:', error);
     return new Response(
       JSON.stringify({ error: 'Error interno del servidor' }),
       {

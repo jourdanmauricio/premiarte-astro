@@ -25,9 +25,6 @@ export const getProductsByCategory = defineAction({
       totalProducts = Number(await Database.countProducts());
     }
 
-    console.log('category', category);
-    console.log('categoryData', categoryData);
-    console.log('totalProducts', totalProducts);
     const totalPages = Math.ceil(totalProducts / limit);
 
     if (page > totalPages) {
@@ -36,9 +33,6 @@ export const getProductsByCategory = defineAction({
         totalPages: totalPages,
       };
     }
-
-    console.log('page', page);
-    console.log('limit', limit);
 
     let productsQuery = [];
 

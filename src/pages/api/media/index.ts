@@ -18,8 +18,6 @@ export const GET: APIRoute = async (context) => {
 
     const images = await Database.getAllImages();
 
-    console.log(`GET /api/media - Returning ${images.length} images`);
-
     return new Response(JSON.stringify(images), {
       status: 200,
       headers: {
@@ -95,8 +93,6 @@ export const POST: APIRoute = async (context) => {
       tag: tag || '',
       observation: observation || '',
     });
-
-    console.log('POST /api/media - Image created:', newImage);
 
     return new Response(JSON.stringify(newImage), {
       status: 201,

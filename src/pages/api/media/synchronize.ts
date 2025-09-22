@@ -63,7 +63,6 @@ export const POST: APIRoute = async (context) => {
 
           newImages.push(newImage);
           added++;
-          console.log(`Agregada imagen: ${cloudinaryImg.public_id}`);
         } catch (error) {
           console.error(
             `Error al agregar imagen ${cloudinaryImg.public_id}:`,
@@ -72,15 +71,8 @@ export const POST: APIRoute = async (context) => {
         }
       } else {
         skipped++;
-        console.log(`Imagen ya existe, omitiendo: ${cloudinaryImg.public_id}`);
       }
     }
-
-    console.log(`Sincronización completada:
-      - Total en Cloudinary: ${cloudinaryImages.resources.length}
-      - Agregadas: ${added}
-      - Omitidas: ${skipped}
-      - Total en BD: ${existingImages.length + added}`);
 
     return new Response(
       JSON.stringify({

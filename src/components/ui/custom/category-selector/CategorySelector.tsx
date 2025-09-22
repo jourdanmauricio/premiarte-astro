@@ -30,7 +30,6 @@ export default function CategorySelector({
     queryKey: ['categories'],
     queryFn: async () => {
       const response = await categoriesService.getCategories();
-      console.log('Categories response:', response);
       return response;
     },
     refetchOnWindowFocus: false,

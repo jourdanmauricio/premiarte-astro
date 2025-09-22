@@ -201,7 +201,6 @@ export class Database {
       args.push(status);
     }
 
-    console.log('categoryId', categoryId);
     if (categoryId !== undefined) {
       conditions.push('p.categoryId = ?');
       args.push(categoryId);
@@ -275,8 +274,6 @@ export class Database {
       ORDER BY p.createdAt DESC
       ${page !== undefined && limit !== undefined ? `LIMIT ${limit} OFFSET ${(page - 1) * limit}` : ''}
     `;
-
-    console.log('query', query);
 
     const { rows } = await turso.execute({
       sql: query,
@@ -466,12 +463,6 @@ export class Database {
       relatedProducts?: number[];
     }
   ) {
-    console.log(
-      'Database.updateProduct - ID:',
-      id,
-      'Data:',
-      JSON.stringify(data, null, 2)
-    );
     const updates = [];
     const args = [];
 
@@ -674,13 +665,6 @@ export class Database {
   }
 
   static async setProductCategories(productId: number, categoryIds: number[]) {
-    console.log(
-      'Database.setProductCategories - productId:',
-      productId,
-      'categoryIds:',
-      categoryIds
-    );
-
     // Eliminar relaciones existentes
     await turso.execute({
       sql: 'DELETE FROM ProductCategory WHERE productId = ?',
@@ -716,13 +700,6 @@ export class Database {
     productId: number,
     relatedProductIds: number[]
   ) {
-    console.log(
-      'Database.setProductRelatedProducts - productId:',
-      productId,
-      'relatedProductIds:',
-      relatedProductIds
-    );
-
     // Eliminar relaciones existentes
     await turso.execute({
       sql: 'DELETE FROM ProductRelated WHERE productId = ?',

@@ -33,7 +33,6 @@ const MediaPage = () => {
     queryKey: ['Images'],
     queryFn: async () => {
       const response = await mediaService.getImages();
-      console.log('response', response);
       return response;
     },
     refetchOnWindowFocus: false,
@@ -42,7 +41,6 @@ const MediaPage = () => {
   const syncMutation = useMutation({
     mutationFn: () => mediaService.synchronizeImages(),
     onSuccess: (result) => {
-      console.log('Sincronización exitosa:', result);
       queryClient.invalidateQueries({ queryKey: ['Images'] });
 
       toast.success(

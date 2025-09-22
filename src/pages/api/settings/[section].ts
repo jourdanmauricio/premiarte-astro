@@ -26,8 +26,6 @@ export const PUT: APIRoute = async (context) => {
 
     const setting = await Database.setSetting(section, JSON.stringify(value));
 
-    console.log(`Configuración actualizada para ${section}:`, setting);
-
     return new Response(JSON.stringify(setting), {
       status: 200,
       headers: {

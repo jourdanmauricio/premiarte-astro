@@ -115,7 +115,6 @@ const ImageModal = ({ open, closeModal, image }: ImageModalProps) => {
   };
 
   const onSubmit = (data: z.infer<typeof ImageFormSchema>) => {
-    console.log('data', data);
     imageMutation.mutate(data);
   };
 

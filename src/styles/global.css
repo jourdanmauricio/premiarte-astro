@@ -129,11 +129,11 @@
     @apply text-xl font-semibold text-gray-900;
 }
 
-::view-transition-old(root),
+/* ::view-transition-old(root),
 ::view-transition-new(root) {
-    animation-duration: 0.05s;
-    /* animation-timing-function: ease-out; */
-}
+     animation-duration: 0.05s; 
+     animation-timing-function: ease-out; 
+} */
 
 
 @keyframes show-image {

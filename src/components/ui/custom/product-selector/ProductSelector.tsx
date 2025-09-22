@@ -30,7 +30,6 @@ export default function ProductSelector({
     queryKey: ['products'],
     queryFn: async () => {
       const response = await productsService.getProducts();
-      console.log('Products response:', response);
       return response;
     },
     refetchOnWindowFocus: false,

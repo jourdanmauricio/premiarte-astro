@@ -114,7 +114,6 @@ const HomePanels = () => {
   });
 
   const onSubmit = (data: z.infer<typeof SettingsFormSchema>) => {
-    console.log('data', data);
     settingsMutation.mutate(data);
   };
 

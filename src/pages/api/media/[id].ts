@@ -138,8 +138,6 @@ export const PUT: APIRoute = async (context) => {
       observation,
     });
 
-    console.log('Imagen actualizada:', updatedImage);
-
     return new Response(JSON.stringify(updatedImage), {
       status: 200,
       headers: {

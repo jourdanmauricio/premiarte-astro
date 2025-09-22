@@ -45,8 +45,6 @@ export function ProductSelectorTable<TValue>({
     {}
   );
 
-  console.log('data', data);
-
   const { getFieldState, formState } = useFormContext();
   const fieldState = getFieldState(nameSchema, formState);
 

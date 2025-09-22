@@ -9,8 +9,6 @@ export const POST: APIRoute = async (context) => {
       return authResult.response;
     }
 
-    console.log('🔄 Iniciando regeneración del sitio via Coolify...');
-
     // Configuración de Coolify
     const coolifyApiUrl =
       process.env.COOLIFY_API_URL || 'http://localhost:8000';
@@ -18,7 +16,6 @@ export const POST: APIRoute = async (context) => {
     const coolifyApplicationId = process.env.COOLIFY_APPLICATION_ID;
 
     if (!coolifyApiToken || !coolifyApplicationId) {
-      console.log('📝 Variables de Coolify no configuradas completamente...');
       return new Response(
         JSON.stringify({
           success: true,
@@ -34,8 +31,6 @@ export const POST: APIRoute = async (context) => {
     }
 
     try {
-      console.log(`🔄 Triggering deploy en Coolify: ${coolifyApiUrl}`);
-
       // Llamar a la API de Coolify v4 para triggear deploy
       const deployResponse = await fetch(`${coolifyApiUrl}/api/v1/deploy`, {
         method: 'POST',
@@ -56,7 +51,6 @@ export const POST: APIRoute = async (context) => {
       }
 
       const deployData = await deployResponse.json();
-      console.log('✅ Deploy iniciado en Coolify:', deployData);
 
       return new Response(
         JSON.stringify({
@@ -72,8 +66,6 @@ export const POST: APIRoute = async (context) => {
         }
       );
     } catch (error: any) {
-      console.error('❌ Error al triggear deploy en Coolify:', error);
-
       return new Response(
         JSON.stringify({
           success: false,
@@ -88,7 +80,6 @@ export const POST: APIRoute = async (context) => {
       );
     }
   } catch (error) {
-    console.error('❌ Error en regeneración:', error);
     return new Response(
       JSON.stringify({ error: 'Error interno del servidor' }),
       {

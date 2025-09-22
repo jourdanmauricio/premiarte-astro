@@ -43,18 +43,12 @@ export const PUT: APIRoute = async (context) => {
 
     // Obtener datos del cuerpo de la petición
     const body = await context.request.json();
-    console.log('Datos recibidos en PUT:', JSON.stringify(body, null, 2));
 
     const { isActive } = body;
 
     // Preparar datos para actualizar (solo campos que se proporcionaron)
     const updateData: any = {};
     if (isActive !== undefined) updateData.isActive = isActive;
-
-    console.log(
-      'Datos preparados para actualizar:',
-      JSON.stringify(updateData, null, 2)
-    );
 
     // Actualizar el suscriptor
     const updatedNewsletter = await Database.updateNewsletter(

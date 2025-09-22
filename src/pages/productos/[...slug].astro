@@ -3,8 +3,28 @@ import MainLayout from '@/layouts/MainLayout.astro';
 import * as actions from '@/actions/products/get-product-by-slug.action';
 import type { ProductWithCategoriesAndImages } from '@/shared/types';
 import { Image } from 'astro:assets';
+import { Database } from '@/lib/db';
 
-// Probamos ambos enfoques
+export const prerender = true;
+
+export async function getStaticPaths() {
+  try {
+    // Obtener todos los productos activos de la base de datos
+    const products = await Database.getAllProducts({ status: true });
+
+    // Generar rutas para cada producto que tenga slug
+    const paths = products
+      .filter((product: any) => product.slug) // Solo productos con slug
+      .map((product: any) => ({
+        params: { slug: product.slug },
+      }));
+
+    return paths;
+  } catch (error) {
+    console.error('Error generating static paths for products:', error);
+    return [];
+  }
+}
 
 const { slug } = Astro.params;
 

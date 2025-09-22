@@ -4,10 +4,34 @@ import * as actions from '@/actions/products/get-products-by-category';
 import * as actionsCategories from '@/actions/categoeries/get-categories-by-page.action';
 import type { Category } from '@/shared/types';
 import CategoriesPage from '@/components/categories/CategoriesPage.astro';
+import { Database } from '@/lib/db';
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  try {
+    // Obtener todas las categorías de la base de datos
+    const categories = await Database.getAllCategories({});
+
+    // Generar rutas para cada categoría
+    const paths = categories.map((category: any) => ({
+      params: { slug: category.slug },
+    }));
+
+    // Agregar la ruta adicional /categoria/productos
+    paths.push({
+      params: { slug: 'productos' },
+    });
+
+    return paths;
+  } catch (error) {
+    console.error('Error generating static paths for categories:', error);
+    return [];
+  }
+}
 
 const searchParams = Astro.url.searchParams;
-//
-// Enfoque alternativo usando Astro.request.url
+
 const requestUrl = new URL(Astro.request.url);
 const requestSearchParams = requestUrl.searchParams;
 

@@ -42,13 +42,10 @@ const ProductsPage = () => {
     queryKey: ['products'],
     queryFn: async () => {
       const response = await productsService.getProducts();
-      console.log('Products response:', response);
       return response;
     },
     refetchOnWindowFocus: false,
   });
-
-  console.log('productsData', productsData);
 
   // Los datos ya vienen completos del backend, solo necesitamos mapearlos al tipo esperado
   const data = useMemo(() => {

@@ -55,8 +55,6 @@ export function CategorySelectorTable<TValue>({
     {}
   );
 
-  console.log('data', data);
-
   const { getFieldState, formState } = useFormContext();
   const fieldState = getFieldState(nameSchema, formState);
 
@@ -145,7 +143,6 @@ export function CategorySelectorTable<TValue>({
   useEffect(() => {
     if (data && data.length > 0) {
       const selectedIds = getSelectedIdsFromFormValue();
-      console.log('selectedIds from form value:', selectedIds);
 
       const initialRowSelection = selectedIds.reduce(
         (acc: { [key: string]: boolean }, id: number) => {
@@ -154,7 +151,6 @@ export function CategorySelectorTable<TValue>({
         },
         {}
       );
-      console.log('initialRowSelection', initialRowSelection);
       setRowSelection(initialRowSelection);
     }
   }, [data, form]);

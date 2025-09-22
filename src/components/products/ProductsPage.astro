@@ -19,16 +19,10 @@ const result = await Astro.callAction(actions.getProductsByPage, {
   page: pageParam,
 });
 
-// console.log('result', result);
-
 const { products, totalPages } = result.data || {
   products: [],
   totalPages: 0,
 };
-
-// Mapear los productos al tipo ProductWithDetails
-
-// console.log('products', products);
 ---
 
 <div id='container'>

@@ -1,9 +1,7 @@
 import { Button } from '@/components/ui/button';
 
 const DashboardHomePage = () => {
-  const handleClick = () => {
-    console.log('click');
-  };
+  const handleClick = () => {};
 
   return (
     <div className='bg-white rounded-lg shadow-md py-8 p-6'>

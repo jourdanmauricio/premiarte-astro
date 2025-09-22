@@ -31,7 +31,6 @@ const ReactSlider = ({ slider }: props) => {
     });
   }, [api]);
 
-  console.log('slider', slider);
   return (
     <section className='relative'>
       <div className='relative mx-auto w-full'>
