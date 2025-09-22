@@ -1,0 +1,94 @@
+---
+import MainLayout from '@/layouts/MainLayout.astro';
+import * as actions from '@/actions/products/get-products-by-category';
+import * as actionsCategories from '@/actions/categoeries/get-categories-by-page.action';
+import type { Category, ProductWithCategoriesAndImages } from '@/shared/types';
+import { ProductList } from '@/components/products/ProductList';
+import Pagination from '@/components/shared/Pagination.astro';
+
+const searchParams = Astro.url.searchParams;
+//
+// Enfoque alternativo usando Astro.request.url
+const requestUrl = new URL(Astro.request.url);
+const requestSearchParams = requestUrl.searchParams;
+
+const pageParam = Number(
+  searchParams.get('page') ?? requestSearchParams.get('page') ?? 1
+);
+//
+// const result = await Astro.callAction(actions.getProductsByPage, {
+//   page: pageParam,
+// });
+//
+// // console.log('result', result);
+//
+// const { products, totalPages } = result.data || {
+//   products: [],
+//   totalPages: 0,
+// };
+
+const { slug } = Astro.params;
+
+const { data, error } = await Astro.callAction(actions.getProductsByCategory, {
+  category: slug ?? '',
+  page: pageParam,
+});
+
+if (error) {
+  Astro.redirect('/productos');
+}
+
+console.log('products', data);
+const { products, totalPages } = data || { products: [], totalPages: 0 };
+
+const url = Astro.url;
+const pathname = url.pathname;
+
+const { data: categoriesData, error: categoriesError } = await Astro.callAction(
+  actionsCategories.getCategoriesByPage,
+  {}
+);
+
+if (categoriesError) {
+  Astro.redirect('/categorias');
+}
+
+const categories = categoriesData as unknown as Category[];
+---
+
+{/*  image={categories[0].image.url} */}
+<MainLayout title={categories[0].name} description={categories[0].description}>
+  <div class='container mx-auto max-w-[1200px]'>
+    <div class='space-y-6'>
+      <h2 class='text-lg font-medium'>Productos</h2>
+      <div class='space-y-4'>
+        <div class='flex gap-8 md:flex-row'>
+          <div class='space-y-2'>
+            <a
+              href={`/categoria/productos`}
+              class={`group flex cursor-pointer items-center space-x-2 ${pathname.startsWith('/categoria/productos') ? 'font-bold text-primary' : 'font-normal text-muted-foreground'} transition-colors hover:text-primary`}
+            >
+              Todos los productos
+            </a>
+            {
+              categories.map((category) => (
+                <a
+                  href={`/categoria/${category.slug}`}
+                  class={`group flex cursor-pointer items-center space-x-2 ${pathname.startsWith(`/categoria/${category.slug}`) ? 'font-bold text-primary' : 'font-normal text-muted-foreground'} transition-colors hover:text-primary`}
+                >
+                  {category.name}
+                </a>
+              ))
+            }
+          </div>
+          <main>
+            <ProductList
+              products={products as unknown as ProductWithCategoriesAndImages[]}
+            />
+            <Pagination totalPages={totalPages} />
+          </main>
+        </div>
+      </div>
+    </div>
+  </div>
+</MainLayout>

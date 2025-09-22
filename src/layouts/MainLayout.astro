@@ -1,5 +1,6 @@
 ---
-import { ViewTransitions } from 'astro:transitions';
+import { ClientRouter } from 'astro:transitions';
+
 import NavBar from '@/components/shared/NavBar.astro';
 import ToasterProvider from '@/components/ui/ToasterProvider.tsx';
 
@@ -7,7 +8,9 @@ import '../styles/global.css';
 import Footer from '@/components/shared/Footer';
 
 interface Props {
-  title: string;
+  title?: string;
+  description?: string;
+  image?: string;
 }
 
 const isDashboard = Astro.url.pathname.startsWith('/dashboard');
@@ -23,7 +26,8 @@ const { title } = Astro.props;
     <link rel='icon' type='image/svg+xml' href='/favicon.svg' />
     <meta name='generator' content={Astro.generator} />
     <title>{title}</title>
-    <ViewTransitions fallback='none' />
+
+    <ClientRouter />
   </head>
   <body>
     {/* Background optimizado */}

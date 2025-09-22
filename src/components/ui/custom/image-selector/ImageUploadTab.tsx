@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -81,27 +81,38 @@ export function ImageUploadTab({
     },
   });
 
-  // Notificar al padre sobre el estado
-  useEffect(() => {
-    if (onStateChange) {
-      const canSubmit = Boolean(selectedFile && form.formState.isValid);
-      const isLoading = uploadMutation.isPending;
-      const submit = () => {
-        if (canSubmit) {
-          const formData = form.getValues();
-          uploadMutation.mutate(formData);
-        }
-      };
-      onStateChange({ canSubmit, isLoading, submit });
+  // Función submit memoizada para evitar recreaciones
+  const handleSubmit = useCallback(() => {
+    const canSubmit = Boolean(selectedFile && form.formState.isValid);
+    if (canSubmit) {
+      const formData = form.getValues();
+      uploadMutation.mutate(formData);
     }
   }, [
     selectedFile,
     form.formState.isValid,
-    uploadMutation.isPending,
-    onStateChange,
-    form,
-    uploadMutation,
+    form.getValues,
+    uploadMutation.mutate,
   ]);
+
+  // Memoizar el estado para evitar recreaciones innecesarias
+  const stateObject = useMemo(() => {
+    const canSubmit = Boolean(selectedFile && form.formState.isValid);
+    const isLoading = uploadMutation.isPending;
+    return { canSubmit, isLoading, submit: handleSubmit };
+  }, [
+    selectedFile,
+    form.formState.isValid,
+    uploadMutation.isPending,
+    handleSubmit,
+  ]);
+
+  // Notificar al padre sobre el estado
+  useEffect(() => {
+    if (onStateChange) {
+      onStateChange(stateObject);
+    }
+  }, [onStateChange, stateObject]);
 
   const resetForm = () => {
     form.reset(defaultValues);

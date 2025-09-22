@@ -25,6 +25,7 @@ import InputNumberField from '@/components/ui/custom/input-number-field';
 import Dropdown from '@/components/ui/custom/dropdown';
 import CategorySelector from '@/components/ui/custom/category-selector/CategorySelector';
 import ProductSelector from '@/components/ui/custom/product-selector/ProductSelector';
+import { generateSlug } from '@/lib/utils';
 
 interface ProductModalProps {
   open: boolean;
@@ -175,6 +176,10 @@ const ProductModal = ({ open, closeModal, product }: ProductModalProps) => {
                     name='name'
                     placeholder='Nombre del producto'
                     form={form}
+                    onBlur={(e) => {
+                      const value = e.target.value;
+                      form.setValue('slug', generateSlug(value));
+                    }}
                   />
                   <InputField
                     label='Slug'

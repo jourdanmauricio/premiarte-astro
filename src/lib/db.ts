@@ -166,14 +166,6 @@ export class Database {
     return true;
   }
 
-  static async countProductsByCategory(categoryId: number) {
-    const { rows } = await turso.execute({
-      sql: 'SELECT COUNT(*) as count FROM ProductCategory WHERE categoryId = ?',
-      args: [categoryId],
-    });
-    return rows[0]?.count || 0;
-  }
-
   static async getImageById(id: number) {
     const { rows } = await turso.execute({
       sql: 'SELECT * FROM Image WHERE id = ?',
@@ -183,17 +175,56 @@ export class Database {
   }
 
   // PRODUCTOS
-  static async getAllProducts({ featured }: { featured?: boolean }) {
+  static async getAllProducts({
+    categoryId,
+    featured,
+    status,
+    page,
+    limit,
+  }: {
+    featured?: boolean;
+    status?: boolean;
+    page?: number;
+    limit?: number;
+    categoryId?: number;
+  }) {
+    const conditions = [];
+    const args = [];
+
+    if (featured !== undefined) {
+      conditions.push('p.isFeatured = ?');
+      args.push(featured);
+    }
+
+    if (status !== undefined) {
+      conditions.push('p.isActive = ?');
+      args.push(status);
+    }
+
+    console.log('categoryId', categoryId);
+    if (categoryId !== undefined) {
+      conditions.push('p.categoryId = ?');
+      args.push(categoryId);
+    }
+
+    // if (slug !== undefined) {
+    //   conditions.push('p.slug = ?');
+    //   args.push(slug);
+    // } else {
+    //   conditions.push('p.slug IS NOT NULL');
+    // }
+
     const query = `
       SELECT p.*
       FROM Product p
-      ${featured ? 'WHERE p.isFeatured = ?' : ''}
+      ${conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : ''}
       ORDER BY p.createdAt DESC
+      ${page !== undefined && limit !== undefined ? `LIMIT ${limit} OFFSET ${(page - 1) * limit}` : ''}
     `;
 
     const { rows } = await turso.execute({
       sql: query,
-      args: featured ? [featured] : [],
+      args,
     });
 
     // Para cada producto, obtener sus imágenes, categorías y productos relacionados
@@ -217,6 +248,77 @@ export class Database {
     );
 
     return productsWithRelations;
+  }
+
+  static async getAllProductsByCategory({
+    categoryId,
+    page,
+    limit,
+  }: {
+    categoryId: number;
+    page?: number;
+    limit?: number;
+    status?: boolean;
+  }) {
+    const conditions = [];
+    const args = [];
+
+    conditions.push('pc.categoryId = ?');
+    args.push(categoryId);
+
+    const query = `
+      SELECT p.*
+      FROM Product p,
+      ProductCategory pc
+      WHERE p.id = pc.productId
+      ${conditions.length > 0 ? `AND ${conditions.join(' AND ')}` : ''}
+      ORDER BY p.createdAt DESC
+      ${page !== undefined && limit !== undefined ? `LIMIT ${limit} OFFSET ${(page - 1) * limit}` : ''}
+    `;
+
+    console.log('query', query);
+
+    const { rows } = await turso.execute({
+      sql: query,
+      args,
+    });
+
+    const productsWithRelations = await Promise.all(
+      rows.map(async (row) => {
+        const images = await this.getProductImages(Number(row.id));
+        const categories = await this.getProductCategories(Number(row.id));
+        const relatedProducts = await this.getProductRelatedProducts(
+          Number(row.id)
+        );
+
+        return {
+          ...row,
+          isActive: Boolean(row.isActive),
+          isFeatured: Boolean(row.isFeatured),
+          images,
+          categories,
+          relatedProducts,
+        };
+      })
+    );
+
+    return productsWithRelations;
+  }
+
+  static async countProductsByCategory(categoryId: number) {
+    const { rows } = await turso.execute({
+      sql: 'SELECT COUNT(*) as count FROM ProductCategory WHERE categoryId = ?',
+      args: [categoryId],
+    });
+    return rows[0]?.count || 0;
+  }
+
+  static async countProducts() {
+    const { rows } = await turso.execute({
+      sql: 'SELECT COUNT(*) as count FROM Product WHERE isActive = TRUE',
+      args: [],
+    });
+    return rows[0]?.count || 0;
   }
 
   static async getProductById(id: number) {
@@ -247,7 +349,26 @@ export class Database {
       sql: 'SELECT * FROM Product WHERE slug = ?',
       args: [slug],
     });
-    return rows[0] || null;
+
+    if (rows.length === 0) {
+      return null;
+    }
+
+    const row = rows[0];
+    const images = await this.getProductImages(Number(row.id));
+    const categories = await this.getProductCategories(Number(row.id));
+    const relatedProducts = await this.getProductRelatedProducts(
+      Number(row.id)
+    );
+
+    return {
+      ...row,
+      isActive: Boolean(row.isActive),
+      isFeatured: Boolean(row.isFeatured),
+      images,
+      categories,
+      relatedProducts,
+    };
   }
 
   static async getProductBySku(sku: string) {

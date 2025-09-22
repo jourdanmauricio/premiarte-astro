@@ -1,0 +1,64 @@
+---
+import MainLayout from '@/layouts/MainLayout.astro';
+import * as actions from '@/actions/products/get-product-by-slug.action';
+import type { ProductWithCategoriesAndImages } from '@/shared/types';
+import { Image } from 'astro:assets';
+
+// Probamos ambos enfoques
+
+const { slug } = Astro.params;
+
+const { data, error } = await Astro.callAction(actions.getProductBySlug, {
+  slug: slug ?? '',
+});
+
+if (error) {
+  Astro.redirect('/productos');
+}
+
+const product = data as unknown as ProductWithCategoriesAndImages;
+---
+
+<MainLayout
+  title={product.name}
+  description={product.description}
+  image={product.images[0].url}
+>
+  <div class='container mx-auto max-w-[900px]'>
+    <h1 class='my-10 text-2xl font-bold'>{product.name}</h1>
+
+    <div class='flex gap-12 w-full'>
+      {/* <ProductSlideshow images={product.images} /> */}
+      <Image
+        src={product.images[0].url}
+        alt={product.images[0].alt}
+        width={250}
+        height={250}
+        class='object-contain'
+      />
+
+      <section>
+        <h2 class='text-2xl font-bold'>{product.name}</h2>
+        <h2 class='font-bold'>${product.price}</h2>
+
+        <h3 class='mt-5'>Tallas</h3>
+
+        <h3 class='mt-5'>Cantidad</h3>
+        <div>
+          <button class='btn-quantity'>-</button>
+          <input type='number' min='1' value='1' />
+          <button class='btn-quantity'>+</button>
+        </div>
+
+        <button class='mt-5 bg-blue-500 text-white p-3 w-full'
+          >Añadir al carrito</button
+        >
+
+        <h3 class='mt-10'>Descripción</h3>
+        <p>{product.description}</p>
+      </section>
+    </div>
+
+    <input type='hidden' id='product-id' value={product.id} />
+  </div>
+</MainLayout>

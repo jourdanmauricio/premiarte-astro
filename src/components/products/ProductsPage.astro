@@ -1,9 +1,43 @@
 ---
+import { ProductList } from '@/components/products/ProductList';
+import type { ProductWithCategoriesAndImages } from '@/shared/types';
+import { actions } from 'astro:actions';
+import Pagination from '@/components/shared/Pagination.astro';
 
+// Probamos ambos enfoques
+const searchParams = Astro.url.searchParams;
+
+// Enfoque alternativo usando Astro.request.url
+const requestUrl = new URL(Astro.request.url);
+const requestSearchParams = requestUrl.searchParams;
+
+const pageParam = Number(
+  searchParams.get('page') ?? requestSearchParams.get('page') ?? 1
+);
+
+const result = await Astro.callAction(actions.getProductsByPage, {
+  page: pageParam,
+});
+
+// console.log('result', result);
+
+const { products, totalPages } = result.data || {
+  products: [],
+  totalPages: 0,
+};
+
+// Mapear los productos al tipo ProductWithDetails
+
+// console.log('products', products);
 ---
 
-<div id="container">
-	<h1 class="text-red-500">Premiarte</h1> 
-	<h2>Productos</h2>
+<div id='container'>
+  <h2>Productos</h2>
+  <section class='container mx-auto max-w-[900px]'>
+    <ProductList
+      client:idle
+      products={products as unknown as ProductWithCategoriesAndImages[]}
+    />
+    <Pagination totalPages={totalPages} />
+  </section>
 </div>
-

@@ -1,5 +1,5 @@
-import type { Category } from "@/shared/types/category";
-import type { Image } from "@/shared/types/image";
+import type { Category } from '@/shared/types/category';
+import type { Image } from '@/shared/types/image';
 
 // Tipo para los productos
 export interface Product {
@@ -27,17 +27,24 @@ export interface ProductWithDetails extends Product {
   detImages: Image[];
 }
 
+export interface ProductWithCategoriesAndImages
+  extends Omit<Product, 'images' | 'categories'> {
+  images: Image[];
+  categories: Category[];
+}
+
 // Opción 1: Extender de Product omitiendo campos que se generan automáticamente
-export interface CreateProductData extends Omit<Product, 'id' | 'slug' | 'categories'> {
+export interface CreateProductData
+  extends Omit<Product, 'id' | 'slug' | 'categories'> {
   // El slug se puede generar automáticamente del nombre
   // El id se genera automáticamente por la base de datos
-  categories: (number | undefined)[] | null ;
+  categories: (number | undefined)[] | null;
 }
 
 // Tipo para actualizar un producto
-export interface UpdateProductData extends Omit<Product, 'id' | 'slug' | 'categories'> {
+export interface UpdateProductData
+  extends Omit<Product, 'id' | 'slug' | 'categories'> {
   // El slug se puede generar automáticamente del nombre
   // El id se genera automáticamente por la base de datos
-  categories: (number | undefined)[] | null ;
+  categories: (number | undefined)[] | null;
 }
-

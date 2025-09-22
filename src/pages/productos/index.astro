@@ -1,7 +1,8 @@
 ---
 import ProductsPage from '@/components/products/ProductsPage.astro';
 import MainLayout from '@/layouts/MainLayout.astro';
-export const prerender = true;
+// Removemos prerender para permitir acceso dinámico a searchParams
+// export const prerender = true;
 ---
 
 <MainLayout title='Productos'>

@@ -90,3 +90,26 @@ export function createSuccessResponse(data: any, status: number = 200) {
     },
   });
 }
+
+// Función para generar un slug a partir de un string
+export function generateSlug(text: string): string {
+  return (
+    text
+      .toLowerCase()
+      .trim()
+      // Reemplazar caracteres especiales del español
+      .replace(/á/g, 'a')
+      .replace(/é/g, 'e')
+      .replace(/í/g, 'i')
+      .replace(/ó/g, 'o')
+      .replace(/ú/g, 'u')
+      .replace(/ñ/g, 'n')
+      .replace(/ü/g, 'u')
+      // Reemplazar espacios y caracteres especiales con guiones
+      .replace(/[^a-z0-9]+/g, '-')
+      // Eliminar guiones al inicio y al final
+      .replace(/^-+|-+$/g, '')
+      // Reemplazar múltiples guiones consecutivos con uno solo
+      .replace(/-+/g, '-')
+  );
+}

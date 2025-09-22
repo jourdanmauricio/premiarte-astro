@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Check, Search, Upload } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Search } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -126,11 +126,18 @@ export function ImageSelectorModal({
     }
   };
 
-  const handleUploadSuccess = (newImage: Image) => {
+  const handleUploadSuccess = useCallback((newImage: Image) => {
     // Cambiar a tab de selección y agregar la nueva imagen
     setActiveTab('select');
     setTempSelected([newImage]);
-  };
+  }, []);
+
+  const handleStateChange = useCallback(
+    (state: { canSubmit: boolean; isLoading: boolean; submit: () => void }) => {
+      setUploadState(state);
+    },
+    []
+  );
 
   const handleConfirm = () => {
     onSelect(tempSelected);
@@ -363,7 +370,7 @@ export function ImageSelectorModal({
             <TabsContent value='upload' className='flex-1 mt-4 overflow-auto'>
               <ImageUploadTab
                 onUploadSuccess={handleUploadSuccess}
-                onStateChange={setUploadState}
+                onStateChange={handleStateChange}
               />
             </TabsContent>
           </Tabs>
