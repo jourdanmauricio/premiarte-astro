@@ -1,9 +1,41 @@
 ---
+import { ProductList } from '@/components/products/ProductList';
+import Pagination from '@/components/shared/Pagination.astro';
+import type { Category, ProductWithCategoriesAndImages } from '@/shared/types';
 
+const { categories, products, totalPages, pathname } = Astro.props;
 ---
 
-<div id="container">
-	<h1 class="text-red-500">Premiarte</h1> 
-	<h2>Categorías</h2>
+<div class='container mx-auto max-w-[1200px]'>
+  <div class='space-y-6'>
+    <h2 class='text-lg font-medium'>Productos</h2>
+    <div class='space-y-4'>
+      <div class='flex gap-8 md:flex-row'>
+        <div class='space-y-2'>
+          <a
+            href={`/categoria/productos`}
+            class={`group flex cursor-pointer items-center space-x-2 ${pathname.startsWith('/categoria/productos') ? 'font-bold text-primary' : 'font-normal text-muted-foreground'} transition-colors hover:text-primary`}
+          >
+            Todos los productos
+          </a>
+          {
+            categories.map((category: Category) => (
+              <a
+                href={`/categoria/${category.slug}`}
+                class={`group flex cursor-pointer items-center space-x-2 ${pathname.startsWith(`/categoria/${category.slug}`) ? 'font-bold text-primary' : 'font-normal text-muted-foreground'} transition-colors hover:text-primary`}
+              >
+                {category.name}
+              </a>
+            ))
+          }
+        </div>
+        <main>
+          <ProductList
+            products={products as unknown as ProductWithCategoriesAndImages[]}
+          />
+          <Pagination totalPages={totalPages} />
+        </main>
+      </div>
+    </div>
+  </div>
 </div>
-
