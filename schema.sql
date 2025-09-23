@@ -96,6 +96,18 @@ CREATE TABLE IF NOT EXISTS NewsletterSubscriber (
   updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Tabla para mensajes de contacto
+CREATE TABLE IF NOT EXISTS Contact (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT,
+  message TEXT NOT NULL,
+  isRead BOOLEAN DEFAULT FALSE,
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Índices adicionales
 CREATE UNIQUE INDEX IF NOT EXISTS idx_product_sku_unique ON Product(sku) WHERE sku IS NOT NULL;
 CREATE UNIQUE INDEX IF NOT EXISTS idx_newsletter_email_unique ON NewsletterSubscriber(email);

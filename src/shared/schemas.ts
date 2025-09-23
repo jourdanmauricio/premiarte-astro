@@ -31,9 +31,10 @@ export const ProductFromSchema = z.object({
   discountType: z.enum(['percentage', 'fixed']).optional(),
   relatedProducts: z.array(z.number()),
   images: z.array(z.number()),
-  categories: z.array(z.object({ id: z.number(), name: z.string(), slug: z.string() })),
+  categories: z.array(
+    z.object({ id: z.number(), name: z.string(), slug: z.string() })
+  ),
 });
-
 
 const HomeMenuSchema = z.object({
   siteName: z.string().min(1, { message: 'Nombre del sitio requerido' }),
@@ -72,20 +73,24 @@ const HomeSettingsSchema = z.object({
   featuredProducts: HomeFeaturedProductsSchema,
   testimonials: z.object({
     title: z.string().min(1, { message: 'Título requerido' }),
-    testimonials: z.array(z.object({
-      name: z.string().min(1, { message: 'Nombre requerido' }),
-      rating: z.string().min(1, { message: 'Puntuación requerida' }),
-      description: z.string().min(1, { message: 'Descripción requerida' }),
-    })),
+    testimonials: z.array(
+      z.object({
+        name: z.string().min(1, { message: 'Nombre requerido' }),
+        rating: z.string().min(1, { message: 'Puntuación requerida' }),
+        description: z.string().min(1, { message: 'Descripción requerida' }),
+      })
+    ),
   }),
   services: z.object({
     title: z.string().min(1, { message: 'Título requerido' }),
     subtitle: z.string().optional(),
-    services: z.array(z.object({
-      title: z.string().min(1, { message: 'Título requerido' }),
-      description: z.string().min(1, { message: 'Descripción requerida' }),
-      image: z.number().min(1, { message: 'Imagen requerida' }),
-    })),
+    services: z.array(
+      z.object({
+        title: z.string().min(1, { message: 'Título requerido' }),
+        description: z.string().min(1, { message: 'Descripción requerida' }),
+        image: z.number().min(1, { message: 'Imagen requerida' }),
+      })
+    ),
   }),
   featuredCategories: z.object({
     title: z.string().min(1, { message: 'Título requerido' }),
@@ -100,4 +105,14 @@ export const SettingsFormSchema = z.object({
   // Puedes agregar más secciones aquí
   // about: AboutConfigSchema,
   // contact: ContactConfigSchema,
+});
+
+export const contactFormSchema = z.object({
+  name: z.string().min(1, 'El nombre es requerido'),
+  email: z
+    .string()
+    .min(1, 'El correo electrónico es requerido')
+    .email('Correo electrónico inválido'),
+  phone: z.string().optional(),
+  message: z.string().min(1, 'El mensaje es requerido'),
 });

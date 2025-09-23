@@ -1,9 +1,10 @@
 ---
-
+import { ContactForm } from '@/components/contact/ContactForm';
 ---
 
-<div id="container">
-	<h1 class="text-red-500">Premiarte</h1> 
-	<h2>Productos</h2>
+<div class='container px-4 py-8 md:px-6 md:py-12'>
+  <div class='mb-8'>
+    <h1 class='font-montserrat mb-2 text-3xl font-semibold'>Contáctanos</h1>
+  </div>
+  <ContactForm client:idle />
 </div>
-

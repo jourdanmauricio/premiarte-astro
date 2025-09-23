@@ -3,6 +3,7 @@ import { getProductsByPage } from '@/actions/products/get-products-by-page.actio
 import { getProductBySlug } from '@/actions/products/get-product-by-slug.action';
 import { getCategoriesByPage } from '@/actions/categoeries/get-categories-by-page.action';
 import { getProductsByCategory } from '@/actions/products/get-products-by-category';
+import { sendContactForm } from '@/actions/contact/send-contact-form.action';
 
 export const server = {
   // actions
@@ -13,4 +14,5 @@ export const server = {
   getProductBySlug,
   getCategoriesByPage,
   getProductsByCategory,
+  sendContactForm,
 };
