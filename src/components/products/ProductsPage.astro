@@ -4,7 +4,14 @@ import ProductsSidebar from '@/components/products/ProductsSidebar.astro';
 import Pagination from '@/components/shared/Pagination.astro';
 import type { ProductWithCategoriesAndImages } from '@/shared/types';
 
-const { categories, products, totalPages, pathname } = Astro.props;
+const {
+  categories,
+  products,
+  totalPages,
+  pathname,
+  currentPage,
+  categorySlug,
+} = Astro.props;
 ---
 
 <div class='container mx-auto max-w-[1200px]'>
@@ -14,11 +21,15 @@ const { categories, products, totalPages, pathname } = Astro.props;
       <div class='flex gap-4 md:flex-row'>
         <ProductsSidebar categories={categories} pathname={pathname} />
 
-        <main>
+        <main class='w-full'>
           <ProductList
             products={products as unknown as ProductWithCategoriesAndImages[]}
           />
-          <Pagination totalPages={totalPages} />
+          <Pagination
+            totalPages={totalPages}
+            currentPage={currentPage}
+            categorySlug={categorySlug}
+          />
         </main>
       </div>
     </div>

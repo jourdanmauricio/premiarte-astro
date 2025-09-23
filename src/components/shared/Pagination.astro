@@ -1,32 +1,46 @@
 ---
 interface Props {
   totalPages: number;
+  currentPage?: number;
+  categorySlug?: string;
 }
 
-const { totalPages } = Astro.props;
+const { totalPages, currentPage = 1, categorySlug } = Astro.props;
 
 const url = Astro.url;
+const path = url.pathname;
 
-const pageParam = Number(url.searchParams.get('page') ?? 1);
+// Determinar la categoría base desde el path si no se proporciona
+const basePath = categorySlug
+  ? `/categoria/${categorySlug}`
+  : path.includes('/page/')
+    ? path.split('/page/')[0]
+    : path;
 
-const currentPage = Math.max(
-  pageParam > totalPages ? totalPages : pageParam,
+// Función para generar URLs de paginación
+const getPageUrl = (page: number) => {
+  if (page === 1) {
+    return basePath;
+  }
+  return `${basePath}/page/${page}`;
+};
+
+const safeCurrentPage = Math.max(
+  currentPage > totalPages ? totalPages : currentPage,
   1
 );
-
-const path = url.pathname;
 ---
 
-<div class='flex justify-between items-center my-32'>
+<div class='flex justify-between items-center my-20 mx-auto max-w-[300px]'>
   <a
-    href={`${path}?page=${Math.max(currentPage - 1, 1)}`}
-    class='p-2 bg-blue-900 text-white rounded hover:bg-blue-900/90 transition-colors'
+    href={getPageUrl(Math.max(safeCurrentPage - 1, 1))}
+    class='p-2 bg-orange-500 text-white rounded hover:bg-orange-500/90 transition-colors'
     >Anterior</a
   >
-  <span>Página {currentPage} de {totalPages}</span>
+  <span>Página {safeCurrentPage} de {totalPages}</span>
   <a
-    href={`${path}?page=${Math.min(currentPage + 1, totalPages)}`}
-    class='p-2 bg-blue-900 text-white rounded hover:bg-blue-900/90 transition-colors'
+    href={getPageUrl(Math.min(safeCurrentPage + 1, totalPages))}
+    class='p-2 bg-orange-500 text-white rounded hover:bg-orange-500/90 transition-colors'
     >Siguiente</a
   >
 </div>

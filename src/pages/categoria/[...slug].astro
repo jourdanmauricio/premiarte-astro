@@ -12,16 +12,50 @@ export async function getStaticPaths() {
   try {
     // Obtener todas las categorías de la base de datos
     const categories = await Database.getAllCategories({});
+    const paths = [];
+    const limit = 9; // Usar el mismo límite que en la acción
 
-    // Generar rutas para cada categoría
-    const paths = categories.map((category: any) => ({
-      params: { slug: category.slug },
-    }));
+    // Para cada categoría, generar páginas para cada página de paginación
+    for (const category of categories) {
+      // Obtener el total de productos para esta categoría
+      const totalProducts = Number(
+        await Database.countProductsByCategory(Number(category.id))
+      );
 
-    // Agregar la ruta adicional /categoria/productos
-    paths.push({
-      params: { slug: 'productos' },
-    });
+      const totalPages = Math.ceil(totalProducts / limit);
+
+      // Generar rutas para cada página (al menos 1 página)
+      for (let page = 1; page <= Math.max(totalPages, 1); page++) {
+        paths.push({
+          params: {
+            slug:
+              page === 1
+                ? String(category.slug)
+                : `${String(category.slug)}/page/${page}`,
+          },
+          props: {
+            categorySlug: String(category.slug),
+            currentPage: page,
+          },
+        });
+      }
+    }
+
+    // Manejar la ruta especial /categoria/productos (todos los productos)
+    const totalProducts = Number(await Database.countProducts());
+    const productsTotalPages = Math.ceil(totalProducts / limit);
+
+    for (let page = 1; page <= Math.max(productsTotalPages, 1); page++) {
+      paths.push({
+        params: {
+          slug: page === 1 ? 'productos' : `productos/page/${page}`,
+        },
+        props: {
+          categorySlug: 'productos',
+          currentPage: page,
+        },
+      });
+    }
 
     return paths;
   } catch (error) {
@@ -30,20 +64,20 @@ export async function getStaticPaths() {
   }
 }
 
-const searchParams = Astro.url.searchParams;
+// Obtener props de getStaticPaths
+const { categorySlug, currentPage } = Astro.props;
 
-const requestUrl = new URL(Astro.request.url);
-const requestSearchParams = requestUrl.searchParams;
-
-const pageParam = Number(
-  searchParams.get('page') ?? requestSearchParams.get('page') ?? 1
-);
-
+// Extraer la categoría del slug para casos donde no se pase como prop
 const { slug } = Astro.params;
+const slugString = typeof slug === 'string' ? slug : '';
+const actualCategorySlug =
+  categorySlug ||
+  (slugString?.includes('/page/') ? slugString.split('/page/')[0] : slugString);
+const actualPage = currentPage || 1;
 
 const { data, error } = await Astro.callAction(actions.getProductsByCategory, {
-  category: slug ?? '',
-  page: pageParam,
+  category: actualCategorySlug ?? '',
+  page: actualPage,
 });
 
 if (error) {
@@ -68,11 +102,13 @@ const categories = categoriesData as unknown as Category[];
 ---
 
 {/*  image={categories[0].image.url} */}
-<MainLayout title={slug} description={categories[0].description}>
+<MainLayout title={slugString} description={categories[0]?.description}>
   <ProductsPage
     categories={categories}
     products={products}
     totalPages={totalPages}
     pathname={pathname}
+    currentPage={actualPage}
+    categorySlug={actualCategorySlug}
   />
 </MainLayout>

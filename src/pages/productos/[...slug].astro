@@ -44,38 +44,68 @@ const product = data as unknown as ProductWithCategoriesAndImages;
   description={product.description}
   image={product.images[0].url}
 >
-  <div class='container mx-auto max-w-[900px]'>
-    <h1 class='my-10 text-2xl font-bold'>{product.name}</h1>
+  <div class='mx-auto max-w-[1200px] my-20'>
+    <div class='flex flex-col lg:flex-row gap-12 w-full'>
+      <div class='w-full lg:w-1/2 mx-auto px-4'>
+        <Image
+          src={product.images[0].url}
+          alt={product.images[0].alt}
+          width={400}
+          height={400}
+          class='object-contain mx-auto'
+        />
+        <div class='flex gap-2 mt-4 max-w-[400px] mx-auto'>
+          {
+            product.images.map((image) => (
+              <div class='flex-1 min-w-0'>
+                <Image
+                  src={image.url}
+                  alt={image.alt}
+                  width={90}
+                  height={90}
+                  class='w-full h-auto object-contain'
+                />
+              </div>
+            ))
+          }
+        </div>
+      </div>
 
-    <div class='flex gap-12 w-full'>
-      {/* <ProductSlideshow images={product.images} /> */}
-      <Image
-        src={product.images[0].url}
-        alt={product.images[0].alt}
-        width={250}
-        height={250}
-        class='object-contain'
-      />
+      <section class='w-full lg:w-1/2 px-4 flex flex-col justify-between gap-8'>
+        <h2 class='text-xl font-semibold text-orange-500'>{product.name}</h2>
 
-      <section>
-        <h2 class='text-2xl font-bold'>{product.name}</h2>
-        <h2 class='font-bold'>${product.price}</h2>
-
-        <h3 class='mt-5'>Tallas</h3>
-
-        <h3 class='mt-5'>Cantidad</h3>
-        <div>
-          <button class='btn-quantity'>-</button>
-          <input type='number' min='1' value='1' />
-          <button class='btn-quantity'>+</button>
+        <div class='flex flex-col gap-2'>
+          <h3 class='font-semibold'>Descripción</h3>
+          <p class='ml-4 text-muted-foreground'>{product.description}</p>
         </div>
 
-        <button class='mt-5 bg-blue-500 text-white p-3 w-full'
-          >Añadir al carrito</button
-        >
+        <div class='flex flex-col gap-2'>
+          <h3 class='font-semibold'>Categorías</h3>
+          <p class='ml-4 text-muted-foreground'>
+            {product.categories.map((category) => category.name).join(', ')}
+          </p>
+        </div>
 
-        <h3 class='mt-10'>Descripción</h3>
-        <p>{product.description}</p>
+        <div class='flex flex-col gap-2'>
+          <h3 class='font-semibold'>Cantidad</h3>
+          <div class='flex items-center gap-4'>
+            <button class='btn-quantity w-8 h-8'>-</button>
+            <input
+              class='text-center w-12 h-8 border border-gray-300 rounded-md'
+              type='text'
+              min='1'
+              value='1'
+            />
+            <button class='btn-quantity w-8 h-8'>+</button>
+          </div>
+        </div>
+
+        <button
+          class='text-lg font-semibold bg-orange-500 rounded-sm flex items-center justify-center
+    hover:bg-orange-500/80 transition-all duration-300 hover:cursor-pointer text-white py-2 w-full'
+        >
+          Añadir al carrito
+        </button>
       </section>
     </div>
 
