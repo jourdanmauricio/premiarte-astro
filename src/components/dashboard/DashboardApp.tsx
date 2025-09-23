@@ -11,6 +11,7 @@ import { MediaPage } from '@/components/dashboard/media/MediaPage';
 import { Toaster } from '@/components/ui/sonner';
 import RegenerateButton from '@/components/ui/custom/RegenerateButton';
 import { NewsletterPage } from '@/components/dashboard/newsletter/NewsletterPage';
+import { ContactsPage } from '@/components/dashboard/contacts/ContactsPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -62,6 +63,7 @@ export default function DashboardApp() {
                   <Route path='/categories' element={<CategoriesPage />} />
                   <Route path='/media' element={<MediaPage />} />
                   <Route path='/newsletter' element={<NewsletterPage />} />
+                  <Route path='/contact' element={<ContactsPage />} />
                 </Routes>
               </div>
             </main>

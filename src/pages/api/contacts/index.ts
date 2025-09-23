@@ -8,7 +8,6 @@ export const GET: APIRoute = async (context) => {
     if (!authResult.success) {
       return authResult.response;
     }
-    // GET público - no requiere autenticación para mostrar productos en el sitio
     const contacts = await Database.getAllContacts();
 
     return new Response(JSON.stringify(contacts), {
@@ -18,7 +17,7 @@ export const GET: APIRoute = async (context) => {
       },
     });
   } catch (error) {
-    console.error('Error al obtener los contactos:', error);
+    console.error('Error al obtener newsletter:', error);
     return new Response(
       JSON.stringify({ error: 'Error interno del servidor' }),
       {

@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import { useState } from 'react';
 import { actions } from 'astro:actions';
 import { useForm } from 'react-hook-form';
+import { Form } from '@/components/ui/form';
 import { Mail, MapPin, Phone } from 'lucide-react';
 import { contactFormSchema } from '@/shared/schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,7 +12,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import InputField from '@/components/ui/custom/input-field';
 import TextareaField from '@/components/ui/custom/textarea-field';
-import { Form } from '@/components/ui/form';
 
 const ContactForm = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -87,6 +87,7 @@ const ContactForm = () => {
                       label='Nombre y apellido*'
                       placeholder='Nombre'
                       form={form}
+                      max={40}
                     />
                   </div>
 
@@ -97,6 +98,7 @@ const ContactForm = () => {
                       label='Email*'
                       placeholder='mail@example.com'
                       form={form}
+                      max={50}
                     />
                   </div>
 
@@ -107,6 +109,7 @@ const ContactForm = () => {
                       label='Teléfono'
                       placeholder='(11) 9999-9999'
                       form={form}
+                      max={25}
                     />
                   </div>
 
@@ -118,7 +121,8 @@ const ContactForm = () => {
                       label='Mensaje*'
                       placeholder='Cómo podemos ayudarte?'
                       required
-                      rows={6}
+                      rows={5}
+                      maxLength={500}
                     />
                   </div>
 

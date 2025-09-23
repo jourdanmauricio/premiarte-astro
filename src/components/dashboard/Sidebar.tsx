@@ -17,6 +17,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     { path: '/categories', label: 'Categorías', icon: '📂' },
     { path: '/media', label: 'Galería', icon: '🖼️' },
     { path: '/newsletter', label: 'Newsletter', icon: '📧' },
+    { path: '/contact', label: 'Contacto', icon: '💬' },
   ];
 
   return (
