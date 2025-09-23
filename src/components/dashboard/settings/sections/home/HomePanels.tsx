@@ -20,6 +20,7 @@ import { FeaturedProductsPanel } from '@/components/dashboard/settings/sections/
 import TestimonialsPanel from '@/components/dashboard/settings/sections/home/panels/testimonials-panel/TestimonialsPanel';
 import ServicesPanel from '@/components/dashboard/settings/sections/home/panels/services-panel/servicesPanel';
 import { FeaturedCategoriesPanel } from '@/components/dashboard/settings/sections/home/panels/categories-panel/FeaturedCategoriesPanel';
+import { FooterPanel } from '@/components/dashboard/settings/sections/home/panels/footer-panel/FooterPanel';
 
 const HomePanels = () => {
   const queryClient = useQueryClient();
@@ -59,6 +60,7 @@ const HomePanels = () => {
         },
         services: {
           title: '',
+          subtitle: '',
           services: [],
         },
         testimonials: {
@@ -70,6 +72,18 @@ const HomePanels = () => {
           text: '',
           buttonText: '',
           buttonLink: '',
+        },
+        footer: {
+          siteName: '',
+          logoId: 0,
+          siteText: '',
+          socialLinks: [],
+          siteAbout: '',
+          siteAboutDescription: '',
+          siteAddress: '',
+          siteCity: '',
+          sitePhone: '',
+          siteEmail: '',
         },
       },
     },
@@ -125,31 +139,61 @@ const HomePanels = () => {
         <form onSubmit={form.handleSubmit(onSubmit, onError)}>
           <MenuPanel form={form} images={images || []} />
 
-          <Separator className='my-4' orientation='horizontal' />
+          <Separator
+            className='my-4 border-1 border-blue-900'
+            orientation='horizontal'
+          />
 
           <SliderPanel form={form} images={images || []} />
 
-          <Separator className='my-4' orientation='horizontal' />
+          <Separator
+            className='my-4 border-1 border-blue-900'
+            orientation='horizontal'
+          />
 
           <HeroPanel form={form} images={images || []} />
 
-          <Separator className='my-4' orientation='horizontal' />
+          <Separator
+            className='my-4 border-1 border-blue-900'
+            orientation='horizontal'
+          />
 
           <FeaturedProductsPanel form={form} />
 
-          <Separator className='my-4' orientation='horizontal' />
+          <Separator
+            className='my-4 border-1 border-blue-900'
+            orientation='horizontal'
+          />
 
           <ServicesPanel form={form} images={images || []} />
 
-          <Separator className='my-4' orientation='horizontal' />
+          <Separator
+            className='my-4 border-1 border-blue-900'
+            orientation='horizontal'
+          />
 
           <FeaturedCategoriesPanel form={form} />
 
-          <Separator className='my-4' orientation='horizontal' />
+          <Separator
+            className='my-4 border-1 border-blue-900'
+            orientation='horizontal'
+          />
 
           <TestimonialsPanel form={form} />
 
-          <div className='flex justify-end gap-2'>
+          <Separator
+            className='my-4 border-1 border-blue-900'
+            orientation='horizontal'
+          />
+
+          <FooterPanel form={form} images={images || []} />
+
+          <Separator
+            className='my-4 border-1 border-blue-900'
+            orientation='horizontal'
+          />
+
+          <div className='flex justify-end gap-2 mt-12'>
             <Button type='button' className='min-w-[150px]' variant='outline'>
               Cancelar
             </Button>

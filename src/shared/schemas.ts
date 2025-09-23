@@ -98,13 +98,28 @@ const HomeSettingsSchema = z.object({
     buttonText: z.string().optional(),
     buttonLink: z.string().optional(),
   }),
+  footer: z.object({
+    siteName: z.string().optional(),
+    logoId: z.number().optional(),
+    siteText: z.string().optional(),
+    socialLinks: z.array(
+      z.object({
+        href: z.string().optional(),
+        label: z.string().optional(),
+        image: z.number().optional(),
+      })
+    ),
+    siteAbout: z.string().optional(),
+    siteAboutDescription: z.string().optional(),
+    siteAddress: z.string().optional(),
+    siteCity: z.string().optional(),
+    sitePhone: z.string().optional(),
+    siteEmail: z.string().optional(),
+  }),
 });
 
 export const SettingsFormSchema = z.object({
   home: HomeSettingsSchema,
-  // Puedes agregar más secciones aquí
-  // about: AboutConfigSchema,
-  // contact: ContactConfigSchema,
 });
 
 export const contactFormSchema = z.object({

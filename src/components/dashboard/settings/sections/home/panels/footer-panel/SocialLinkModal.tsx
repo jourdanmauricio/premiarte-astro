@@ -1,90 +1,93 @@
 import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
-import type { UseFormReturn } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm, type UseFormReturn } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
-import SubmitButton from '@/components/ui/custom/submit-button';
-import { DialogHeader } from '@/components/ui/dialog';
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
-import { Form } from '@/components/ui/form';
-import { SettingsFormSchema } from '@/shared/schemas';
 import InputField from '@/components/ui/custom/input-field';
-import TextareaField from '@/components/ui/custom/textarea-field';
-import { ImageSelector } from '@/components/dashboard/image-selector';
+import SubmitButton from '@/components/ui/custom/submit-button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Form } from '@/components/ui/form';
+import type { SettingsFormSchema } from '@/shared/schemas';
 import type { Image } from '@/shared/types';
+import { ImageSelector } from '@/components/dashboard/image-selector/ImageSelector';
 
-interface ServiceModalProps {
+interface SocialLinkModalProps {
   open: boolean;
   closeModal: () => void;
-  service: MainFormData['home']['services']['services'][0] | null;
-  serviceIndex: number | null;
+  socialLink: MainFormData['home']['footer']['socialLinks'][0] | null;
+  socialLinkIndex: number | null;
   form: UseFormReturn<MainFormData>;
   images: Image[];
 }
 
-// Schema específico para el servicio
-const ServiceFormSchema = z.object({
-  title: z.string().min(1, { message: 'Nombre requerido' }),
-  description: z.string().min(1, { message: 'Descripción requerida' }),
+const SocialLinkFormSchema = z.object({
+  href: z.string().min(1, { message: 'Enlace requerido' }),
+  label: z.string().min(1, { message: 'Etiqueta requerida' }),
   image: z.number().min(1, { message: 'Imagen requerida' }),
 });
 
-type ServiceFormData = z.infer<typeof ServiceFormSchema>;
+type SocialLinkFormData = z.infer<typeof SocialLinkFormSchema>;
 type MainFormData = z.infer<typeof SettingsFormSchema>;
 
-const defaultValues: ServiceFormData = {
-  title: '',
-  description: '',
+const defaultValues: SocialLinkFormData = {
+  href: '',
+  label: '',
   image: 0,
 };
 
-const ServiceModal = ({
+const SocialLinkModal = ({
   open,
   closeModal,
-  service,
-  serviceIndex,
+  socialLink,
+  socialLinkIndex,
   form: mainForm,
   images,
-}: ServiceModalProps) => {
-  const mode = service ? 'EDIT' : 'CREATE';
+}: SocialLinkModalProps) => {
+  const mode = socialLink ? 'EDIT' : 'CREATE';
   const [imageSelectorOpen, setImageSelectorOpen] = useState(false);
 
-  const serviceForm = useForm<ServiceFormData>({
-    resolver: zodResolver(ServiceFormSchema),
-    defaultValues: service || defaultValues,
+  const socialLinkForm = useForm<SocialLinkFormData>({
+    resolver: zodResolver(SocialLinkFormSchema),
+    defaultValues: socialLink || defaultValues,
   });
 
-  const selectedImageId = serviceForm.watch('image');
+  const selectedImageId = socialLinkForm.watch('image');
   const selectedImage = images.find((img) => img.id === selectedImageId);
 
   const handleSelectImage = (imageId: number) => {
-    serviceForm.setValue('image', imageId, { shouldValidate: true });
+    socialLinkForm.setValue('image', imageId, { shouldValidate: true });
     setImageSelectorOpen(false);
   };
 
-  const onSubmit = (data: ServiceFormData) => {
-    const currentServices = [
-      ...(mainForm.getValues('home.services.services') || []),
+  const onSubmit = (data: SocialLinkFormData) => {
+    const currentSocialLinks = [
+      ...(mainForm.getValues('home.footer.socialLinks') || []),
     ];
 
-    if (mode === 'EDIT' && serviceIndex !== null) {
+    if (mode === 'EDIT' && socialLinkIndex !== null) {
       // Editar servicio existente
-      currentServices[serviceIndex] = data;
+      currentSocialLinks[socialLinkIndex] = data;
     } else {
       // Agregar nuevo servicio
-      currentServices.push(data);
+      currentSocialLinks.push(data);
     }
 
-    mainForm.setValue('home.services.services', currentServices, {
+    mainForm.setValue('home.footer.socialLinks', currentSocialLinks, {
       shouldDirty: true,
     });
+
+    socialLinkForm.reset();
     closeModal();
   };
 
   const onError = () => {
-    console.log('Errores de validación:', serviceForm.formState.errors);
+    console.log('Errores de validación:', socialLinkForm.formState.errors);
   };
 
   return (
@@ -92,34 +95,44 @@ const ServiceModal = ({
       <DialogContent className='max-w-2xl max-h-[90vh] overflow-y-auto'>
         <DialogHeader>
           <DialogTitle>
-            {mode === 'CREATE' ? 'Agregar Servicio' : 'Editar Servicio'}
+            {mode === 'CREATE' ? 'Agregar Red Social' : 'Editar Red Social'}
           </DialogTitle>
         </DialogHeader>
 
-        <Form {...serviceForm}>
+        <Form {...socialLinkForm}>
           <form
-            // onSubmit={serviceForm.handleSubmit(onSubmit, onError)}
+            // onSubmit={slideForm.handleSubmit(onSubmit, onError)}
             className='space-y-6'
           >
             {/* Título */}
             <InputField
-              form={serviceForm}
-              name='title'
-              label='Título'
-              placeholder='Ingresa el título'
+              form={socialLinkForm}
+              name='name'
+              label='Nombre'
+              placeholder='Ingresa el nombre'
             />
 
-            {/* Descripción */}
-            <TextareaField
-              form={serviceForm}
-              name='description'
-              label='Descripción'
-              placeholder='Ingresa la descripción'
+            {/* Enlace */}
+            <InputField
+              form={socialLinkForm}
+              name='href'
+              label='Enlace'
+              placeholder='Ingresa el enlace'
+            />
+
+            {/* Etiqueta */}
+            <InputField
+              form={socialLinkForm}
+              name='label'
+              label='Etiqueta'
+              placeholder='Ingresa la etiqueta'
             />
 
             {/* Imagen */}
             <div className='space-y-2'>
-              <label className='text-sm font-medium'>Imagen del servicio</label>
+              <label className='text-sm font-medium'>
+                Imagen de la red social
+              </label>
               <div className='flex items-center gap-4'>
                 {selectedImage ? (
                   <div className='flex items-center gap-3'>
@@ -148,9 +161,9 @@ const ServiceModal = ({
                   {selectedImage ? 'Cambiar imagen' : 'Seleccionar imagen'}
                 </Button>
               </div>
-              {serviceForm.formState.errors.image && (
+              {socialLinkForm.formState.errors.image && (
                 <p className='text-sm text-red-600'>
-                  {serviceForm.formState.errors.image.message}
+                  {socialLinkForm.formState.errors.image.message}
                 </p>
               )}
             </div>
@@ -161,17 +174,16 @@ const ServiceModal = ({
                 Cancelar
               </Button>
               <SubmitButton
-                label={mode === 'CREATE' ? 'Crear servicio' : 'Guardar cambios'}
+                label={mode === 'CREATE' ? 'Crear slide' : 'Guardar cambios'}
                 className='min-w-[120px]'
                 type='button'
-                onClick={serviceForm.handleSubmit(onSubmit, onError)}
-                showSpinner={serviceForm.formState.isSubmitting}
-                disabled={serviceForm.formState.isSubmitting}
+                onClick={socialLinkForm.handleSubmit(onSubmit, onError)}
+                showSpinner={socialLinkForm.formState.isSubmitting}
+                disabled={socialLinkForm.formState.isSubmitting}
               />
             </div>
           </form>
         </Form>
-
         {/* Selector de imágenes */}
         <ImageSelector
           open={imageSelectorOpen}
@@ -189,4 +201,4 @@ const ServiceModal = ({
   );
 };
 
-export { ServiceModal };
+export { SocialLinkModal };

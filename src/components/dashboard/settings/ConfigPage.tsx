@@ -20,10 +20,12 @@ const ConfigPage = () => {
           onValueChange={setActiveTab}
           className='flex flex-col h-full'
         >
-          <TabsList className='grid w-full grid-cols-3 flex-shrink-0'>
+          <TabsList className='grid w-full grid-cols-5 flex-shrink-0'>
             <TabsTrigger value='home'>Home</TabsTrigger>
-            <TabsTrigger value='categories'>Categorias</TabsTrigger>
+            <TabsTrigger value='categories'>Categorías</TabsTrigger>
             <TabsTrigger value='products'>Productos</TabsTrigger>
+            <TabsTrigger value='about'>Nosotros</TabsTrigger>
+            <TabsTrigger value='contact'>Contacto</TabsTrigger>
           </TabsList>
 
           <TabsContent value='home' className='flex-1 mt-4 overflow-hidden'>
@@ -36,6 +38,14 @@ const ConfigPage = () => {
 
           <TabsContent value='products' className='flex-1 mt-4 overflow-auto'>
             <span>Productos</span>
+          </TabsContent>
+
+          <TabsContent value='about' className='flex-1 mt-4 overflow-auto'>
+            <span>Nosotros</span>
+          </TabsContent>
+
+          <TabsContent value='contact' className='flex-1 mt-4 overflow-auto'>
+            <span>Contacto</span>
           </TabsContent>
         </Tabs>
       </div>

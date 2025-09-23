@@ -2,15 +2,8 @@
 import AuthSection from '@/components/auth/AuthSection';
 import { Database } from '@/lib/db';
 import { turso } from '@/lib/turso';
+import { navBarLinks } from '@/shared/consts';
 import type { Settings } from '@/shared/types';
-
-const navBarLinks = [
-  { name: 'home', href: '/' },
-  { name: 'Categorías', href: '/categorias' },
-  { name: 'Productos', href: '/categoria/productos' },
-  { name: 'Sobre nosotros', href: '/sobre-nosotros' },
-  { name: 'Contacto', href: '/contacto' },
-];
 
 // Obtener configuraciones de la base de datos
 const settings = (await Database.getAllSettings()) as unknown as Settings[];

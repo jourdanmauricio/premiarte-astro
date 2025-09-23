@@ -1,15 +1,15 @@
 import type z from 'zod';
-import type { UseFormReturn } from 'react-hook-form';
-
-import InputField from '@/components/ui/custom/input-field';
-import type { SettingsFormSchema } from '@/shared/schemas';
-import { useCallback, useMemo, useState } from 'react';
-import { CustomTable } from '@/components/ui/custom/CustomTable';
-import { Button } from '@/components/ui/button';
 import { PlusIcon } from 'lucide-react';
+import type { UseFormReturn } from 'react-hook-form';
+import { useCallback, useMemo, useState } from 'react';
+
+import type { Image } from '@/shared/types';
+import { Button } from '@/components/ui/button';
+import type { SettingsFormSchema } from '@/shared/schemas';
+import InputField from '@/components/ui/custom/input-field';
+import { CustomTable } from '@/components/ui/custom/CustomTable';
 import CustomAlertDialog from '@/components/ui/custom/custom-alert-dialog';
 import { ServiceModal } from '@/components/dashboard/settings/sections/home/panels/services-panel/ServiceModal';
-import type { Image } from '@/shared/types';
 import { getServiceColumns } from '@/components/dashboard/settings/sections/home/panels/services-panel/table/serviceColumns';
 
 interface ServicesPanelProps {

@@ -1,0 +1,157 @@
+---
+import { Database } from '@/lib/db';
+import { turso } from '@/lib/turso';
+import type { Settings, FooterData, SocialLink } from '@/shared/types';
+import { Image } from 'astro:assets';
+
+// Obtener configuraciones de la base de datos
+const settings = (await Database.getAllSettings()) as unknown as Settings[];
+
+const homeSettings = settings.find((s) => s.key === 'home');
+const parsedValue = JSON.parse(homeSettings?.value || '[]');
+const footer = parsedValue.footer;
+
+// {
+//   siteName: 'Premiarte',
+//   logoId: 103,
+//   siteText: 'Trofeos, medallas, enmarcados',
+//   socialLinks: [
+//     { href: '#', label: 'Facebook', image: 121 },
+//     { href: '#', label: 'Instagram', image: 122 },
+//     { href: '#', label: 'twitter', image: 123 }
+//   ]
+// }
+
+const socialLinksImages = await Promise.all(
+  footer.socialLinks.map(async (socialLink: SocialLink) => {
+    if (socialLink.image) {
+      const imageData = await turso
+        .execute({
+          sql: 'SELECT url, alt FROM Image WHERE id = ?',
+          args: [socialLink.image],
+        })
+        .then((result) => result.rows[0] || null);
+      if (imageData) {
+        return {
+          ...socialLink,
+          imageDet: {
+            url: imageData.url,
+            alt: imageData.alt,
+          },
+        };
+      }
+    }
+    return null;
+  })
+);
+
+const logoImage = await turso
+  .execute({
+    sql: 'SELECT url, alt FROM Image WHERE id = ?',
+    args: [footer.logoId],
+  })
+  .then((result) => result.rows[0] || null);
+
+const footerWithImages = {
+  ...footer,
+  socialLinks: socialLinksImages,
+  logoImage: logoImage,
+};
+---
+
+<footer class='border-t text-muted-foreground'>
+  <div class='container px-4 py-8 md:px-6 md:pt-20 mx-auto'>
+    <div class='flex flex-col gap-8 items-start lg:flex-row'>
+      <div class='space-y-4 w-full text-center'>
+        <a href='/' class='flex items-center gap-2'>
+          <Image
+            src={footerWithImages.logoImage.url || '/default-logo.png'}
+            alt={footerWithImages.logoImage.alt || 'Premiearte Logo'}
+            width={60}
+            height={60}
+            class='mx-auto'
+          />
+        </a>
+        <p class='text-sm'>
+          {footerWithImages.siteName}
+        </p>
+        <p class='text-sm'>
+          {footerWithImages.siteText}
+        </p>
+        <div class='flex gap-4 items-center justify-center'>
+          {
+            footerWithImages.socialLinks.map((social: any) => (
+              <a href={social.href} class='hover:text-primary' target='_blank'>
+                <Image
+                  src={social.imageDet.url}
+                  alt={social.imageDet.alt}
+                  width={24}
+                  height={24}
+                  class='h-8 w-8'
+                />
+                <span class='sr-only'>{social.label}</span>
+              </a>
+            ))
+          }
+        </div>
+      </div>
+
+      <div class='space-y-4 w-full'>
+        <h3 class='text-base font-medium text-muted-foreground text-center'>
+          {footerWithImages.siteAbout}
+        </h3>
+        <div class='max-w-[600px] text-muted-foreground md:text-sm mx-auto'>
+          <p>
+            {footerWithImages.siteAboutDescription}
+          </p>
+        </div>
+      </div>
+
+      <div class='space-y-4 w-full'>
+        <h3 class='text-base font-medium text-muted-foreground text-center'>
+          Contacto
+        </h3>
+        <div class='flex flex-col space-y-2 text-sm text-muted-foreground'>
+          <div class='mx-auto'>
+            <p>{footerWithImages.siteAddress}</p>
+            <p>{footerWithImages.siteCity}</p>
+            <p>{footerWithImages.sitePhone}</p>
+            <p>{footerWithImages.siteEmail}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class='mt-8 border-t pt-8'>
+      <div
+        class='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'
+      >
+        <p class='text-xs text-muted-foreground'>
+          &copy; {new Date().getFullYear()}{' '}
+          {/*{footer.textReserved || 'Premiearte'}.*/}© 2025 Premiarte derechos
+          reservados.
+        </p>
+        <div class='flex gap-4'>
+          <a href='#' class='text-xs text-muted-foreground hover:text-primary'>
+            Privacy Policy
+          </a>
+          <a href='#' class='text-xs text-muted-foreground hover:text-primary'>
+            Terms of Service
+          </a>
+          <a href='#' class='text-xs text-muted-foreground hover:text-primary'>
+            Cookies Policy
+          </a>
+        </div>
+        <div class='flex items-center gap-2 text-xs text-muted-foreground'>
+          Desarrollo
+          <a
+            href='#'
+            target='_blank'
+            class='text-xs text-muted-foreground hover:text-primary'
+          >
+            LumauDev
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>

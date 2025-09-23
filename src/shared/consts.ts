@@ -13,3 +13,11 @@ export const navItems = [
   { id: 4, label: 'Nosotros', href: '/nosotros' },
   { id: 5, label: 'Contacto', href: '/contacto' },
 ];
+
+export const navBarLinks = [
+  { name: 'home', href: '/' },
+  { name: 'Categorías', href: '/categorias' },
+  { name: 'Productos', href: '/categoria/productos' },
+  { name: 'Sobre nosotros', href: '/sobre-nosotros' },
+  { name: 'Contacto', href: '/contacto' },
+];

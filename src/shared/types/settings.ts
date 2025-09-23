@@ -28,7 +28,6 @@ export interface TestimonialData {
   testimonials: Testimonial[];
 }
 
-
 export interface Service {
   id: number;
   title: string;
@@ -39,4 +38,17 @@ export interface Service {
 export interface ServiceData {
   title: string;
   services: Service[];
+}
+
+export interface SocialLink {
+  href: string;
+  label: string;
+  image: number;
+}
+
+export interface FooterData {
+  siteName: string;
+  logoId: number;
+  siteText: string;
+  socialLinks: SocialLink[];
 }
