@@ -1,0 +1,20 @@
+---
+import MainLayout from '@/layouts/MainLayout.astro';
+import CategoriesPage from '@/components/categories/CategoriesPage.astro';
+import * as actions from '@/actions/categoeries/get-categories-by-page.action';
+import type { Category } from '@/shared/types';
+
+export const prerender = true;
+
+const { data, error } = await Astro.callAction(actions.getCategoriesByPage, {});
+
+if (error) {
+  Astro.redirect('/');
+}
+
+const categories = data as unknown as Category[];
+---
+
+<MainLayout title='Categorías'>
+  <CategoriesPage categories={categories} />
+</MainLayout>

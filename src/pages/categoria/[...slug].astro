@@ -3,8 +3,8 @@ import MainLayout from '@/layouts/MainLayout.astro';
 import * as actions from '@/actions/products/get-products-by-category';
 import * as actionsCategories from '@/actions/categoeries/get-categories-by-page.action';
 import type { Category } from '@/shared/types';
-import CategoriesPage from '@/components/categories/CategoriesPage.astro';
 import { Database } from '@/lib/db';
+import ProductsPage from '@/components/products/ProductsPage.astro';
 
 export const prerender = true;
 
@@ -69,7 +69,7 @@ const categories = categoriesData as unknown as Category[];
 
 {/*  image={categories[0].image.url} */}
 <MainLayout title={slug} description={categories[0].description}>
-  <CategoriesPage
+  <ProductsPage
     categories={categories}
     products={products}
     totalPages={totalPages}

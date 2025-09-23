@@ -1,0 +1,25 @@
+---
+import type { Category } from '@/shared/types';
+
+const { categories, pathname } = Astro.props;
+---
+
+<sidebar class='space-y-2 sticky top-0'>
+  <h3 class='text-lg min-w-48 font-medium'>Categorías</h3>
+  <a
+    href={`/categoria/productos`}
+    class={`my-8 group flex cursor-pointer items-center space-x-2 ${pathname.startsWith('/categoria/productos') ? 'font-bold text-orange-500' : 'font-normal text-muted-foreground'} transition-colors hover:text-primary`}
+  >
+    Todos los productos
+  </a>
+  {
+    categories.map((category: Category) => (
+      <a
+        href={`/categoria/${category.slug}`}
+        class={`group flex cursor-pointer items-center space-x-2 ${pathname.startsWith(`/categoria/${category.slug}`) ? 'font-bold text-orange-500' : 'font-normal text-muted-foreground'} transition-colors hover:text-primary`}
+      >
+        {category.name}
+      </a>
+    ))
+  }
+</sidebar>
