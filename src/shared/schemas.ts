@@ -131,3 +131,14 @@ export const contactFormSchema = z.object({
   phone: z.string().optional(),
   message: z.string().min(1, 'El mensaje es requerido'),
 });
+
+export const quoteFormSchema = z.object({
+  name: z.string().min(1, 'Requerido'),
+  last_name: z.string().min(1, 'Requerido'),
+  email: z
+    .string()
+    .min(1, 'Requerido')
+    .email('Ingrese un correo electrónico válido'),
+  phone: z.string().min(1, 'Requerido'),
+  message: z.string().optional(),
+});

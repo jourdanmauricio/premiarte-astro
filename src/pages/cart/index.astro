@@ -14,19 +14,12 @@ if (error || !data) {
 // obtener session de clerk, nombre de usuario
 const { userId } = Astro.locals.auth();
 const user = await Astro.locals.currentUser();
-console.log('userId', userId);
-console.log('name', user?.firstName);
-console.log('last name', user?.lastName);
-console.log('image', user?.imageUrl);
-console.log('email', user?.emailAddresses[0].emailAddress);
 
 const products = data;
 ---
 
 <MainLayout title='Carrito de compras'>
-  <h1>CartPage</h1>
-
-  <section class='container grid grid-cols-1 sm:grid-cols-2 gap-4'>
+  <section class='container grid grid-cols-1 sm:grid-cols-2 gap-4 my-20'>
     <!-- products -->
     <div class='order-2 sm:order-1'>
       <h2>Productos</h2>
@@ -175,10 +168,20 @@ const products = data;
 
         <div class='pt-2'>
           <button
+            id='submit-button'
             type='submit'
-            class='w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
+            class={`w-full font-medium py-3 px-4 rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+              products.length === 0
+                ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500'
+            }`}
+            disabled={products.length === 0}
           >
-            Solicitar presupuesto
+            {
+              products.length === 0
+                ? 'Agregue productos al carrito'
+                : 'Solicitar presupuesto'
+            }
           </button>
         </div>
 
@@ -192,6 +195,7 @@ const products = data;
   import { itemsInCart } from '@/store';
   import { CartCookiesClient } from '@/utils';
   import { navigate } from 'astro:transitions/client';
+  import { quoteFormSchema } from '@/shared/schemas';
 
   document.addEventListener('astro:page-load', () => {
     // Funcionalidad del carrito
@@ -230,10 +234,63 @@ const products = data;
       'phone-error'
     ) as HTMLSpanElement;
 
-    // Función para validar email
-    const isValidEmail = (email: string): boolean => {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return emailRegex.test(email);
+    // Verificar que todos los elementos existan
+    if (!form) {
+      console.error('Formulario no encontrado');
+      return;
+    }
+    if (!nameInput) {
+      console.error('Campo nombre no encontrado');
+      return;
+    }
+    if (!lastNameInput) {
+      console.error('Campo apellido no encontrado');
+      return;
+    }
+    if (!emailInput) {
+      console.error('Campo email no encontrado');
+      return;
+    }
+    if (!phoneInput) {
+      console.error('Campo teléfono no encontrado');
+      return;
+    }
+    if (!nameError || !lastNameError || !emailError || !phoneError) {
+      console.error('Elementos de error no encontrados');
+      return;
+    }
+
+    // Función para validar un campo específico con Zod
+    const validateField = (fieldName: string, value: string) => {
+      try {
+        const fieldSchema =
+          quoteFormSchema.shape[
+            fieldName as keyof typeof quoteFormSchema.shape
+          ];
+        fieldSchema.parse(value);
+        return { success: true, error: null };
+      } catch (error: any) {
+        return {
+          success: false,
+          error: error.errors[0]?.message || 'Error de validación',
+        };
+      }
+    };
+
+    // Función para validar todo el formulario
+    const validateForm = () => {
+      const formData = {
+        name: nameInput.value.trim(),
+        last_name: lastNameInput.value.trim(),
+        email: emailInput.value.trim(),
+        phone: phoneInput.value.trim(),
+        message:
+          (document.getElementById('message') as HTMLTextAreaElement)?.value ||
+          '',
+      };
+
+      const result = quoteFormSchema.safeParse(formData);
+      return result;
     };
 
     // Función para mostrar error
@@ -258,9 +315,11 @@ const products = data;
       inputElement.classList.add('border-slate-300');
     };
 
-    // Validación en tiempo real
+    // Validación en tiempo real con Zod
     nameInput.addEventListener('blur', () => {
-      if (nameInput.value.trim() === '') {
+      const validation = validateField('name', nameInput.value.trim());
+      if (!validation.success) {
+        nameError.textContent = validation.error;
         showError(nameError, nameInput);
       } else {
         hideError(nameError, nameInput);
@@ -268,7 +327,9 @@ const products = data;
     });
 
     lastNameInput.addEventListener('blur', () => {
-      if (lastNameInput.value.trim() === '') {
+      const validation = validateField('last_name', lastNameInput.value.trim());
+      if (!validation.success) {
+        lastNameError.textContent = validation.error;
         showError(lastNameError, lastNameInput);
       } else {
         hideError(lastNameError, lastNameInput);
@@ -276,10 +337,9 @@ const products = data;
     });
 
     emailInput.addEventListener('blur', () => {
-      if (
-        emailInput.value.trim() === '' ||
-        !isValidEmail(emailInput.value.trim())
-      ) {
+      const validation = validateField('email', emailInput.value.trim());
+      if (!validation.success) {
+        emailError.textContent = validation.error;
         showError(emailError, emailInput);
       } else {
         hideError(emailError, emailInput);
@@ -287,7 +347,9 @@ const products = data;
     });
 
     phoneInput.addEventListener('blur', () => {
-      if (phoneInput.value.trim() === '') {
+      const validation = validateField('phone', phoneInput.value.trim());
+      if (!validation.success) {
+        phoneError.textContent = validation.error;
         showError(phoneError, phoneInput);
       } else {
         hideError(phoneError, phoneInput);
@@ -296,45 +358,53 @@ const products = data;
 
     // Validación al enviar el formulario
     form.addEventListener('submit', (event) => {
-      let isValid = true;
+      const submitButton = document.getElementById(
+        'submit-button'
+      ) as HTMLButtonElement;
 
-      // Validar nombre
-      if (nameInput.value.trim() === '') {
-        showError(nameError, nameInput);
-        isValid = false;
-      } else {
+      if (submitButton.disabled) {
+        event.preventDefault();
+        return;
+      }
+
+      // Validar todo el formulario con Zod
+      const validation = validateForm();
+
+      if (!validation.success) {
+        // Limpiar errores previos
         hideError(nameError, nameInput);
-      }
-
-      // Validar apellido
-      if (lastNameInput.value.trim() === '') {
-        showError(lastNameError, lastNameInput);
-        isValid = false;
-      } else {
         hideError(lastNameError, lastNameInput);
-      }
-
-      // Validar email
-      if (
-        emailInput.value.trim() === '' ||
-        !isValidEmail(emailInput.value.trim())
-      ) {
-        showError(emailError, emailInput);
-        isValid = false;
-      } else {
         hideError(emailError, emailInput);
-      }
-
-      // Validar teléfono
-      if (phoneInput.value.trim() === '') {
-        showError(phoneError, phoneInput);
-        isValid = false;
-      } else {
         hideError(phoneError, phoneInput);
+
+        // Mostrar errores específicos de Zod
+        validation.error.issues.forEach((issue) => {
+          const fieldName = issue.path[0] as string;
+          const message = issue.message;
+
+          switch (fieldName) {
+            case 'name':
+              nameError.textContent = message;
+              showError(nameError, nameInput);
+              break;
+            case 'last_name':
+              lastNameError.textContent = message;
+              showError(lastNameError, lastNameInput);
+              break;
+            case 'email':
+              emailError.textContent = message;
+              showError(emailError, emailInput);
+              break;
+            case 'phone':
+              phoneError.textContent = message;
+              showError(phoneError, phoneInput);
+              break;
+          }
+        });
       }
 
       // Si hay errores, prevenir el envío
-      if (!isValid) {
+      if (!validation.success) {
         event.preventDefault();
 
         // Hacer scroll al primer campo con error
