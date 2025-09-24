@@ -58,13 +58,7 @@ const products = data;
         Por favor, complete los siguientes datos para solicitar su presupuesto.
       </p>
 
-      <form
-        id='quote-form'
-        action='/api/presupuestos'
-        method='POST'
-        class='space-y-4'
-        novalidate
-      >
+      <form id='quote-form' method='POST' class='space-y-4' novalidate>
         <div class='grid grid-cols-1 sm:grid-cols-2 gap-4'>
           <div class='space-y-1'>
             <label for='name' class='block text-sm font-medium text-slate-700'>
@@ -357,13 +351,14 @@ const products = data;
     });
 
     // Validación al enviar el formulario
-    form.addEventListener('submit', (event) => {
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault(); // Siempre prevenir el envío normal
+
       const submitButton = document.getElementById(
         'submit-button'
       ) as HTMLButtonElement;
 
       if (submitButton.disabled) {
-        event.preventDefault();
         return;
       }
 
@@ -401,11 +396,6 @@ const products = data;
               break;
           }
         });
-      }
-
-      // Si hay errores, prevenir el envío
-      if (!validation.success) {
-        event.preventDefault();
 
         // Hacer scroll al primer campo con error
         const firstErrorField = form.querySelector(
@@ -418,6 +408,67 @@ const products = data;
           });
           firstErrorField.focus();
         }
+        return;
+      }
+
+      // Si la validación pasa, enviar con server action
+      try {
+        submitButton.disabled = true;
+        submitButton.textContent = 'Enviando...';
+
+        const formData = new FormData(form);
+
+        // Usar la server action de Astro
+        const { actions } = await import('astro:actions');
+        const { toast } = await import('sonner');
+        const result = await actions.sendQuoteRequest(formData);
+
+        if (result.data?.success) {
+          // Éxito: mostrar notificación de éxito
+          toast.success('¡Presupuesto enviado exitosamente!', {
+            description: result.data.message,
+            duration: 5000,
+          });
+
+          // Limpiar formulario
+          form.reset();
+
+          // Limpiar carrito
+          CartCookiesClient.getCart().forEach((item) => {
+            CartCookiesClient.removeItem(item.productId);
+          });
+
+          // Actualizar contador del carrito
+          itemsInCart.set(0);
+
+          // Opcional: redirigir después de un delay
+          setTimeout(() => {
+            navigate('/');
+          }, 3000);
+        } else {
+          // Error: mostrar notificación de error
+          toast.error('Error al enviar el presupuesto', {
+            description:
+              result.data?.message || 'Ha ocurrido un error inesperado',
+            duration: 5000,
+          });
+        }
+      } catch (error) {
+        console.error('Error al enviar presupuesto:', error);
+        const { toast } = await import('sonner');
+        toast.error('Error de conexión', {
+          description:
+            'No se pudo enviar el presupuesto. Verifica tu conexión e inténtalo de nuevo.',
+          duration: 5000,
+        });
+      } finally {
+        submitButton.disabled = false;
+        // Verificar si aún hay productos en el carrito después de la operación
+        const currentCart = CartCookiesClient.getCart();
+        submitButton.textContent =
+          currentCart.length === 0
+            ? 'Agregue productos al carrito'
+            : 'Solicitar presupuesto';
       }
     });
   });

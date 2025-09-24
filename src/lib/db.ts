@@ -942,4 +942,155 @@ export class Database {
     });
     return true;
   }
+
+  // PRESUPUESTOS
+  static async createQuote(
+    data: {
+      name: string;
+      lastName: string;
+      email: string;
+      phone: string;
+      observation?: string;
+      userId?: string;
+      items: {
+        productId: number;
+        sku: string;
+        slug: string;
+        name: string;
+        imageUrl: string;
+        imageAlt: string;
+        price: number;
+        quantity: number;
+        observation?: string;
+      }[];
+    },
+    totalAmount: number
+  ) {
+    // Crear el presupuesto principal
+    const { rows: quoteRows } = await turso.execute({
+      sql: `
+        INSERT INTO Quote (name, lastName, email, phone, observation, totalAmount, userId)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        RETURNING *
+      `,
+      args: [
+        data.name,
+        data.lastName,
+        data.email,
+        data.phone,
+        data.observation || null,
+        totalAmount,
+        data.userId || null,
+      ],
+    });
+
+    const quote = quoteRows[0];
+    const quoteId = quote.id as number;
+
+    // Crear los items del presupuesto
+    for (const item of data.items) {
+      const itemAmount = item.price * item.quantity;
+
+      await turso.execute({
+        sql: `
+          INSERT INTO QuoteItem (
+            quoteId, productId, sku, slug, name, imageUrl, imageAlt, 
+            price, quantity, amount, observation
+          )
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `,
+        args: [
+          quoteId,
+          item.productId,
+          item.sku,
+          item.slug,
+          item.name,
+          item.imageUrl,
+          item.imageAlt,
+          item.price,
+          item.quantity,
+          itemAmount,
+          item.observation || null,
+        ],
+      });
+    }
+
+    return quote;
+  }
+
+  static async getAllQuotes() {
+    const { rows } = await turso.execute({
+      sql: `
+        SELECT 
+          q.*,
+          COUNT(qi.id) as itemCount
+        FROM Quote q
+        LEFT JOIN QuoteItem qi ON q.id = qi.quoteId
+        GROUP BY q.id
+        ORDER BY q.createdAt DESC
+      `,
+      args: [],
+    });
+    return rows;
+  }
+
+  static async getQuoteById(id: number) {
+    const { rows: quoteRows } = await turso.execute({
+      sql: 'SELECT * FROM Quote WHERE id = ?',
+      args: [id],
+    });
+
+    if (!quoteRows[0]) return null;
+
+    const { rows: itemRows } = await turso.execute({
+      sql: 'SELECT * FROM QuoteItem WHERE quoteId = ? ORDER BY id',
+      args: [id],
+    });
+
+    return {
+      ...quoteRows[0],
+      items: itemRows,
+    };
+  }
+
+  static async updateQuoteStatus(
+    id: number,
+    status: 'pending' | 'approved' | 'rejected' | 'expired'
+  ) {
+    const statusDate =
+      status === 'approved'
+        ? 'approvedAt'
+        : status === 'rejected'
+          ? 'rejectedAt'
+          : null;
+
+    let sql = 'UPDATE Quote SET status = ?, updatedAt = CURRENT_TIMESTAMP';
+    let args: any[] = [status];
+
+    if (statusDate) {
+      sql += `, ${statusDate} = CURRENT_TIMESTAMP`;
+    }
+
+    sql += ' WHERE id = ? RETURNING *';
+    args.push(id);
+
+    const { rows } = await turso.execute({ sql, args });
+    return rows[0];
+  }
+
+  static async markQuoteAsRead(id: number) {
+    const { rows } = await turso.execute({
+      sql: 'UPDATE Quote SET isRead = TRUE, updatedAt = CURRENT_TIMESTAMP WHERE id = ? RETURNING *',
+      args: [id],
+    });
+    return rows[0];
+  }
+
+  static async deleteQuote(id: number) {
+    await turso.execute({
+      sql: 'DELETE FROM Quote WHERE id = ?',
+      args: [id],
+    });
+    return true;
+  }
 }
