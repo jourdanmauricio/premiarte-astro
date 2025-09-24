@@ -1,9 +1,6 @@
 ---
 import MainLayout from '@/layouts/MainLayout.astro';
 import { actions } from 'astro:actions';
-import type { ProductWithDetails } from '@/shared/types';
-
-const cart = Astro.cookies.get('cart');
 
 const { data, error } = await Astro.callAction(
   actions.loadProductsFromCart,
@@ -14,15 +11,22 @@ if (error || !data) {
   return Astro.redirect('/');
 }
 
-const products = data;
+// obtener session de clerk, nombre de usuario
+const { userId } = Astro.locals.auth();
+const user = await Astro.locals.currentUser();
+console.log('userId', userId);
+console.log('name', user?.firstName);
+console.log('last name', user?.lastName);
+console.log('image', user?.imageUrl);
+console.log('email', user?.emailAddresses[0].emailAddress);
 
-console.log('data', data);
+const products = data;
 ---
 
 <MainLayout title='Carrito de compras'>
   <h1>CartPage</h1>
 
-  <section class='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+  <section class='container grid grid-cols-1 sm:grid-cols-2 gap-4'>
     <!-- products -->
     <div class='order-2 sm:order-1'>
       <h2>Productos</h2>
@@ -54,24 +58,131 @@ console.log('data', data);
     </div>
 
     <!-- presupuesto -->
-    <div
-      class='bg-slate-50 h-[330px] text-slate-500 p-6 rounded-lg shadow-lg order-1'
-    >
+    <div class='bg-slate-50 text-slate-500 p-6 rounded-lg shadow-lg order-1'>
       <h2 class='text-lg font-semibold mb-4'>Solicitud de presupuesto</h2>
 
       <p class='mb-4'>
         Por favor, complete los siguientes datos para solicitar su presupuesto.
       </p>
 
-      <form action='/api/presupuestos' method='POST'>
-        <input type='text' name='phone' placeholder='Teléfono' />
+      <form
+        id='quote-form'
+        action='/api/presupuestos'
+        method='POST'
+        class='space-y-4'
+        novalidate
+      >
+        <div class='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+          <div class='space-y-1'>
+            <label for='name' class='block text-sm font-medium text-slate-700'>
+              Nombre *
+            </label>
+            <input
+              type='text'
+              id='name'
+              name='name'
+              value={user?.firstName}
+              placeholder='Ingrese su nombre'
+              class='w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'
+              required
+            />
+            <span
+              id='name-error'
+              class='text-red-500 text-xs h-4 block opacity-0 transition-opacity duration-200'
+            >
+              Requerido
+            </span>
+          </div>
 
-        <input type='text' name='message' placeholder='Mensaje' />
-        <button
-          type='submit'
-          class='mt-10 w-full bg-blue-700 text-gray-300 py-3 rounded-lg hover:bg-gray-600 transition-all'
-          >Enviar</button
-        >
+          <div class='space-y-1'>
+            <label
+              for='last_name'
+              class='block text-sm font-medium text-slate-700'
+            >
+              Apellido *
+            </label>
+            <input
+              type='text'
+              id='last_name'
+              name='last_name'
+              value={user?.lastName}
+              placeholder='Ingrese su apellido'
+              class='w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'
+              required
+            />
+            <span
+              id='last_name-error'
+              class='text-red-500 text-xs h-4 block opacity-0 transition-opacity duration-200'
+            >
+              Requerido
+            </span>
+          </div>
+        </div>
+
+        <div class='space-y-1'>
+          <label for='email' class='block text-sm font-medium text-slate-700'>
+            Correo electrónico *
+          </label>
+          <input
+            type='email'
+            id='email'
+            name='email'
+            value={user?.emailAddresses[0].emailAddress}
+            placeholder='ejemplo@correo.com'
+            class='w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'
+            required
+          />
+          <span
+            id='email-error'
+            class='text-red-500 text-xs h-4 block opacity-0 transition-opacity duration-200'
+          >
+            Ingrese un correo electrónico válido
+          </span>
+        </div>
+
+        <div class='space-y-1'>
+          <label for='phone' class='block text-sm font-medium text-slate-700'>
+            Teléfono *
+          </label>
+          <input
+            type='tel'
+            id='phone'
+            name='phone'
+            placeholder='(+54) 11 1234-5678'
+            class='w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'
+            required
+          />
+          <span
+            id='phone-error'
+            class='text-red-500 text-xs h-4 block opacity-0 transition-opacity duration-200'
+          >
+            Requerido
+          </span>
+        </div>
+
+        <div class='space-y-1'>
+          <label for='message' class='block text-sm font-medium text-slate-700'>
+            Mensaje adicional
+          </label>
+          <textarea
+            id='message'
+            name='message'
+            rows='3'
+            placeholder='Agregue cualquier detalle adicional sobre su solicitud...'
+            class='w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none'
+          ></textarea>
+        </div>
+
+        <div class='pt-2'>
+          <button
+            type='submit'
+            class='w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
+          >
+            Solicitar presupuesto
+          </button>
+        </div>
+
+        <p class='text-xs text-slate-500 text-center'>* Campos obligatorios</p>
       </form>
     </div>
   </section>
@@ -83,6 +194,7 @@ console.log('data', data);
   import { navigate } from 'astro:transitions/client';
 
   document.addEventListener('astro:page-load', () => {
+    // Funcionalidad del carrito
     const deleteButtons: NodeListOf<HTMLButtonElement> =
       document.querySelectorAll('.btn-delete');
     deleteButtons.forEach((button) => {
@@ -96,6 +208,147 @@ console.log('data', data);
         // window.location.reload();
         navigate('/cart');
       });
+    });
+
+    // Validación del formulario
+    const form = document.getElementById('quote-form') as HTMLFormElement;
+    const nameInput = document.getElementById('name') as HTMLInputElement;
+    const lastNameInput = document.getElementById(
+      'last_name'
+    ) as HTMLInputElement;
+    const emailInput = document.getElementById('email') as HTMLInputElement;
+    const phoneInput = document.getElementById('phone') as HTMLInputElement;
+
+    const nameError = document.getElementById('name-error') as HTMLSpanElement;
+    const lastNameError = document.getElementById(
+      'last_name-error'
+    ) as HTMLSpanElement;
+    const emailError = document.getElementById(
+      'email-error'
+    ) as HTMLSpanElement;
+    const phoneError = document.getElementById(
+      'phone-error'
+    ) as HTMLSpanElement;
+
+    // Función para validar email
+    const isValidEmail = (email: string): boolean => {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    };
+
+    // Función para mostrar error
+    const showError = (
+      errorElement: HTMLSpanElement,
+      inputElement: HTMLInputElement
+    ) => {
+      errorElement.classList.remove('opacity-0');
+      errorElement.classList.add('opacity-100');
+      inputElement.classList.add('border-red-500');
+      inputElement.classList.remove('border-slate-300');
+    };
+
+    // Función para ocultar error
+    const hideError = (
+      errorElement: HTMLSpanElement,
+      inputElement: HTMLInputElement
+    ) => {
+      errorElement.classList.remove('opacity-100');
+      errorElement.classList.add('opacity-0');
+      inputElement.classList.remove('border-red-500');
+      inputElement.classList.add('border-slate-300');
+    };
+
+    // Validación en tiempo real
+    nameInput.addEventListener('blur', () => {
+      if (nameInput.value.trim() === '') {
+        showError(nameError, nameInput);
+      } else {
+        hideError(nameError, nameInput);
+      }
+    });
+
+    lastNameInput.addEventListener('blur', () => {
+      if (lastNameInput.value.trim() === '') {
+        showError(lastNameError, lastNameInput);
+      } else {
+        hideError(lastNameError, lastNameInput);
+      }
+    });
+
+    emailInput.addEventListener('blur', () => {
+      if (
+        emailInput.value.trim() === '' ||
+        !isValidEmail(emailInput.value.trim())
+      ) {
+        showError(emailError, emailInput);
+      } else {
+        hideError(emailError, emailInput);
+      }
+    });
+
+    phoneInput.addEventListener('blur', () => {
+      if (phoneInput.value.trim() === '') {
+        showError(phoneError, phoneInput);
+      } else {
+        hideError(phoneError, phoneInput);
+      }
+    });
+
+    // Validación al enviar el formulario
+    form.addEventListener('submit', (event) => {
+      let isValid = true;
+
+      // Validar nombre
+      if (nameInput.value.trim() === '') {
+        showError(nameError, nameInput);
+        isValid = false;
+      } else {
+        hideError(nameError, nameInput);
+      }
+
+      // Validar apellido
+      if (lastNameInput.value.trim() === '') {
+        showError(lastNameError, lastNameInput);
+        isValid = false;
+      } else {
+        hideError(lastNameError, lastNameInput);
+      }
+
+      // Validar email
+      if (
+        emailInput.value.trim() === '' ||
+        !isValidEmail(emailInput.value.trim())
+      ) {
+        showError(emailError, emailInput);
+        isValid = false;
+      } else {
+        hideError(emailError, emailInput);
+      }
+
+      // Validar teléfono
+      if (phoneInput.value.trim() === '') {
+        showError(phoneError, phoneInput);
+        isValid = false;
+      } else {
+        hideError(phoneError, phoneInput);
+      }
+
+      // Si hay errores, prevenir el envío
+      if (!isValid) {
+        event.preventDefault();
+
+        // Hacer scroll al primer campo con error
+        const firstErrorField = form.querySelector(
+          '.border-red-500'
+        ) as HTMLElement;
+        if (firstErrorField) {
+          firstErrorField.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          });
+          firstErrorField.focus();
+        }
+      }
     });
   });
 </script>
