@@ -2,8 +2,8 @@
 import MainLayout from '@/layouts/MainLayout.astro';
 import * as actions from '@/actions/products/get-product-by-slug.action';
 import type { ProductWithCategoriesAndImages } from '@/shared/types';
-import { Image } from 'astro:assets';
 import { Database } from '@/lib/db';
+import ProductPage from '@/components/product/ProductPage.astro';
 
 export const prerender = true;
 
@@ -36,6 +36,10 @@ if (error) {
   Astro.redirect('/productos');
 }
 
+if (data?.length === 0) {
+  Astro.redirect('/productos');
+}
+
 const product = data as unknown as ProductWithCategoriesAndImages;
 ---
 
@@ -44,71 +48,5 @@ const product = data as unknown as ProductWithCategoriesAndImages;
   description={product.description}
   image={product.images[0].url}
 >
-  <div class='mx-auto max-w-[1200px] my-20'>
-    <div class='flex flex-col lg:flex-row gap-12 w-full'>
-      <div class='w-full lg:w-1/2 mx-auto px-4'>
-        <Image
-          src={product.images[0].url}
-          alt={product.images[0].alt}
-          width={400}
-          height={400}
-          class='object-contain mx-auto'
-        />
-        <div class='flex gap-2 mt-4 max-w-[400px] mx-auto'>
-          {
-            product.images.map((image) => (
-              <div class='flex-1 min-w-0'>
-                <Image
-                  src={image.url}
-                  alt={image.alt}
-                  width={90}
-                  height={90}
-                  class='w-full h-auto object-contain'
-                />
-              </div>
-            ))
-          }
-        </div>
-      </div>
-
-      <section class='w-full lg:w-1/2 px-4 flex flex-col justify-between gap-8'>
-        <h2 class='text-xl font-semibold text-orange-500'>{product.name}</h2>
-
-        <div class='flex flex-col gap-2'>
-          <h3 class='font-semibold'>Descripción</h3>
-          <p class='ml-4 text-muted-foreground'>{product.description}</p>
-        </div>
-
-        <div class='flex flex-col gap-2'>
-          <h3 class='font-semibold'>Categorías</h3>
-          <p class='ml-4 text-muted-foreground'>
-            {product.categories.map((category) => category.name).join(', ')}
-          </p>
-        </div>
-
-        <div class='flex flex-col gap-2'>
-          <h3 class='font-semibold'>Cantidad</h3>
-          <div class='flex items-center gap-4'>
-            <button class='btn-quantity w-8 h-8'>-</button>
-            <input
-              class='text-center w-12 h-8 border border-gray-300 rounded-md'
-              type='text'
-              min='1'
-              value='1'
-            />
-            <button class='btn-quantity w-8 h-8'>+</button>
-          </div>
-        </div>
-
-        <button
-          class='text-lg font-semibold bg-orange-500 rounded-sm flex items-center justify-center
-    hover:bg-orange-500/80 transition-all duration-300 hover:cursor-pointer text-white py-2 w-full'
-        >
-          Añadir al carrito
-        </button>
-      </section>
-    </div>
-
-    <input type='hidden' id='product-id' value={product.id} />
-  </div>
+  <ProductPage product={product} />
 </MainLayout>

@@ -1,0 +1,101 @@
+---
+import MainLayout from '@/layouts/MainLayout.astro';
+import { actions } from 'astro:actions';
+import type { ProductWithDetails } from '@/shared/types';
+
+const cart = Astro.cookies.get('cart');
+
+const { data, error } = await Astro.callAction(
+  actions.loadProductsFromCart,
+  {}
+);
+
+if (error || !data) {
+  return Astro.redirect('/');
+}
+
+const products = data;
+
+console.log('data', data);
+---
+
+<MainLayout title='Carrito de compras'>
+  <h1>CartPage</h1>
+
+  <section class='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+    <!-- products -->
+    <div class='order-2 sm:order-1'>
+      <h2>Productos</h2>
+      <a
+        href='javascript:history.back()'
+        class='hover: underline text-orange-500'>Regresar</a
+      >
+
+      {
+        products.map((product) => (
+          <div class='flex  gap-5 mt-5'>
+            <img
+              src={product.image.url}
+              alt={product.image.alt}
+              class='w-20 h-20 object-contain rounded-md border'
+            />
+            <div>
+              <a href={`/productos/${product.slug}`} class='hover: underline'>
+                {product.name}
+              </a>
+              <p>Cantidad: {product.quantity}</p>
+              <button data-id={product.productId} class='btn-delete text-white'>
+                Remover
+              </button>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+
+    <!-- presupuesto -->
+    <div
+      class='bg-slate-50 h-[330px] text-slate-500 p-6 rounded-lg shadow-lg order-1'
+    >
+      <h2 class='text-lg font-semibold mb-4'>Solicitud de presupuesto</h2>
+
+      <p class='mb-4'>
+        Por favor, complete los siguientes datos para solicitar su presupuesto.
+      </p>
+
+      <form action='/api/presupuestos' method='POST'>
+        <input type='text' name='phone' placeholder='Teléfono' />
+
+        <input type='text' name='message' placeholder='Mensaje' />
+        <button
+          type='submit'
+          class='mt-10 w-full bg-blue-700 text-gray-300 py-3 rounded-lg hover:bg-gray-600 transition-all'
+          >Enviar</button
+        >
+      </form>
+    </div>
+  </section>
+</MainLayout>
+
+<script>
+  import { itemsInCart } from '@/store';
+  import { CartCookiesClient } from '@/utils';
+  import { navigate } from 'astro:transitions/client';
+
+  document.addEventListener('astro:page-load', () => {
+    const deleteButtons: NodeListOf<HTMLButtonElement> =
+      document.querySelectorAll('.btn-delete');
+    deleteButtons.forEach((button) => {
+      button.addEventListener('click', (event) => {
+        const target = event.target as HTMLButtonElement;
+        const productId = button.dataset.id ?? '';
+
+        const cart = CartCookiesClient.removeItem(productId as string);
+
+        itemsInCart.set(cart.length);
+        // window.location.reload();
+        navigate('/cart');
+      });
+    });
+  });
+</script>

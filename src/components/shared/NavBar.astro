@@ -1,7 +1,9 @@
 ---
-import AuthSection from '@/components/auth/AuthSection';
-import { Database } from '@/lib/db';
 import { turso } from '@/lib/turso';
+import { Database } from '@/lib/db';
+
+import AuthSection from '@/components/auth/AuthSection';
+import CartCounter from '@/components/shared/cart/CartCounter';
 import { navBarLinks } from '@/shared/consts';
 import type { Settings } from '@/shared/types';
 
@@ -57,6 +59,7 @@ const logoImage = home.menu?.logoId
           </div>
         ))
       }
+      <CartCounter client:load transition:persist />
     </div>
 
     <AuthSection client:idle />

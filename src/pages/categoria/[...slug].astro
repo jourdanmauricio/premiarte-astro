@@ -84,6 +84,10 @@ if (error) {
   Astro.redirect('/productos');
 }
 
+if (data?.products.length === 0) {
+  Astro.redirect('/productos');
+}
+
 const { products, totalPages } = data || { products: [], totalPages: 0 };
 
 const url = Astro.url;
