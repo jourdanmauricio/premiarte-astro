@@ -11,19 +11,8 @@ import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import InputField from '@/components/ui/custom/input-field';
 import Dropdown from '@/components/ui/custom/dropdown';
-
-const imageTagsList = [
-  { id: 'Categorías', description: 'Categorías' },
-  { id: 'Productos', description: 'Productos' },
-  { id: 'Páginas', description: 'Páginas' },
-  { id: 'Otros', description: 'Otros' },
-];
-
-const ImageFormSchema = z.object({
-  alt: z.string().min(1, 'El nombre alternativo es requerido'),
-  tag: z.string().min(1, 'La carpeta es requerida'),
-  observation: z.string().optional(),
-});
+import { imageTagsList } from '@/shared/consts';
+import { UploadImageFormSchema } from '@/shared/schemas';
 
 interface ImageUploadTabProps {
   onUploadSuccess: (image: Image) => void;
@@ -32,17 +21,13 @@ interface ImageUploadTabProps {
     isLoading: boolean;
     submit: () => void;
   }) => void;
+  defaultTag: string;
 }
-
-const defaultValues = {
-  alt: '',
-  tag: 'Otros',
-  observation: '',
-};
 
 export function ImageUploadTab({
   onUploadSuccess,
   onStateChange,
+  defaultTag,
 }: ImageUploadTabProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
@@ -50,13 +35,19 @@ export function ImageUploadTab({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
 
-  const form = useForm<z.infer<typeof ImageFormSchema>>({
-    resolver: zodResolver(ImageFormSchema),
+  const defaultValues = {
+    alt: '',
+    tag: defaultTag,
+    observation: '',
+  };
+
+  const form = useForm<z.infer<typeof UploadImageFormSchema>>({
+    resolver: zodResolver(UploadImageFormSchema),
     defaultValues,
   });
 
   const uploadMutation = useMutation({
-    mutationFn: async (data: z.infer<typeof ImageFormSchema>) => {
+    mutationFn: async (data: z.infer<typeof UploadImageFormSchema>) => {
       if (!selectedFile) {
         throw new Error('No se ha seleccionado ningún archivo');
       }

@@ -180,7 +180,7 @@ const ImageSelectorTab = ({
                         <img
                           src={image.url}
                           alt={image.alt}
-                          className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-200'
+                          className='w-full h-full object-contain group-hover:scale-105 transition-transform duration-200'
                         />
                       </div>
 
@@ -198,7 +198,9 @@ const ImageSelectorTab = ({
                       {isSelected && (
                         <div
                           className={`absolute inset-0 ${
-                            isAlreadySelected ? 'bg-green-500' : 'bg-blue-500'
+                            isAlreadySelected
+                              ? 'bg-green-500/10'
+                              : 'bg-blue-500/10'
                           } bg-opacity-10 pointer-events-none`}
                         />
                       )}

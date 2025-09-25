@@ -1,10 +1,10 @@
-import { useEffect } from 'react';
-import { type UseFormReturn, useFormContext } from 'react-hook-form';
 import { useQuery } from '@tanstack/react-query';
-import { CategorySelectorTable } from './CategorySelectorTable';
+import { type UseFormReturn, useFormContext } from 'react-hook-form';
+
 import { getColumns } from './columns';
-import { FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { categoriesService } from '@/lib/services';
+import { CategorySelectorTable } from './CategorySelectorTable';
+import { FormField, FormItem, FormMessage } from '@/components/ui/form';
 
 type CategorySelectorProps = {
   name: string;
@@ -20,7 +20,6 @@ type CategorySelectorProps = {
 export default function CategorySelector({
   name,
   form,
-  className,
   labelClassName,
 }: CategorySelectorProps) {
   const { getFieldState, formState } = useFormContext();

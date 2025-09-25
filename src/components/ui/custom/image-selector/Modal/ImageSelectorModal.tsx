@@ -31,6 +31,7 @@ interface ImageSelectorModalProps {
   allImages: Image[];
   selectedImageIds: number[];
   maxImages: number;
+  defaultTag: string;
 }
 
 export function ImageSelectorModal({
@@ -40,6 +41,7 @@ export function ImageSelectorModal({
   allImages,
   selectedImageIds,
   maxImages,
+  defaultTag,
 }: ImageSelectorModalProps) {
   const [activeTab, setActiveTab] = useState('select');
   const [searchTerm, setSearchTerm] = useState('');
@@ -146,7 +148,7 @@ export function ImageSelectorModal({
 
   return (
     <Dialog open={open} onOpenChange={handleCancel}>
-      <DialogContent className='max-w-6xl w-full max-h-[90vh] h-[90vh] flex flex-col'>
+      <DialogContent className='sm:max-w-6xl w-full max-h-[90vh] h-[90vh] flex flex-col'>
         <DialogHeader className='w-full'>
           <DialogTitle>Selector de Imágenes</DialogTitle>
           <DialogDescription>
@@ -190,6 +192,7 @@ export function ImageSelectorModal({
               <ImageUploadTab
                 onUploadSuccess={handleUploadSuccess}
                 onStateChange={handleStateChange}
+                defaultTag={defaultTag}
               />
             </TabsContent>
           </Tabs>

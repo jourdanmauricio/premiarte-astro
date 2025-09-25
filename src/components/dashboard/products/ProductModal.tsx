@@ -202,6 +202,7 @@ const ProductModal = ({ open, closeModal, product }: ProductModalProps) => {
                     form={form}
                     maxImages={5}
                     className='col-span-2'
+                    defaultTag='Productos'
                   />
 
                   <div className='flex gap-4'>

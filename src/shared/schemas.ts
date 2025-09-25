@@ -142,3 +142,9 @@ export const quoteFormSchema = z.object({
   phone: z.string().min(1, 'Requerido'),
   message: z.string().optional(),
 });
+
+export const UploadImageFormSchema = z.object({
+  alt: z.string().min(1, 'El nombre alternativo es requerido'),
+  tag: z.string().min(1, 'La carpeta es requerida'),
+  observation: z.string().optional(),
+});

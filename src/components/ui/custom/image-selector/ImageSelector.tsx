@@ -36,6 +36,7 @@ type ImageSelectorProps = {
   className?: string;
   labelClassName?: string;
   maxImages?: number;
+  defaultTag?: string;
 };
 
 export default function ImageSelector({
@@ -45,6 +46,7 @@ export default function ImageSelector({
   className,
   labelClassName,
   maxImages = 10,
+  defaultTag = 'Otros',
 }: ImageSelectorProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { getFieldState, formState } = useFormContext();
@@ -175,6 +177,7 @@ export default function ImageSelector({
             allImages={allImages || []}
             selectedImageIds={selectedImageIds}
             maxImages={maxImages}
+            defaultTag={defaultTag}
           />
         </FormItem>
       )}

@@ -10,12 +10,12 @@ WORKDIR /app
 # Instalar dependencias
 FROM base AS deps
 COPY package.json package-lock.json* ./
-RUN npm ci --only=production && npm cache clean --force
+RUN npm ci && npm cache clean --force
 
 # Etapa de construcción
 FROM base AS builder
 COPY package.json package-lock.json* ./
-# Instalar todas las dependencias (incluyendo devDependencies para prisma)
+# Instalar todas las dependencias (incluyendo devDependencies)
 RUN npm ci
 
 # Copiar código fuente

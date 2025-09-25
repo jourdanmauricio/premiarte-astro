@@ -1,13 +1,15 @@
 import { Database } from '@/lib/db';
 import type { APIRoute } from 'astro';
-import { clerkClient } from '@clerk/astro/server';
 import { verifyAdminAuth } from '@/lib/utils';
 
 export const GET: APIRoute = async ({ request, locals }) => {
   try {
     // GET público - no requiere autenticación para mostrar categorías en el sitio
-    const categories = await Database.getAllCategories({});
+    const categoriesData = await Database.getAllCategories({});
 
+    const categories = categoriesData.sort((a, b) =>
+      String(a.name || '').localeCompare(String(b.name || ''))
+    );
     return new Response(JSON.stringify(categories), {
       status: 200,
       headers: {
