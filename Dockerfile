@@ -10,7 +10,7 @@ WORKDIR /app
 # Instalar dependencias
 FROM base AS deps
 COPY package.json package-lock.json* ./
-RUN npm ci && npm cache clean --force
+RUN npm ci --only=production && npm cache clean --force
 
 # Etapa de construcción
 FROM base AS builder
@@ -21,9 +21,10 @@ RUN npm ci
 # Copiar código fuente
 COPY . .
 
-# Construir la aplicación
+# Construir la aplicación con optimizaciones de memoria
 ENV NODE_ENV=production
-RUN npm run build --verbose
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+RUN npm run build
 
 # Etapa de producción
 FROM base AS runtime

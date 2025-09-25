@@ -11,6 +11,17 @@ import { esES } from '@clerk/localizations';
 export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
+    build: {
+      chunkSizeWarningLimit: 1000,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'react-vendor': ['react', 'react-dom'],
+            'ui-vendor': ['@radix-ui/react-dialog', '@radix-ui/react-select', '@radix-ui/react-tabs'],
+          }
+        }
+      }
+    },
   },
   integrations: [
     react(),
