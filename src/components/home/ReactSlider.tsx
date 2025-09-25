@@ -32,8 +32,8 @@ const ReactSlider = ({ slider }: props) => {
   }, [api]);
 
   return (
-    <section className='relative'>
-      <div className='relative mx-auto w-full'>
+    <section className='relative -mx-4 sm:-mx-6 md:-mx-8 lg:-mx-12 xl:-mx-16'>
+      <div className='w-full'>
         <Carousel
           setApi={setApi}
           className='relative w-full overflow-hidden shadow-2xl'
@@ -48,14 +48,14 @@ const ReactSlider = ({ slider }: props) => {
           <CarouselContent>
             {slider.map((slide, index: number) => (
               <CarouselItem key={index}>
-                <Card className='relative overflow-hidden rounded-none border-0 p-0 m-0'>
-                  <CardContent className='relative flex aspect-auto h-[500px] items-center'>
+                <Card className='relative overflow-hidden rounded-none border-0 p-0 m-0 bg-transparent'>
+                  <CardContent className='relative flex aspect-auto h-auto items-center'>
                     <div className='absolute inset-0'>
                       <img
                         src={slide.imageDet.url}
                         alt={slide.imageDet.alt || 'Slide Image'}
                         // fill
-                        className='object-cover transition-transform duration-700 hover:scale-105 h-full w-full'
+                        className='object-cover object-center transition-transform duration-700 hover:scale-105 h-full w-full'
                         // priority
                       />
                       {/* Gradiente dinámico más sofisticado */}
@@ -64,7 +64,7 @@ const ReactSlider = ({ slider }: props) => {
                     </div>
 
                     {/* Contenido principal con animaciones */}
-                    <div className='relative z-10 flex flex-col gap-6 p-8 text-white duration-1000 animate-in slide-in-from-left-8 md:pl-20 lg:pl-8'>
+                    <div className='relative z-10 flex flex-col gap-6 p-8 text-white duration-1000 animate-in slide-in-from-left-8 md:pl-40 lg:pl-40'>
                       {/* Badge opcional para categoría */}
                       <div className='inline-flex w-fit'>
                         {slide.recommended ? (
