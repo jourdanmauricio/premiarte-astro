@@ -67,6 +67,8 @@ export default function ImageSelector({
   const selectedImageIds: number[] = form.watch(name) || [];
 
   // Convertir IDs a objetos completos para la visualización
+
+  console.log('selectedImageIds', selectedImageIds);
   const selectedImages: Image[] = selectedImageIds
     .map((id) => allImages?.find((img) => img.id === id))
     .filter((img): img is Image => img !== undefined);

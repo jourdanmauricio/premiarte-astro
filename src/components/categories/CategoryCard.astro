@@ -16,7 +16,7 @@ const { category } = Astro.props;
       alt={category.image?.alt || category.name}
       width={250}
       height={250}
-      class='object-cover transition-transform group-hover:scale-105'
+      class='object-contain w-full h-full transition-transform group-hover:scale-105'
     />
     <div
       class='absolute inset-0 flex items-center justify-center bg-black/80 opacity-0 transition-opacity duration-300 group-hover:opacity-100'

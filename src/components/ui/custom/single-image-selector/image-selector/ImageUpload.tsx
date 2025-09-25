@@ -12,7 +12,7 @@ import { Form } from '@/components/ui/form';
 import InputField from '@/components/ui/custom/input-field';
 import Dropdown from '@/components/ui/custom/dropdown';
 import { ImageFormSchema } from '@/shared/schemas';
-import { imageTagsList } from './ImageSelector';
+import { imageTagsList } from '@/shared/consts';
 
 interface ImageUploadProps {
   onUploadSuccess: (image: Image) => void;
@@ -21,23 +21,25 @@ interface ImageUploadProps {
     isLoading: boolean;
     submit: () => void;
   }) => void;
+  defaultTag?: string;
 }
-
-const defaultValues = {
-  url: '',
-  tag: 'Otros',
-  alt: '',
-  observation: '',
-};
 
 export const ImageUpload = ({
   onUploadSuccess,
   onStateChange,
+  defaultTag = 'Otros',
 }: ImageUploadProps) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const defaultValues = {
+    url: '',
+    tag: defaultTag,
+    alt: '',
+    observation: '',
+  };
 
   const form = useForm<z.infer<typeof ImageFormSchema>>({
     resolver: zodResolver(ImageFormSchema),

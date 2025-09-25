@@ -8,13 +8,13 @@ const { category } = Astro.props;
   href={`/categoria/${category.slug}`}
   class='img-appear group relative w-64 overflow-hidden rounded-sm bg-background shadow-md transition-all hover:shadow-lg'
 >
-  <div class='relative aspect-square overflow-hidden rounded-sm'>
+  <div class='relative aspect-square overflow-hidden rounded-sm border'>
     <Image
       src={category.image?.url || '/placeholder.svg'}
       alt={category.image?.alt || category.name}
       width={256}
       height={256}
-      class='object-cover transition-transform group-hover:scale-105'
+      class='object-contain w-full h-full transition-transform group-hover:scale-105'
     />
     <div class='absolute inset-0 bg-gradient-to-t from-black/60 to-transparent'>
     </div>

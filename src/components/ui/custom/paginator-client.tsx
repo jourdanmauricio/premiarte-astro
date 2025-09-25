@@ -58,12 +58,6 @@ const PaginationClient = ({
 
   if (totalPages <= 1) return null;
 
-  console.log('visiblePages', visiblePages);
-  console.log('totalPages', totalPages);
-  console.log('currentPage', currentPage);
-  console.log('isFirstPage', isFirstPage);
-  console.log('isLastPage', isLastPage);
-
   return (
     <Pagination className='mt-8'>
       <PaginationContent>

@@ -13,7 +13,7 @@ import { Form } from '@/components/ui/form';
 import { SettingsFormSchema } from '@/shared/schemas';
 import InputField from '@/components/ui/custom/input-field';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ImageSelector } from '@/components/dashboard/image-selector';
+import { ImageSelector } from '@/components/ui/custom/single-image-selector/image-selector';
 
 // Schema específico para el slide
 const SlideFormSchema = z.object({

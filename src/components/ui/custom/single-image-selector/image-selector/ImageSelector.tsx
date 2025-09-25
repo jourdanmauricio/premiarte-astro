@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { mediaService } from '@/lib/services/mediaService';
 import { toast } from 'sonner';
+import { useState, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+
 import type { Image } from '@/shared/types';
+import { mediaService } from '@/lib/services/mediaService';
 
 import {
   Dialog,
@@ -13,16 +14,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 
-import { ImageSelect } from '@/components/dashboard/image-selector/ImageSelect';
-import { ImageUpload } from '@/components/dashboard/image-selector/ImageUpload';
-
-export const imageTagsList = [
-  { id: 'Todas', description: 'Todas' },
-  { id: 'Categorías', description: 'Categorías' },
-  { id: 'Productos', description: 'Productos' },
-  { id: 'Páginas', description: 'Páginas' },
-  { id: 'Otros', description: 'Otros' },
-];
+import { ImageSelect } from '@/components/ui/custom/single-image-selector/image-selector/ImageSelect';
+import { ImageUpload } from '@/components/ui/custom/single-image-selector/image-selector/ImageUpload';
 
 interface ImageSelectorProps {
   open: boolean;
@@ -30,6 +23,7 @@ interface ImageSelectorProps {
   onSelect: (images: Image[]) => void;
   multipleSelect?: boolean;
   selectedImages?: Image[];
+  defaultTag?: string;
 }
 
 export const ImageSelector = ({
@@ -38,6 +32,7 @@ export const ImageSelector = ({
   onSelect,
   multipleSelect = false,
   selectedImages = [],
+  defaultTag = 'Otros',
 }: ImageSelectorProps) => {
   const [activeTab, setActiveTab] = useState('select');
   const [internalSelectedImages, setInternalSelectedImages] =
@@ -107,7 +102,7 @@ export const ImageSelector = ({
 
   return (
     <Dialog open={open} onOpenChange={handleCancel}>
-      <DialogContent className='max-h-[95vh] max-w-6xl w-full flex flex-col'>
+      <DialogContent className='max-h-[95vh] sm:max-w-6xl max-w-6xl w-full flex flex-col'>
         <DialogHeader className='flex-shrink-0'>
           <DialogTitle className='dialog-title'>
             Selector de Imágenes
@@ -131,6 +126,7 @@ export const ImageSelector = ({
                 selectedImages={internalSelectedImages}
                 onImageSelect={handleImageSelection}
                 multipleSelect={multipleSelect}
+                defaultTag={defaultTag}
               />
             </TabsContent>
 
@@ -138,6 +134,7 @@ export const ImageSelector = ({
               <ImageUpload
                 onUploadSuccess={handleUploadSuccess}
                 onStateChange={setUploadState}
+                defaultTag={defaultTag}
               />
             </TabsContent>
           </Tabs>

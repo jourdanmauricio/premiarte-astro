@@ -12,7 +12,7 @@ import { Form } from '@/components/ui/form';
 import { SettingsFormSchema } from '@/shared/schemas';
 import InputField from '@/components/ui/custom/input-field';
 import TextareaField from '@/components/ui/custom/textarea-field';
-import { ImageSelector } from '@/components/dashboard/image-selector';
+import { ImageSelector } from '@/components/ui/custom/single-image-selector/image-selector';
 import type { Image } from '@/shared/types';
 
 interface ServiceModalProps {

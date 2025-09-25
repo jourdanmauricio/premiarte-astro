@@ -1,14 +1,17 @@
 import { useState, useMemo } from 'react';
+
 import type { Image } from '@/shared/types';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { imageTagsList } from './ImageSelector';
+import { imageTagsList } from '@/shared/consts';
+import { Checkbox } from '@/components/ui/checkbox';
+import { getFolderIcon } from '@/shared/functions';
 
 interface ImageSelectProps {
   images: Image[];
   selectedImages: Image[];
   onImageSelect: (image: Image) => void;
   multipleSelect: boolean;
+  defaultTag?: string;
 }
 
 export const ImageSelect = ({
@@ -16,6 +19,7 @@ export const ImageSelect = ({
   selectedImages,
   onImageSelect,
   multipleSelect,
+  defaultTag = 'Otros',
 }: ImageSelectProps) => {
   const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
 
@@ -27,7 +31,7 @@ export const ImageSelect = ({
           ? images.length
           : images.filter(
               (img) =>
-                img.tag === folder.id || (!img.tag && folder.id === 'Otros')
+                img.tag === folder.id || (!img.tag && folder.id === defaultTag)
             ).length;
 
       return {
@@ -45,7 +49,7 @@ export const ImageSelect = ({
     }
 
     if (selectedFolder === 'Otros') {
-      return images.filter((img) => !img.tag || img.tag === 'Otros');
+      return images.filter((img) => !img.tag || img.tag === defaultTag);
     }
 
     return images.filter((img) => img.tag === selectedFolder);
@@ -63,16 +67,16 @@ export const ImageSelect = ({
     return selectedImages.some((selected) => selected.id === image.id);
   };
 
-  const getFolderIcon = (folderId: string) => {
-    const icons: Record<string, string> = {
-      Todas: '📁',
-      Categorías: '📂',
-      Productos: '📦',
-      Páginas: '📄',
-      Otros: '🗂️',
-    };
-    return icons[folderId] || '📁';
-  };
+  // const getFolderIcon = (folderId: string) => {
+  //   const icons: Record<string, string> = {
+  //     Todas: '📁',
+  //     Categorías: '📂',
+  //     Productos: '📦',
+  //     Páginas: '📄',
+  //     Otros: '🗂️',
+  //   };
+  //   return icons[folderId] || '📁';
+  // };
 
   if (!selectedFolder) {
     // Vista de carpetas
@@ -179,7 +183,7 @@ export const ImageSelect = ({
 
                   {/* Overlay cuando está seleccionada */}
                   {isImageSelected(image) && (
-                    <div className='absolute inset-0 bg-blue-500 bg-opacity-10 pointer-events-none' />
+                    <div className='absolute inset-0 bg-blue-500/10 bg-opacity-10 pointer-events-none' />
                   )}
                 </div>
               ))}

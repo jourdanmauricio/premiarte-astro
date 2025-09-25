@@ -6,7 +6,7 @@ import { type UseFormReturn } from 'react-hook-form';
 import type { Image, Settings } from '@/shared/types';
 import { SettingsFormSchema } from '@/shared/schemas';
 import InputField from '@/components/ui/custom/input-field';
-import { ImageSelector } from '@/components/dashboard/image-selector';
+import { ImageSelector } from '@/components/ui/custom/single-image-selector/image-selector';
 
 interface MenuPanelProps {
   form: UseFormReturn<z.infer<typeof SettingsFormSchema>>;

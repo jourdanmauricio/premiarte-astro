@@ -15,7 +15,7 @@ import {
 import { Form } from '@/components/ui/form';
 import type { SettingsFormSchema } from '@/shared/schemas';
 import type { Image } from '@/shared/types';
-import { ImageSelector } from '@/components/dashboard/image-selector/ImageSelector';
+import { ImageSelector } from '@/components/ui/custom/single-image-selector/image-selector/ImageSelector';
 
 interface SocialLinkModalProps {
   open: boolean;

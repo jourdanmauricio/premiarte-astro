@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import type { Image } from '@/shared/types';
 import type { SettingsFormSchema } from '@/shared/schemas';
 import InputField from '@/components/ui/custom/input-field';
-import { ImageSelector } from '@/components/dashboard/image-selector';
+import { ImageSelector } from '@/components/ui/custom/single-image-selector/image-selector';
 
 interface HeroPanelProps {
   form: UseFormReturn<z.infer<typeof SettingsFormSchema>>;

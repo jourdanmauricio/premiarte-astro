@@ -17,7 +17,7 @@ import {
 import { Form } from '@/components/ui/form';
 import { ProductFromSchema } from '@/shared/schemas';
 import InputField from '@/components/ui/custom/input-field';
-import ImageSelector from '@/components/ui/custom/image-selector/ImageSelector';
+import ImagesSelector from '@/components/ui/custom/images-selector/ImagesSelector';
 import { productsService } from '@/lib/services';
 import TextareaField from '@/components/ui/custom/textarea-field';
 import BooleanCheckbox from '@/components/ui/custom/boolean-checkbox';
@@ -196,7 +196,7 @@ const ProductModal = ({ open, closeModal, product }: ProductModalProps) => {
                     className='col-span-2'
                   />
 
-                  <ImageSelector
+                  <ImagesSelector
                     label='Imágenes del producto'
                     name='images'
                     form={form}

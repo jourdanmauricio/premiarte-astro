@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Search } from 'lucide-react';
+
 import {
   Dialog,
   DialogContent,
@@ -7,22 +7,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
 import type { Image } from '@/shared/types';
+import { imageTagsList } from '@/shared/consts';
+import { Button } from '@/components/ui/button';
 import { ImageUploadTab } from './tabs/ImageUploadTab';
-import ImageSelectorTab from '@/components/ui/custom/image-selector/Modal/tabs/ImageSelectorTab';
-
-export const imageTagsList = [
-  { id: 'Todas', description: 'Todas' },
-  { id: 'Categorías', description: 'Categorías' },
-  { id: 'Productos', description: 'Productos' },
-  { id: 'Páginas', description: 'Páginas' },
-  { id: 'Otros', description: 'Otros' },
-];
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import ImageSelectorTab from '@/components/ui/custom/images-selector/Modal/tabs/ImageSelectorTab';
 
 interface ImageSelectorModalProps {
   open: boolean;

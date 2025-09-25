@@ -9,7 +9,7 @@ import { CustomTable } from '@/components/ui/custom/CustomTable';
 import { getSocialLinkColumns } from '@/components/dashboard/settings/sections/home/panels/footer-panel/table/solcialLinksColumns';
 import { PlusIcon } from 'lucide-react';
 import { SocialLinkModal } from '@/components/dashboard/settings/sections/home/panels/footer-panel/SocialLinkModal';
-import { ImageSelector } from '@/components/dashboard/image-selector';
+import { ImageSelector } from '@/components/ui/custom/single-image-selector/image-selector';
 import TextareaField from '@/components/ui/custom/textarea-field';
 
 interface FooterPanelProps {
