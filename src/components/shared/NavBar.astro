@@ -27,6 +27,7 @@ const logoImage = home.menu?.logoId
   class='sticky top-0 z-50 w-full border-b bg-background/70 backdrop-blur-sm'
 >
   <div class='container flex justify-between items-center p-4 mx-auto'>
+    <!-- Logo y nombre del sitio -->
     <div class='text-gray-300'>
       <div class='flex items-center justify-center'>
         {
@@ -44,7 +45,31 @@ const logoImage = home.menu?.logoId
       </div>
     </div>
 
-    <div class='flex items-center justify-center text-gray-300'>
+    <!-- Carrito y menú hamburguesa para móviles -->
+    <div class='xl:hidden flex items-center space-x-4'>
+      <CartCounter client:load transition:persist />
+      <button
+        id='mobile-menu-button'
+        class='text-gray-300 hover:text-white focus:outline-none focus:text-white ml-8'
+        aria-label='Abrir menú'
+      >
+        <svg
+          class='w-6 h-6'
+          fill='none'
+          stroke='currentColor'
+          viewBox='0 0 24 24'
+        >
+          <path
+            stroke-linecap='round'
+            stroke-linejoin='round'
+            stroke-width='2'
+            d='M4 6h16M4 12h16M4 18h16'></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Menú de escritorio -->
+    <div class='hidden xl:flex items-center justify-center text-gray-300'>
       {
         navBarLinks.map((link) => (
           <div>
@@ -62,31 +87,139 @@ const logoImage = home.menu?.logoId
       <CartCounter client:load transition:persist />
     </div>
 
-    <AuthSection client:idle />
+    <!-- Sección de autenticación para escritorio -->
+    <div class='hidden xl:block'>
+      <AuthSection client:idle />
+    </div>
+  </div>
+
+  <!-- Menú móvil desplegable -->
+  <div
+    id='mobile-menu'
+    class='hidden xl:hidden bg-background/95 backdrop-blur-sm border-t'
+  >
+    <div class='px-2 pt-2 pb-3 space-y-1'>
+      {
+        navBarLinks.map((link) => (
+          <div>
+            <a
+              href={link.href}
+              class='block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition-colors'
+              data-mobile-href={link.href}
+            >
+              {link.name}
+            </a>
+          </div>
+        ))
+      }
+      <div class='px-3 py-2'>
+        <AuthSection client:idle />
+      </div>
+    </div>
   </div>
 </nav>
 
-<script>
+<script is:inline>
   function setActiveMenu() {
     const currentPath = window.location.pathname;
 
-    // Limpiar todas las líneas
+    // Limpiar todas las líneas del menú de escritorio
     document.querySelectorAll('[data-href]').forEach((el) => {
       el.classList.remove('border-blue-500');
       el.classList.add('border-transparent');
       el.removeAttribute('style');
     });
 
-    // Activar la línea actual
+    // Activar la línea actual en el menú de escritorio
     const activeElement = document.querySelector(
       `[data-href="${currentPath}"]`
-    ) as HTMLElement;
+    );
     if (activeElement) {
       activeElement.classList.remove('border-transparent');
       activeElement.classList.add('border-blue-500');
       activeElement.style.viewTransitionName = 'menu-line';
     }
+
+    // Resaltar enlace activo en el menú móvil
+    document.querySelectorAll('[data-mobile-href]').forEach((el) => {
+      el.classList.remove('bg-blue-600', 'text-white');
+      el.classList.add('text-gray-300');
+    });
+
+    const activeMobileElement = document.querySelector(
+      `[data-mobile-href="${currentPath}"]`
+    );
+    if (activeMobileElement) {
+      activeMobileElement.classList.remove('text-gray-300');
+      activeMobileElement.classList.add('bg-blue-600', 'text-white');
+    }
   }
+
+  function toggleMobileMenu() {
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+
+    if (mobileMenu && mobileMenuButton) {
+      const isHidden = mobileMenu.classList.contains('hidden');
+
+      if (isHidden) {
+        mobileMenu.classList.remove('hidden');
+        // Cambiar icono a X
+        mobileMenuButton.innerHTML = `
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        `;
+        mobileMenuButton.setAttribute('aria-label', 'Cerrar menú');
+      } else {
+        mobileMenu.classList.add('hidden');
+        // Cambiar icono a hamburguesa
+        mobileMenuButton.innerHTML = `
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+        `;
+        mobileMenuButton.setAttribute('aria-label', 'Abrir menú');
+      }
+    }
+  }
+
+  function closeMobileMenu() {
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+
+    if (mobileMenu && mobileMenuButton) {
+      mobileMenu.classList.add('hidden');
+      // Cambiar icono a hamburguesa
+      mobileMenuButton.innerHTML = `
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      `;
+      mobileMenuButton.setAttribute('aria-label', 'Abrir menú');
+    }
+  }
+
+  // Event listeners
+  document.addEventListener('DOMContentLoaded', () => {
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    if (mobileMenuButton) {
+      mobileMenuButton.addEventListener('click', toggleMobileMenu);
+    }
+
+    // Cerrar menú móvil al hacer clic en un enlace
+    document.querySelectorAll('[data-mobile-href]').forEach((link) => {
+      link.addEventListener('click', closeMobileMenu);
+    });
+
+    // Cerrar menú móvil al redimensionar la ventana (si se cambia a escritorio)
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 768) {
+        // md breakpoint
+        closeMobileMenu();
+      }
+    });
+  });
 
   // Ejecutar al cargar y después de transiciones
   setActiveMenu();
