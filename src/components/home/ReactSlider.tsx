@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/carousel';
 import { useEffect, useState } from 'react';
 import Autoplay from 'embla-carousel-autoplay';
-import { cn } from '@/lib/utils';
+// import { cn } from '@/lib/utils';
 import type { Slide } from '@/components/home/HomePage.astro';
 
 interface props {
@@ -119,7 +119,7 @@ const ReactSlider = ({ slider }: props) => {
           <CarouselNext className='absolute right-2 top-1/2 z-20 hidden h-12 w-12 -translate-y-1/2 border-0 bg-white/20 text-white shadow-lg backdrop-blur-sm transition-all duration-300 hover:bg-white/30 md:flex' />
         </Carousel>
 
-        <div className='relative flex items-center justify-center py-6'>
+        {/* <div className='relative flex items-center justify-center py-6'>
           <div className='absolute -top-10 flex gap-6'>
             {api?.scrollSnapList().map((_, index) => (
               <button
@@ -135,7 +135,7 @@ const ReactSlider = ({ slider }: props) => {
               />
             ))}
           </div>
-        </div>
+        </div> */}
       </div>
     </section>
   );
