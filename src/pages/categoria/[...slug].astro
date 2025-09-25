@@ -45,8 +45,6 @@ export async function getStaticPaths() {
     const totalProducts = Number(await Database.countProducts());
     const productsTotalPages = Math.ceil(totalProducts / limit);
 
-    console.log('productsTotalPages ', productsTotalPages);
-
     for (let page = 1; page <= Math.max(productsTotalPages, 1); page++) {
       paths.push({
         params: {

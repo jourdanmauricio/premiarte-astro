@@ -11,6 +11,7 @@ const productDetails = product as ProductWithCategoriesAndImages;
   <div class='flex flex-col lg:flex-row gap-12 w-full'>
     <div class='w-full lg:w-1/2 mx-auto px-4'>
       <Image
+        id='main-image'
         src={productDetails.images[0].url}
         alt={productDetails.images[0].alt}
         width={400}
@@ -19,8 +20,11 @@ const productDetails = product as ProductWithCategoriesAndImages;
       />
       <div class='flex gap-2 mt-4 max-w-[400px] mx-auto'>
         {
-          productDetails.images.map((image) => (
-            <div class='min-w-0'>
+          productDetails.images.map((image, index) => (
+            <div
+              class='min-w-0 cursor-pointer hover:opacity-80 transition-opacity'
+              data-image-index={index}
+            >
               <Image
                 src={image.url}
                 alt={image.alt}
@@ -92,6 +96,7 @@ const productDetails = product as ProductWithCategoriesAndImages;
     const productIdInput = document.querySelector(
       '#product-id'
     ) as HTMLInputElement;
+    const mainImage = document.querySelector('#main-image') as HTMLImageElement;
 
     let quantity = 1;
 
@@ -101,6 +106,22 @@ const productDetails = product as ProductWithCategoriesAndImages;
     if (!incrementButton || !quantityInput) {
       return;
     }
+
+    // Funcionalidad para cambiar imagen principal
+    const thumbnailImages = document.querySelectorAll('[data-image-index]');
+    thumbnailImages.forEach((thumbnail) => {
+      thumbnail.addEventListener('click', () => {
+        const imageIndex = parseInt(
+          thumbnail.getAttribute('data-image-index') || '0'
+        );
+        const clickedImage = thumbnail.querySelector('img') as HTMLImageElement;
+
+        if (mainImage && clickedImage) {
+          mainImage.src = clickedImage.src;
+          mainImage.alt = clickedImage.alt;
+        }
+      });
+    });
 
     incrementButton.addEventListener('click', () => {
       quantity++;
