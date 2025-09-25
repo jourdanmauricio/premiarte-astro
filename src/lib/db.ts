@@ -264,6 +264,8 @@ export class Database {
 
     conditions.push('pc.categoryId = ?');
     args.push(categoryId);
+    // conditions.push('p.isActive = ?');
+    // args.push(status);
 
     const query = `
       SELECT p.*

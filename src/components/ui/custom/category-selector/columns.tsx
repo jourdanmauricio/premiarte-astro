@@ -1,4 +1,5 @@
 import { Checkbox } from '@/components/ui/checkbox';
+import { TruncatedCell } from '@/components/ui/custom/truncatedCell';
 
 export const getColumns = () => [
   {
@@ -28,8 +29,12 @@ export const getColumns = () => [
     size: 56,
   },
   {
-    accessorKey: 'description',
+    accessorKey: 'name',
     header: 'Categorías',
     size: 400,
+    cell: ({ row }: { row: any }) => {
+      const category = row.original;
+      return <TruncatedCell value={category.name} linesMax={1} />;
+    },
   },
 ];

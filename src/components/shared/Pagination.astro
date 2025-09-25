@@ -31,16 +31,24 @@ const safeCurrentPage = Math.max(
 );
 ---
 
-<div class='flex justify-between items-center my-20 mx-auto max-w-[300px]'>
-  <a
-    href={getPageUrl(Math.max(safeCurrentPage - 1, 1))}
-    class='p-2 bg-orange-500 text-white rounded hover:bg-orange-500/90 transition-colors'
-    >Anterior</a
-  >
-  <span>Página {safeCurrentPage} de {totalPages}</span>
-  <a
-    href={getPageUrl(Math.min(safeCurrentPage + 1, totalPages))}
-    class='p-2 bg-orange-500 text-white rounded hover:bg-orange-500/90 transition-colors'
-    >Siguiente</a
-  >
-</div>
+{
+  totalPages > 1 && (
+    <div class='flex justify-between items-center my-20 mx-auto max-w-[300px]'>
+      <a
+        href={getPageUrl(Math.max(safeCurrentPage - 1, 1))}
+        class='p-2 bg-orange-500 text-white rounded hover:bg-orange-500/90 transition-colors'
+      >
+        Anterior
+      </a>
+      <span>
+        Página {safeCurrentPage} de {totalPages}
+      </span>
+      <a
+        href={getPageUrl(Math.min(safeCurrentPage + 1, totalPages))}
+        class='p-2 bg-orange-500 text-white rounded hover:bg-orange-500/90 transition-colors'
+      >
+        Siguiente
+      </a>
+    </div>
+  )
+}

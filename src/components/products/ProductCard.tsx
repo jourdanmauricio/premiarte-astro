@@ -9,9 +9,9 @@ const ProductCard = ({ product }: ProductCardProps) => {
     <div className='group relative w-64'>
       <a href={`/productos/${product.slug}`} className='h-64 w-64'>
         <img
-          src={product.images[0].url}
-          alt={product.images[0].alt}
-          className='object-contain'
+          src={product.images[0]?.url || '/images/no-image.png'}
+          alt={product.images[0]?.alt || 'Product image'}
+          className='object-contain object-center h-64 w-64'
           width={256}
           height={256}
         />

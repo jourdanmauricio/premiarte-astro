@@ -27,7 +27,7 @@ import { Plus } from 'lucide-react';
 import { mediaService } from '@/lib/services/mediaService';
 import type { Image } from '@/shared/types';
 import { ImageCard } from './ImageCard';
-import { ImageSelectorModal } from './ImageSelectorModal';
+import { ImageSelectorModal } from './Modal/ImageSelectorModal';
 
 type ImageSelectorProps = {
   label: string;
@@ -68,6 +68,8 @@ export default function ImageSelector({
   const selectedImages: Image[] = selectedImageIds
     .map((id) => allImages?.find((img) => img.id === id))
     .filter((img): img is Image => img !== undefined);
+
+  console.log('selectedImages', selectedImages);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;

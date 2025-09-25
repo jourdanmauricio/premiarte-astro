@@ -88,7 +88,10 @@ if (data?.products.length === 0) {
   Astro.redirect('/productos');
 }
 
-const { products, totalPages } = data || { products: [], totalPages: 0 };
+const { products: productsData, totalPages } = data || {
+  products: [],
+  totalPages: 0,
+};
 
 const url = Astro.url;
 const pathname = url.pathname;
@@ -101,6 +104,8 @@ const { data: categoriesData, error: categoriesError } = await Astro.callAction(
 if (categoriesError) {
   Astro.redirect('/categorias');
 }
+
+const products = productsData.filter((product) => product.isActive);
 
 const categories = categoriesData as unknown as Category[];
 ---
