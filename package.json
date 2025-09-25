@@ -6,7 +6,9 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "db:clean": "node scripts/clean-database.js",
+    "seed:categories": "node scripts/seed-categories-only.js"
   },
   "dependencies": {
     "@astrojs/node": "^9.4.3",

@@ -22,7 +22,7 @@ const SliderPanel = ({ form, images }: Props) => {
   const [currentSlideIndex, setCurrentSlideIndex] = useState<number | null>(
     null
   );
-
+  const [pageIndex, setPageIndex] = useState(0);
   // Obtener slides del form
   const slides = form.watch('home.slider') || [];
 
@@ -113,8 +113,10 @@ const SliderPanel = ({ form, images }: Props) => {
           error={false}
           sorting={[]}
           handleSorting={() => {}}
-          pageIndex={0}
-          setPageIndex={() => {}}
+          pageIndex={pageIndex}
+          setPageIndex={(page) => {
+            setPageIndex(page);
+          }}
           globalFilterFn={() => true}
         />
       </div>
