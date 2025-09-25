@@ -32,7 +32,7 @@ const ReactSlider = ({ slider }: props) => {
   }, [api]);
 
   return (
-    <section className='relative -mx-4 sm:-mx-6 md:-mx-8 lg:-mx-12 xl:-mx-16'>
+    <section className='relative'>
       <div className='w-full'>
         <Carousel
           setApi={setApi}

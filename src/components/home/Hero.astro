@@ -6,10 +6,10 @@ const { hero, heroImageData, heroImageLogoData } = Astro.props;
 
 <section class='container relative px-4 py-16 md:px-20 md:py-24 lg:py-32'>
   <div class='flex flex-col lg:flex-row items-center gap-12 lg:gap-16'>
-    <div class='text-center lg:text-left'>
+    <div class='text-center'>
       <div class='group relative'>
         <Image
-          class='drop-shadow-lg transition-all duration-300 group-hover:scale-105 group-hover:drop-shadow-3xl group-hover:shadow-orange-500/50 mx-auto lg:mx-0'
+          class='drop-shadow-lg transition-all duration-300 group-hover:scale-105 group-hover:drop-shadow-3xl group-hover:shadow-orange-500/50 mx-auto'
           src={heroImageLogoData.url}
           alt={heroImageLogoData.alt}
           width={100}

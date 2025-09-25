@@ -122,23 +122,25 @@ const featuredCategories = parsedValue.featuredCategories;
 <div id='container'>
   <section>
     <ReactSlider client:load slider={sliderWithImages} />
-    <Hero
-      hero={hero}
-      heroImageData={heroImageData}
-      heroImageLogoData={heroImageLogoData}
-    />
-    <FeaturedProducts featuredProducts={featuredProducts} />
+    <div class='container'>
+      <Hero
+        hero={hero}
+        heroImageData={heroImageData}
+        heroImageLogoData={heroImageLogoData}
+      />
+      <FeaturedProducts featuredProducts={featuredProducts} />
 
-    <ServicesSection
-      title={services.title}
-      subtitle={services.subtitle}
-      services={servicesWithImages}
-    />
+      <ServicesSection
+        title={services.title}
+        subtitle={services.subtitle}
+        services={servicesWithImages}
+      />
 
-    <FeaturedCategoriesSection featuredCategories={featuredCategories} />
+      <FeaturedCategoriesSection featuredCategories={featuredCategories} />
 
-    <Testimonials testimonials={testimonials} />
+      <Testimonials testimonials={testimonials} />
 
-    <NewsletterSection client:visible />
+      <NewsletterSection client:visible />
+    </div>
   </section>
 </div>

@@ -59,8 +59,8 @@ const ContactForm = () => {
   };
 
   return (
-    <div className='grid gap-8 md:grid-cols-3'>
-      <div className='md:col-span-2'>
+    <div className='grid gap-8 lg:grid-cols-3 max-w-[1200px] mx-auto'>
+      <div className='lg:col-span-2'>
         <Card>
           <CardContent className='p-6'>
             {isSubmitted ? (

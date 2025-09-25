@@ -7,16 +7,16 @@ const { categories } = Astro.props;
 
 <div class='container mx-auto max-w-[1200px]'>
   <h2 class='text-lg font-medium'></h2>Categorías
-</div>
 
-<section class='container relative px-4 md:px-20 pb-8'>
-  <div class='flex flex-col items-center gap-12 lg:gap-16'>
-    <div class='flex flex-wrap justify-center gap-12 pt-24'>
-      {
-        categories.map((category: Category) => (
-          <CategoryCard category={category} />
-        ))
-      }
+  <section class='relative px-4 md:px-20 pb-8'>
+    <div class='flex flex-col items-center gap-12 lg:gap-16'>
+      <div class='flex flex-wrap justify-center gap-12 pt-24'>
+        {
+          categories.map((category: Category) => (
+            <CategoryCard category={category} />
+          ))
+        }
+      </div>
     </div>
-  </div>
-</section>
+  </section>
+</div>

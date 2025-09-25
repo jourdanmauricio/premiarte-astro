@@ -51,7 +51,7 @@ const { title } = Astro.props;
       </div>
     </div>
     {!isDashboard && <NavBar />}
-    <main class={isDashboard ? 'w-full' : 'container m-auto'}>
+    <main class={isDashboard ? 'w-full' : 'm-auto'}>
       <slot />
     </main>
 
@@ -61,16 +61,3 @@ const { title } = Astro.props;
     {!isDashboard && <ToasterProvider client:load />}
   </body>
 </html>
-
-<!-- <style>
-  html {
-    margin: 0;
-    color-scheme: dark;
-    overflow-x: hidden;
-  }
-
-  body {
-    margin: 0;
-    width: 100%;
-  }
-</style> -->
