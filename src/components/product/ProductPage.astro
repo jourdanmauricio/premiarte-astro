@@ -62,14 +62,18 @@ const productDetails = product as ProductWithCategoriesAndImages;
       <div class='flex flex-col gap-2'>
         <h3 class='font-semibold'>Cantidad</h3>
         <div class='flex items-center gap-4'>
-          <button class='btn-quantity w-8 h-8'>-</button>
+          <button id='btn-quantity-decrement' class='btn-quantity w-8 h-8'
+            >-</button
+          >
           <input
             class='text-center w-12 h-8 border border-gray-300 rounded-md'
             type='text'
             min='1'
             value='1'
           />
-          <button class='btn-quantity w-8 h-8'>+</button>
+          <button id='btn-quantity-increment' class='btn-quantity w-8 h-8'
+            >+</button
+          >
         </div>
       </div>
 
@@ -77,6 +81,7 @@ const productDetails = product as ProductWithCategoriesAndImages;
         class='text-lg font-semibold bg-orange-500 rounded-sm flex items-center justify-center
     hover:bg-orange-500/80 transition-all duration-300 hover:cursor-pointer text-white py-2 w-full
     disabled:bg-gray-500 disabled:cursor-not-allowed'
+        id='btn-add-to-cart'
       >
         Añadir al carrito
       </button>
@@ -100,8 +105,15 @@ const productDetails = product as ProductWithCategoriesAndImages;
 
     let quantity = 1;
 
-    const [decrementButton, incrementButton, addToCartButton] =
-      document.querySelectorAll('button');
+    const decrementButton = document.querySelector(
+      '#btn-quantity-decrement'
+    ) as HTMLButtonElement;
+    const incrementButton = document.querySelector(
+      '#btn-quantity-increment'
+    ) as HTMLButtonElement;
+    const addToCartButton = document.querySelector(
+      '#btn-add-to-cart'
+    ) as HTMLButtonElement;
 
     if (!incrementButton || !quantityInput) {
       return;
@@ -138,7 +150,7 @@ const productDetails = product as ProductWithCategoriesAndImages;
 
       const cart = CartCookiesClient.addIem({
         productId: productIdInput.value,
-        quantity: quantityInput.value,
+        quantity: Number(quantityInput.value),
       });
 
       itemsInCart.set(cart.length);

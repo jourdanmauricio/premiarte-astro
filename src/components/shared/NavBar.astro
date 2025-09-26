@@ -47,7 +47,7 @@ const logoImage = home.menu?.logoId
 
     <!-- Carrito y menú hamburguesa para móviles -->
     <div class='xl:hidden flex items-center space-x-4'>
-      <CartCounter client:load transition:persist />
+      <CartCounter client:idle transition:persist />
       <button
         id='mobile-menu-button'
         class='text-gray-300 hover:text-white focus:outline-none focus:text-white ml-8'
@@ -84,7 +84,7 @@ const logoImage = home.menu?.logoId
           </div>
         ))
       }
-      <CartCounter client:load transition:persist />
+      <CartCounter client:idle transition:persist />
     </div>
 
     <!-- Sección de autenticación para escritorio -->
@@ -199,9 +199,9 @@ const logoImage = home.menu?.logoId
       mobileMenuButton.setAttribute('aria-label', 'Abrir menú');
     }
   }
+  document.addEventListener('astro:page-load', () => {
+    // Event listeners
 
-  // Event listeners
-  document.addEventListener('DOMContentLoaded', () => {
     const mobileMenuButton = document.getElementById('mobile-menu-button');
     if (mobileMenuButton) {
       mobileMenuButton.addEventListener('click', toggleMobileMenu);
@@ -219,9 +219,9 @@ const logoImage = home.menu?.logoId
         closeMobileMenu();
       }
     });
-  });
 
-  // Ejecutar al cargar y después de transiciones
-  setActiveMenu();
-  document.addEventListener('astro:after-swap', setActiveMenu);
+    // Ejecutar al cargar y después de transiciones
+    setActiveMenu();
+    document.addEventListener('astro:after-swap', setActiveMenu);
+  });
 </script>

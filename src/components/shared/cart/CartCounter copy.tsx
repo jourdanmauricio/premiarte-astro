@@ -11,10 +11,7 @@ const CartCounter = () => {
   useEffect(() => {
     const cart = CartCookiesClient.getCart();
     itemsInCart.set(cart.length);
-    // Usar requestAnimationFrame para evitar el re-render inmediato
-    requestAnimationFrame(() => {
-      setIsHydrated(true);
-    });
+    setIsHydrated(true);
   }, []);
 
   return (

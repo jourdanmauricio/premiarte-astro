@@ -192,6 +192,7 @@ const products = data;
   import { quoteFormSchema } from '@/shared/schemas';
 
   document.addEventListener('astro:page-load', () => {
+    console.log('page load cart');
     // Funcionalidad del carrito
     const deleteButtons: NodeListOf<HTMLButtonElement> =
       document.querySelectorAll('.btn-delete');
