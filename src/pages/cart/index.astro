@@ -273,7 +273,6 @@ const products = data;
           currQuantityInput.value = (
             Number(currQuantityInput.value) + 1
           ).toString();
-          console.log('Increment quantityInput.value', currQuantityInput.value);
           CartCookiesClient.updateItem({
             productId: productId,
             quantity: Number(currQuantityInput.value),
@@ -294,8 +293,10 @@ const products = data;
             `input[data-product-id="${productId}"]`
           ) as HTMLInputElement;
 
-          console.log('Decrement quantityInput.value', quantityInput.value);
-          quantityInput.value = (Number(quantityInput.value) - 1).toString();
+          quantityInput.value = Math.max(
+            Number(quantityInput.value) - 1,
+            1
+          ).toString();
           CartCookiesClient.updateItem({
             productId: productId,
             quantity: Number(quantityInput.value),
@@ -313,12 +314,6 @@ const products = data;
         const newQuantity = Number(input.value);
 
         if (productId && newQuantity >= 1) {
-          console.log(
-            'Input change - productId:',
-            productId,
-            'newQuantity:',
-            newQuantity
-          );
           CartCookiesClient.updateItem({
             productId: productId,
             quantity: newQuantity,
@@ -372,23 +367,18 @@ const products = data;
       return;
     }
     if (!nameInput) {
-      console.error('Campo nombre no encontrado');
       return;
     }
     if (!lastNameInput) {
-      console.error('Campo apellido no encontrado');
       return;
     }
     if (!emailInput) {
-      console.error('Campo email no encontrado');
       return;
     }
     if (!phoneInput) {
-      console.error('Campo teléfono no encontrado');
       return;
     }
     if (!nameError || !lastNameError || !emailError || !phoneError) {
-      console.error('Elementos de error no encontrados');
       return;
     }
 
@@ -592,7 +582,6 @@ const products = data;
           });
         }
       } catch (error) {
-        console.error('Error al enviar presupuesto:', error);
         const { toast } = await import('sonner');
         toast.error('Error de conexión', {
           description:

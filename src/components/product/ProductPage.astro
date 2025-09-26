@@ -108,9 +108,6 @@ const productDetails = product as ProductWithCategoriesAndImages;
   </div>
 
   <input type='hidden' id='product-id' value={productDetails.id} />
-
-  <!-- ToasterProvider para esta página específica -->
-  <div id='toaster-container'></div>
 </div>
 
 <script>
@@ -118,16 +115,7 @@ const productDetails = product as ProductWithCategoriesAndImages;
   import { CartCookiesClient } from '@/utils/cart-cookies';
   import { navigate } from 'astro:transitions/client';
 
-  // Variable para evitar múltiples inicializaciones
-  let isInitialized = false;
-
   const initializeProductPage = () => {
-    // Evitar múltiples inicializaciones
-    if (isInitialized) {
-      console.log('ProductPage ya inicializado, saltando...');
-      return;
-    }
-
     const quantityInput = document.querySelector('input') as HTMLInputElement;
     const productIdInput = document.querySelector(
       '#product-id'
@@ -138,9 +126,6 @@ const productDetails = product as ProductWithCategoriesAndImages;
     if (!quantityInput || !productIdInput) {
       return;
     }
-
-    // Marcar como inicializado
-    isInitialized = true;
 
     // Obtener el ID del producto
     const productId = productIdInput.value;
@@ -239,26 +224,6 @@ const productDetails = product as ProductWithCategoriesAndImages;
 
       // Mostrar los botones dobles después de agregar
       updateButtonVisibility(true);
-
-      // Mostrar toast de confirmación SIEMPRE que se agregue al carrito
-      try {
-        const { toast } = await import('sonner');
-        console.log('Toast importado dinámicamente:', typeof toast);
-
-        toast.success('¡Producto agregado al carrito!', {
-          description: `Cantidad: ${quantityInput.value}`,
-          duration: 3000,
-        });
-        console.log('Toast ejecutado correctamente');
-      } catch (error) {
-        console.error('Error al importar o ejecutar toast:', error);
-        // Fallback: mostrar alerta temporal
-        alert(
-          `¡Producto agregado al carrito! Cantidad: ${quantityInput.value}`
-        );
-      }
-
-      console.log('Producto agregado al carrito, mostrando botones de acción');
     });
 
     // Event listener para el botón "Ver carrito"
@@ -270,10 +235,6 @@ const productDetails = product as ProductWithCategoriesAndImages;
       });
 
       itemsInCart.set(cart.length);
-      console.log(
-        'Cantidad actualizada antes de ir al carrito:',
-        quantityInput.value
-      );
 
       await navigate('/cart');
     });
@@ -284,24 +245,8 @@ const productDetails = product as ProductWithCategoriesAndImages;
     });
   };
 
-  // Función de retry con delay
-  const tryInitialize = () => {
-    setTimeout(() => {
-      initializeProductPage();
-    }, 100);
-  };
-
   // Event listener principal
   document.addEventListener('astro:page-load', () => {
-    // Resetear el flag de inicialización en cada navegación
-    isInitialized = false;
-    tryInitialize();
+    initializeProductPage();
   });
-
-  // También intentar inicializar cuando el DOM esté listo
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', tryInitialize);
-  } else {
-    tryInitialize();
-  }
 </script>
