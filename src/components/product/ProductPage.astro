@@ -103,7 +103,18 @@ const productDetails = product as ProductWithCategoriesAndImages;
     ) as HTMLInputElement;
     const mainImage = document.querySelector('#main-image') as HTMLImageElement;
 
-    let quantity = 1;
+    // Obtener el ID del producto
+    const productId = productIdInput.value;
+
+    // Verificar si el producto ya está en el carrito y obtener su cantidad
+    const cart = CartCookiesClient.getCart();
+    const existingCartItem = cart.find((item) => item.productId === productId);
+
+    // Inicializar quantity con el valor del carrito o 1 por defecto
+    let quantity = existingCartItem ? existingCartItem.quantity : 1;
+
+    // Establecer el valor inicial del input
+    quantityInput.value = quantity.toString();
 
     const decrementButton = document.querySelector(
       '#btn-quantity-decrement'
@@ -148,7 +159,7 @@ const productDetails = product as ProductWithCategoriesAndImages;
     addToCartButton.addEventListener('click', async () => {
       addToCartButton.disabled = true;
 
-      const cart = CartCookiesClient.addIem({
+      const cart = CartCookiesClient.updateItem({
         productId: productIdInput.value,
         quantity: Number(quantityInput.value),
       });
