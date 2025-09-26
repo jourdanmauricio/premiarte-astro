@@ -59,5 +59,6 @@ const { title } = Astro.props;
 
     <!-- Toaster para notificaciones solo en páginas públicas -->
     {!isDashboard && <ToasterProvider client:load />}
+    <!-- <ToasterProvider client:load /> -->
   </body>
 </html>

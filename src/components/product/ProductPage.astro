@@ -77,6 +77,7 @@ const productDetails = product as ProductWithCategoriesAndImages;
         </div>
       </div>
 
+      <!-- Botón único para cuando NO está en carrito -->
       <button
         class='text-lg font-semibold bg-orange-500 rounded-sm flex items-center justify-center
     hover:bg-orange-500/80 transition-all duration-300 hover:cursor-pointer text-white py-2 w-full
@@ -85,10 +86,31 @@ const productDetails = product as ProductWithCategoriesAndImages;
       >
         Añadir al carrito
       </button>
+
+      <!-- Botones dobles para cuando SÍ está en carrito -->
+      <div id='btn-cart-actions' class='hidden gap-4'>
+        <button
+          class='text-lg font-semibold bg-orange-500 rounded-sm flex items-center justify-center
+    hover:bg-orange-500/80 transition-all duration-300 hover:cursor-pointer text-white py-2 flex-1'
+          id='btn-add-more'
+        >
+          Agregar otros productos
+        </button>
+        <button
+          class='text-lg font-semibold bg-blue-500 rounded-sm flex items-center justify-center
+      hover:bg-blue-500/80 transition-all duration-300 hover:cursor-pointer text-white py-2 flex-1'
+          id='btn-view-cart'
+        >
+          Ver carrito
+        </button>
+      </div>
     </section>
   </div>
 
   <input type='hidden' id='product-id' value={productDetails.id} />
+
+  <!-- ToasterProvider para esta página específica -->
+  <div id='toaster-container'></div>
 </div>
 
 <script>
@@ -96,19 +118,41 @@ const productDetails = product as ProductWithCategoriesAndImages;
   import { CartCookiesClient } from '@/utils/cart-cookies';
   import { navigate } from 'astro:transitions/client';
 
-  document.addEventListener('astro:page-load', () => {
+  // Variable para evitar múltiples inicializaciones
+  let isInitialized = false;
+
+  const initializeProductPage = () => {
+    // Evitar múltiples inicializaciones
+    if (isInitialized) {
+      console.log('ProductPage ya inicializado, saltando...');
+      return;
+    }
+
     const quantityInput = document.querySelector('input') as HTMLInputElement;
     const productIdInput = document.querySelector(
       '#product-id'
     ) as HTMLInputElement;
     const mainImage = document.querySelector('#main-image') as HTMLImageElement;
 
+    // Verificar que todos los elementos necesarios existan
+    if (!quantityInput || !productIdInput) {
+      return;
+    }
+
+    // Marcar como inicializado
+    isInitialized = true;
+
     // Obtener el ID del producto
     const productId = productIdInput.value;
 
-    // Verificar si el producto ya está en el carrito y obtener su cantidad
-    const cart = CartCookiesClient.getCart();
-    const existingCartItem = cart.find((item) => item.productId === productId);
+    // Función para verificar el estado actual del carrito
+    const checkCartStatus = () => {
+      const cart = CartCookiesClient.getCart();
+      return cart.find((item) => item.productId === productId);
+    };
+
+    // Verificar estado inicial del carrito
+    const existingCartItem = checkCartStatus();
 
     // Inicializar quantity con el valor del carrito o 1 por defecto
     let quantity = existingCartItem ? existingCartItem.quantity : 1;
@@ -125,10 +169,35 @@ const productDetails = product as ProductWithCategoriesAndImages;
     const addToCartButton = document.querySelector(
       '#btn-add-to-cart'
     ) as HTMLButtonElement;
+    const cartActionsDiv = document.querySelector(
+      '#btn-cart-actions'
+    ) as HTMLDivElement;
+    const viewCartButton = document.querySelector(
+      '#btn-view-cart'
+    ) as HTMLButtonElement;
+    const addMoreButton = document.querySelector(
+      '#btn-add-more'
+    ) as HTMLButtonElement;
 
     if (!incrementButton || !quantityInput) {
       return;
     }
+
+    // Función para mostrar/ocultar botones según el estado del carrito
+    const updateButtonVisibility = (isInCart: boolean) => {
+      if (isInCart) {
+        addToCartButton.classList.add('hidden');
+        cartActionsDiv.classList.remove('hidden');
+        cartActionsDiv.classList.add('flex');
+      } else {
+        addToCartButton.classList.remove('hidden');
+        cartActionsDiv.classList.add('hidden');
+        cartActionsDiv.classList.remove('flex');
+      }
+    };
+
+    // Estado inicial
+    updateButtonVisibility(!!existingCartItem);
 
     // Funcionalidad para cambiar imagen principal
     const thumbnailImages = document.querySelectorAll('[data-image-index]');
@@ -156,8 +225,10 @@ const productDetails = product as ProductWithCategoriesAndImages;
       quantityInput.value = quantity.toString();
     });
 
+    // Event listener para el botón "Añadir al carrito"
     addToCartButton.addEventListener('click', async () => {
-      addToCartButton.disabled = true;
+      // Verificar el estado del carrito ANTES de agregar
+      const wasInCart = checkCartStatus();
 
       const cart = CartCookiesClient.updateItem({
         productId: productIdInput.value,
@@ -166,11 +237,71 @@ const productDetails = product as ProductWithCategoriesAndImages;
 
       itemsInCart.set(cart.length);
 
-      // TODO: utilizar view transition api
-      // addToCartButton.disabled = false;
+      // Mostrar los botones dobles después de agregar
+      updateButtonVisibility(true);
 
-      //  window.location.href = '/cart';
+      // Mostrar toast de confirmación SIEMPRE que se agregue al carrito
+      try {
+        const { toast } = await import('sonner');
+        console.log('Toast importado dinámicamente:', typeof toast);
+
+        toast.success('¡Producto agregado al carrito!', {
+          description: `Cantidad: ${quantityInput.value}`,
+          duration: 3000,
+        });
+        console.log('Toast ejecutado correctamente');
+      } catch (error) {
+        console.error('Error al importar o ejecutar toast:', error);
+        // Fallback: mostrar alerta temporal
+        alert(
+          `¡Producto agregado al carrito! Cantidad: ${quantityInput.value}`
+        );
+      }
+
+      console.log('Producto agregado al carrito, mostrando botones de acción');
+    });
+
+    // Event listener para el botón "Ver carrito"
+    viewCartButton.addEventListener('click', async () => {
+      // Actualizar la cantidad del producto antes de navegar al carrito
+      const cart = CartCookiesClient.updateItem({
+        productId: productIdInput.value,
+        quantity: Number(quantityInput.value),
+      });
+
+      itemsInCart.set(cart.length);
+      console.log(
+        'Cantidad actualizada antes de ir al carrito:',
+        quantityInput.value
+      );
+
       await navigate('/cart');
     });
+
+    // Event listener para el botón "Agregar otros productos"
+    addMoreButton.addEventListener('click', async () => {
+      await navigate('/categoria/productos');
+    });
+  };
+
+  // Función de retry con delay
+  const tryInitialize = () => {
+    setTimeout(() => {
+      initializeProductPage();
+    }, 100);
+  };
+
+  // Event listener principal
+  document.addEventListener('astro:page-load', () => {
+    // Resetear el flag de inicialización en cada navegación
+    isInitialized = false;
+    tryInitialize();
   });
+
+  // También intentar inicializar cuando el DOM esté listo
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', tryInitialize);
+  } else {
+    tryInitialize();
+  }
 </script>

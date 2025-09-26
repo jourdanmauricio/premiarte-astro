@@ -31,7 +31,10 @@ const products = data;
       >
         {
           products.map((product) => (
-            <div class='flex gap-8 mt-4 w-full border-b pb-4 border-gray-200 last:border-b-0 '>
+            <div
+              class='flex gap-8 mt-4 w-full border-b pb-4 border-gray-200 last:border-b-0'
+              data-product-id={product.productId}
+            >
               <img
                 src={product.image.url}
                 alt={product.image.alt}
@@ -45,8 +48,10 @@ const products = data;
                   <h3 class=''>Cantidad</h3>
                   <div class='flex items-center gap-4'>
                     <button
-                      id='btn-quantity-decrement'
-                      class='btn-quantity w-8 h-8'
+                      type='button'
+                      class='btn-quantity-decrement flex items-center justify-center w-8 h-8 cursor-pointer font-medium py-3 px-4 rounded-md shadow-sm transition-colors duration-200 
+                         bg-blue-600 hover:bg-blue-700 text-white'
+                      data-product-id={product.productId}
                     >
                       -
                     </button>
@@ -55,10 +60,13 @@ const products = data;
                       type='text'
                       min='1'
                       value={product.quantity}
+                      data-product-id={product.productId}
                     />
                     <button
-                      id='btn-quantity-increment'
-                      class='btn-quantity w-8 h-8'
+                      class='btn-quantity-increment flex items-center justify-center w-8 h-8 cursor-pointer font-medium py-3 px-4 rounded-md shadow-sm transition-colors duration-200 
+                         bg-blue-600 hover:bg-blue-700 text-white'
+                      data-product-id={product.productId}
+                      type='button'
                     >
                       +
                     </button>
@@ -75,7 +83,10 @@ const products = data;
           ))
         }
         <p class='text-slate-500 ml-auto text-end mt-4'>
-          Cantidad de productos: {products.length}
+          <!-- Cantidad de productos: {products.length} -->
+          <a href='/categoria/productos' class='hover: underline text-blue-600'
+            >Agregar más productos</a
+          >
         </p>
       </article>
 
@@ -202,7 +213,7 @@ const products = data;
             <button
               id='submit-button'
               type='submit'
-              class={`w-full font-medium py-3 px-4 rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+              class={`w-full cursor-pointer font-medium py-3 px-4 rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                 products.length === 0
                   ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
                   : 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500'
@@ -248,6 +259,94 @@ const products = data;
       });
     });
 
+    // Funcionalidad de incremento de cantidad
+    const incrementButtons: NodeListOf<HTMLButtonElement> =
+      document.querySelectorAll('.btn-quantity-increment');
+    incrementButtons.forEach((button) => {
+      button.addEventListener('click', (event) => {
+        const productId = button.getAttribute('data-product-id') ?? '';
+
+        if (productId) {
+          const currQuantityInput = document.querySelector(
+            `input[data-product-id="${productId}"]`
+          ) as HTMLInputElement;
+          currQuantityInput.value = (
+            Number(currQuantityInput.value) + 1
+          ).toString();
+          console.log('Increment quantityInput.value', currQuantityInput.value);
+          CartCookiesClient.updateItem({
+            productId: productId,
+            quantity: Number(currQuantityInput.value),
+          });
+        }
+      });
+    });
+
+    // Funcionalidad de decremento de cantidad
+    const decrementButtons: NodeListOf<HTMLButtonElement> =
+      document.querySelectorAll('.btn-quantity-decrement');
+    decrementButtons.forEach((button) => {
+      button.addEventListener('click', (event) => {
+        const productId = button.getAttribute('data-product-id') ?? '';
+
+        if (productId) {
+          const quantityInput = document.querySelector(
+            `input[data-product-id="${productId}"]`
+          ) as HTMLInputElement;
+
+          console.log('Decrement quantityInput.value', quantityInput.value);
+          quantityInput.value = (Number(quantityInput.value) - 1).toString();
+          CartCookiesClient.updateItem({
+            productId: productId,
+            quantity: Number(quantityInput.value),
+          });
+        }
+      });
+    });
+
+    // Funcionalidad para inputs de cantidad (cambio directo)
+    const quantityInputs: NodeListOf<HTMLInputElement> =
+      document.querySelectorAll('input[data-product-id]');
+    quantityInputs.forEach((input) => {
+      input.addEventListener('change', (event) => {
+        const productId = input.getAttribute('data-product-id') ?? '';
+        const newQuantity = Number(input.value);
+
+        if (productId && newQuantity >= 1) {
+          console.log(
+            'Input change - productId:',
+            productId,
+            'newQuantity:',
+            newQuantity
+          );
+          CartCookiesClient.updateItem({
+            productId: productId,
+            quantity: newQuantity,
+          });
+        } else if (newQuantity < 1) {
+          // Si la cantidad es menor a 1, restaurar a 1
+          input.value = '1';
+          CartCookiesClient.updateItem({
+            productId: productId,
+            quantity: 1,
+          });
+        }
+      });
+
+      // También escuchar el evento 'input' para actualización en tiempo real
+      input.addEventListener('input', (event) => {
+        const productId = input.getAttribute('data-product-id') ?? '';
+        const newQuantity = Number(input.value);
+
+        if (productId && newQuantity >= 1) {
+          CartCookiesClient.updateItem({
+            productId: productId,
+            quantity: newQuantity,
+          });
+        }
+      });
+    });
+
     // Validación del formulario
     const form = document.getElementById('quote-form') as HTMLFormElement;
     const nameInput = document.getElementById('name') as HTMLInputElement;
@@ -270,7 +369,6 @@ const products = data;
 
     // Verificar que todos los elementos existan
     if (!form) {
-      console.error('Formulario no encontrado');
       return;
     }
     if (!nameInput) {
