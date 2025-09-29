@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
-export default function useTruncateCheck(elementRef: React.RefObject<HTMLElement>) {
+export default function useTruncateCheck(
+  elementRef: React.RefObject<HTMLElement>
+) {
   const [isTruncated, setIsTruncated] = useState(false);
 
   useEffect(() => {
@@ -11,7 +13,8 @@ export default function useTruncateCheck(elementRef: React.RefObject<HTMLElement
       requestAnimationFrame(() => {
         if (!element) return;
         const isOverflowing =
-          element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
+          element.scrollHeight > element.clientHeight ||
+          element.scrollWidth > element.clientWidth;
         setIsTruncated(isOverflowing);
       });
     };

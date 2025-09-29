@@ -1,17 +1,20 @@
-import { CategoriesPage } from '@/components/dashboard/categories/CategoriesPage';
-import { ConfigPage } from '@/components/dashboard/settings/ConfigPage';
-import { DashboardHomePage } from '@/components/dashboard/home/DashboardHomePage';
-import { ProductsPage } from '@/components/dashboard/products/ProductsPage';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { useState } from 'react';
+import { Toaster } from '@/components/ui/sonner';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
 import { Sidebar } from './Sidebar';
 import { MediaPage } from '@/components/dashboard/media/MediaPage';
-import { Toaster } from '@/components/ui/sonner';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import RegenerateButton from '@/components/ui/custom/RegenerateButton';
-import { NewsletterPage } from '@/components/dashboard/newsletter/NewsletterPage';
+import { ConfigPage } from '@/components/dashboard/settings/ConfigPage';
+import { BudgetsPage } from '@/components/dashboard/budgets/BudgetsPage';
+import { ProductsPage } from '@/components/dashboard/products/ProductsPage';
 import { ContactsPage } from '@/components/dashboard/contacts/ContactsPage';
+import { CategoriesPage } from '@/components/dashboard/categories/CategoriesPage';
+import { DashboardHomePage } from '@/components/dashboard/home/DashboardHomePage';
+import { NewsletterPage } from '@/components/dashboard/newsletter/NewsletterPage';
+import { BudgetForm } from '@/components/dashboard/budgets/budget-form/BudgetForm';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -64,6 +67,8 @@ export default function DashboardApp() {
                   <Route path='/media' element={<MediaPage />} />
                   <Route path='/newsletter' element={<NewsletterPage />} />
                   <Route path='/contact' element={<ContactsPage />} />
+                  <Route path='/budgets' element={<BudgetsPage />} />
+                  <Route path='/budgets/:id' element={<BudgetForm />} />
                 </Routes>
               </div>
             </main>

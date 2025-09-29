@@ -2,6 +2,104 @@ import { turso } from './turso';
 
 // Utilidades para trabajar con Turso
 export class Database {
+  // PRESUPUESTOS
+  static async getAllBudgets() {
+    const { rows } = await turso.execute({
+      sql: 'SELECT * FROM Quote ORDER BY createdAt DESC',
+      args: [],
+    });
+    return rows;
+  }
+
+  static async getBudgetById(id: number) {
+    const { rows } = await turso.execute({
+      sql: `SELECT 
+      q.id as quote_id,
+      q.name,
+      q.lastName,
+      q.email,
+      q.phone,
+      q.observation,
+      q.totalAmount,
+      q.status,
+      q.userId,
+      q.isRead,
+      q.expiresAt,
+      q.approvedAt,
+      q.rejectedAt,
+      q.createdAt,
+      q.updatedAt,
+      qi.id as item_id,
+      qi.productId,
+      qi.sku,
+      qi.slug,
+      qi.name as item_name,
+      qi.imageUrl,
+      qi.imageAlt,
+      qi.price,
+      qi.quantity,
+      qi.amount,
+      qi.observation as item_observation
+    FROM Quote q
+    LEFT JOIN QuoteItem qi ON q.id = qi.quoteId
+    WHERE q.id = ?`,
+      args: [id],
+    });
+
+    if (rows.length === 0) {
+      return null;
+    }
+
+    // El primer row contiene los datos del quote
+    const firstRow = rows[0];
+    const quote = {
+      id: firstRow.quote_id,
+      name: firstRow.name,
+      lastName: firstRow.lastName,
+      email: firstRow.email,
+      phone: firstRow.phone,
+      observation: firstRow.observation,
+      totalAmount: firstRow.totalAmount,
+      status: firstRow.status,
+      userId: firstRow.userId,
+      isRead: firstRow.isRead,
+      expiresAt: firstRow.expiresAt,
+      approvedAt: firstRow.approvedAt,
+      rejectedAt: firstRow.rejectedAt,
+      createdAt: firstRow.createdAt,
+      updatedAt: firstRow.updatedAt,
+    };
+
+    // Procesar todos los items (incluyendo el caso donde no hay items)
+    const items = rows
+      .filter((row) => row.item_id !== null) // Filtrar rows donde hay items
+      .map((row) => ({
+        id: row.item_id,
+        productId: row.productId,
+        sku: row.sku,
+        slug: row.slug,
+        name: row.item_name,
+        imageUrl: row.imageUrl,
+        imageAlt: row.imageAlt,
+        price: row.price,
+        quantity: row.quantity,
+        amount: row.amount,
+        observation: row.item_observation,
+      }));
+
+    return {
+      ...quote,
+      items,
+    };
+  }
+
+  static async deleteBudget(id: number) {
+    await turso.execute({
+      sql: 'DELETE FROM Quote WHERE id = ?',
+      args: [id],
+    });
+  }
+
   // NEWSLETTER
   static async getAllNewsletter() {
     const { rows } = await turso.execute({

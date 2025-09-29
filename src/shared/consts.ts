@@ -21,3 +21,22 @@ export const navBarLinks = [
   { name: 'Sobre nosotros', href: '/sobre-nosotros' },
   { name: 'Contacto', href: '/contacto' },
 ];
+
+export const budgetStatusList = [
+  {
+    id: 'pending',
+    description: 'Pendiente',
+  },
+  {
+    id: 'approved',
+    description: 'Aprobado',
+  },
+  {
+    id: 'rejected',
+    description: 'Rechazado',
+  },
+  {
+    id: 'expired',
+    description: 'Expirado',
+  },
+];

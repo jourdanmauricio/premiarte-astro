@@ -1,8 +1,8 @@
 import type { NewsletterSubscriber } from '@/shared/types';
-  
+
 class NewsletterService {
   private baseUrl = '/api/newsletter';
-  
+
   // Obtener todos los productos
   async getNewsletter(): Promise<NewsletterSubscriber[]> {
     const response = await fetch(this.baseUrl);
@@ -25,4 +25,3 @@ class NewsletterService {
 }
 
 export const newsletterService = new NewsletterService();
-  

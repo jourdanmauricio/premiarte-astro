@@ -148,3 +148,12 @@ export const UploadImageFormSchema = z.object({
   tag: z.string().min(1, 'La carpeta es requerida'),
   observation: z.string().optional(),
 });
+
+export const BudgetFormSchema = z.object({
+  name: z.string().min(1, 'El nombre es requerido'),
+  lastName: z.string().min(1, 'El apellido es requerido'),
+  email: z.string().min(1, 'El email es requerido'),
+  phone: z.string().min(1, 'El teléfono es requerido'),
+  observation: z.string().optional(),
+  status: z.string().min(1, 'El estado es requerido'),
+});

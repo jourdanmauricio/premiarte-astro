@@ -14,8 +14,9 @@ export const subscribeToNewsletter = defineAction({
   handler: async ({ name, email }) => {
     try {
       // Verificar si el email ya existe
-      const existingSubscriber = await Database.getNewsletterSubscriberByEmail(email);
-      
+      const existingSubscriber =
+        await Database.getNewsletterSubscriberByEmail(email);
+
       if (existingSubscriber) {
         // Si existe pero está inactivo, reactivar
         if (!existingSubscriber.isActive) {
