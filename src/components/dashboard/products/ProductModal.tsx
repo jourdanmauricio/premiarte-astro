@@ -1,31 +1,31 @@
 import { z } from 'zod';
+import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
 
-import { Button } from '@/components/ui/button';
-import SubmitButton from '@/components/ui/custom/submit-button';
-import { DialogHeader } from '@/components/ui/dialog';
-import type { Product } from '@/shared/types';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { generateSlug } from '@/lib/utils';
 import { Form } from '@/components/ui/form';
-import { ProductFromSchema } from '@/shared/schemas';
-import InputField from '@/components/ui/custom/input-field';
-import ImagesSelector from '@/components/ui/custom/images-selector/ImagesSelector';
+import type { Product } from '@/shared/types';
+import { Button } from '@/components/ui/button';
 import { productsService } from '@/lib/services';
+import { ProductFromSchema } from '@/shared/schemas';
+import { DialogHeader } from '@/components/ui/dialog';
+import Dropdown from '@/components/ui/custom/dropdown';
+import InputField from '@/components/ui/custom/input-field';
+import SubmitButton from '@/components/ui/custom/submit-button';
 import TextareaField from '@/components/ui/custom/textarea-field';
 import BooleanCheckbox from '@/components/ui/custom/boolean-checkbox';
 import InputNumberField from '@/components/ui/custom/input-number-field';
-import Dropdown from '@/components/ui/custom/dropdown';
+import ImagesSelector from '@/components/ui/custom/images-selector/ImagesSelector';
 import CategorySelector from '@/components/ui/custom/category-selector/CategorySelector';
 import ProductSelector from '@/components/ui/custom/product-selector/ProductSelector';
-import { generateSlug } from '@/lib/utils';
 
 interface ProductModalProps {
   open: boolean;
@@ -91,11 +91,14 @@ const ProductModal = ({ open, closeModal, product }: ProductModalProps) => {
               : '',
             discount: product.discount ? product.discount.toString() : '',
             discountType: product.discountType || 'percentage',
+            priceUpdatedAt: product.priceUpdatedAt
+              ? product.priceUpdatedAt
+              : '',
           }
         : defaultValues,
   });
 
-  const categoryMutation = useMutation({
+  const productMutation = useMutation({
     mutationFn: async (data: z.infer<typeof ProductFromSchema>) => {
       const productData = {
         ...data,
@@ -143,13 +146,28 @@ const ProductModal = ({ open, closeModal, product }: ProductModalProps) => {
   });
 
   const onSubmit = (data: z.infer<typeof ProductFromSchema>) => {
-    categoryMutation.mutate(data);
+    productMutation.mutate(data);
   };
 
   const onError = () => console.log('errors', form.formState.errors);
 
+  // Función helper para detectar cambios de precio
+  const handlePriceChange = (
+    fieldName: 'price' | 'retailPrice' | 'wholesalePrice'
+  ) => {
+    return (value: string) => {
+      // Solo actualizar si estamos en modo edición y el valor ha cambiado
+      if (mode === 'EDIT' && product) {
+        const originalValue = product[fieldName]?.toString() || '';
+        if (value !== originalValue) {
+          form.setValue('priceUpdatedAt', new Date().toISOString());
+        }
+      }
+    };
+  };
+
   console.log('Form data', form.getValues());
-  console.log('Errors', form.formState.errors);
+  //   console.log('Errors', form.formState.errors);
 
   return (
     <Dialog open={open} onOpenChange={closeModal}>
@@ -240,6 +258,9 @@ const ProductModal = ({ open, closeModal, product }: ProductModalProps) => {
                     form={form}
                     integerDigits={10}
                     decimalDigits={2}
+                    onChangeInputNumberField={(e) =>
+                      handlePriceChange('price')(e.target.value)
+                    }
                   />
                   <InputNumberField
                     label='Precio de venta'
@@ -248,6 +269,9 @@ const ProductModal = ({ open, closeModal, product }: ProductModalProps) => {
                     form={form}
                     integerDigits={10}
                     decimalDigits={2}
+                    onChangeInputNumberField={(e) =>
+                      handlePriceChange('retailPrice')(e.target.value)
+                    }
                   />
 
                   <InputNumberField
@@ -257,6 +281,9 @@ const ProductModal = ({ open, closeModal, product }: ProductModalProps) => {
                     form={form}
                     integerDigits={10}
                     decimalDigits={2}
+                    onChangeInputNumberField={(e) =>
+                      handlePriceChange('wholesalePrice')(e.target.value)
+                    }
                   />
 
                   <Dropdown
@@ -303,9 +330,9 @@ const ProductModal = ({ open, closeModal, product }: ProductModalProps) => {
                     <SubmitButton
                       label={mode === 'CREATE' ? 'Crear producto' : 'Guardar'}
                       className='min-w-[150px]'
-                      showSpinner={categoryMutation.isPending}
+                      showSpinner={productMutation.isPending}
                       disabled={
-                        categoryMutation.isPending || !form.formState.isDirty
+                        productMutation.isPending || !form.formState.isDirty
                       }
                     />
                   </div>

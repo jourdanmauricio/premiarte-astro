@@ -492,15 +492,16 @@ export class Database {
     images?: number[];
     categories?: number[];
     relatedProducts?: number[];
+    priceUpdatedAt?: string;
   }) {
     // Crear el producto
     const { rows } = await turso.execute({
       sql: `
         INSERT INTO Product (
           name, slug, description, sku, price, stock, isActive, isFeatured,
-          retailPrice, wholesalePrice, discount, discountType
+          retailPrice, wholesalePrice, discount, discountType, priceUpdatedAt
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         RETURNING *
       `,
       args: [
@@ -516,6 +517,7 @@ export class Database {
         data.wholesalePrice || 0,
         data.discount || 0,
         data.discountType || 'percentage',
+        data.priceUpdatedAt || null,
       ],
     });
 
@@ -561,6 +563,7 @@ export class Database {
       images?: number[];
       categories?: number[];
       relatedProducts?: number[];
+      priceUpdatedAt?: string;
     }
   ) {
     const updates = [];
@@ -616,11 +619,7 @@ export class Database {
     }
 
     // Si se actualiza el precio, actualizar también priceUpdatedAt
-    if (
-      data.price !== undefined ||
-      data.retailPrice !== undefined ||
-      data.wholesalePrice !== undefined
-    ) {
+    if (data.priceUpdatedAt) {
       updates.push('priceUpdatedAt = CURRENT_TIMESTAMP');
     }
 

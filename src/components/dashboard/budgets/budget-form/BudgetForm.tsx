@@ -54,7 +54,6 @@ const BudgetForm = () => {
     queryFn: () => budgetsService.getBudgetById(parseInt(id!)),
     enabled: !!id && mode === 'EDIT',
   });
-  console.log('budget', budget);
 
   const form = useForm<z.infer<typeof BudgetFormSchema>>({
     resolver: zodResolver(BudgetFormSchema),

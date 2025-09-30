@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { EditIcon, Trash2Icon } from 'lucide-react';
 import { TruncatedCell } from '@/components/ui/custom/truncatedCell';
 import type { Product, ProductWithDetails } from '@/shared/types';
+import { format } from 'date-fns';
 
 type DataTableColumnsProps = {
   onEdit: (product: Product) => void;
@@ -70,11 +71,13 @@ export const getProductColumns = ({
     },
   },
   {
-    accessorKey: 'stock',
-    header: 'STOCK',
-    size: 100,
-    minSize: 80,
-    cell: ({ row }) => row.original.stock ?? 0,
+    accessorKey: 'priceUpdatedAt',
+    header: 'F ACT PRECIO',
+    size: 130,
+    cell: ({ row }) =>
+      row.original.priceUpdatedAt
+        ? format(new Date(row.original.priceUpdatedAt), 'dd/MM/yyyy')
+        : '-',
   },
   {
     accessorKey: 'categories',

@@ -68,12 +68,9 @@ export default function ImageSelector({
 
   // Convertir IDs a objetos completos para la visualización
 
-  console.log('selectedImageIds', selectedImageIds);
   const selectedImages: Image[] = selectedImageIds
     .map((id) => allImages?.find((img) => img.id === id))
     .filter((img): img is Image => img !== undefined);
-
-  console.log('selectedImages', selectedImages);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;

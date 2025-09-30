@@ -27,7 +27,7 @@ const BudgetsPage = () => {
     },
   });
 
-  console.log('data', data);
+  // console.log('data', data);
 
   const deleteMutation = useMutation({
     mutationFn: (budgetId: number) => budgetsService.deleteBudget(budgetId),
@@ -76,7 +76,6 @@ const BudgetsPage = () => {
   };
 
   const handleAddBudget = () => {
-    console.log('Agregar presupuesto');
     navigate('/dashboard/budgets/new');
   };
 
@@ -109,7 +108,7 @@ const BudgetsPage = () => {
           handleSorting={setSorting}
           pageIndex={pageIndex}
           setPageIndex={setPageIndex}
-          globalFilter={{}}
+          globalFilter={''}
           globalFilterFn={() => true}
         />
       </div>

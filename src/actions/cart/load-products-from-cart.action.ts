@@ -37,8 +37,6 @@ export const loadProductsFromCart = defineAction({
       })
     )) as unknown as ProductWithCategoriesAndImages[];
 
-    console.log('products', products[0].images);
-
     return cart.map((item) => {
       const dbProduct = products.find(
         (product) => product.id === Number(item.productId)

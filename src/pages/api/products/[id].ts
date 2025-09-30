@@ -57,6 +57,7 @@ export const PUT: APIRoute = async (context) => {
       images,
       categories,
       relatedProducts,
+      priceUpdatedAt,
     } = body;
 
     // Si se proporciona un slug, verificar que no esté duplicado
@@ -99,6 +100,8 @@ export const PUT: APIRoute = async (context) => {
     if (categories !== undefined) updateData.categories = categories;
     if (relatedProducts !== undefined)
       updateData.relatedProducts = relatedProducts;
+    if (priceUpdatedAt !== undefined)
+      updateData.priceUpdatedAt = priceUpdatedAt;
 
     // Actualizar el producto
     const updatedProduct = await Database.updateProduct(productId, updateData);

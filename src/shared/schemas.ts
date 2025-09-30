@@ -34,6 +34,7 @@ export const ProductFromSchema = z.object({
   categories: z.array(
     z.object({ id: z.number(), name: z.string(), slug: z.string() })
   ),
+  priceUpdatedAt: z.string().optional(),
 });
 
 const HomeMenuSchema = z.object({

@@ -35,16 +35,20 @@ export interface ProductWithCategoriesAndImages
 
 // Opción 1: Extender de Product omitiendo campos que se generan automáticamente
 export interface CreateProductData
-  extends Omit<Product, 'id' | 'slug' | 'categories'> {
+  extends Omit<Product, 'id' | 'slug' | 'categories' | 'priceUpdatedAt'> {
   // El slug se puede generar automáticamente del nombre
   // El id se genera automáticamente por la base de datos
+  // priceUpdatedAt se genera automáticamente por la base de datos
   categories: (number | undefined)[] | null;
+  isPriceUpdated?: boolean;
 }
 
 // Tipo para actualizar un producto
 export interface UpdateProductData
-  extends Omit<Product, 'id' | 'slug' | 'categories'> {
+  extends Omit<Product, 'id' | 'slug' | 'categories' | 'priceUpdatedAt'> {
   // El slug se puede generar automáticamente del nombre
   // El id se genera automáticamente por la base de datos
+  // priceUpdatedAt se genera automáticamente por la base de datos
   categories: (number | undefined)[] | null;
+  isPriceUpdated?: boolean;
 }

@@ -1,6 +1,6 @@
 import { toast } from 'sonner';
 import { useCallback, useMemo, useState } from 'react';
-import { PlusIcon, DownloadIcon, UploadIcon } from 'lucide-react';
+import { PlusIcon, DownloadIcon } from 'lucide-react';
 import type { SortingState } from '@tanstack/react-table';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
@@ -11,10 +11,8 @@ import { CustomTable } from '@/components/ui/custom/CustomTable';
 import { productsService } from '@/lib/services/productsService';
 import type { Product, ProductWithDetails } from '@/shared/types';
 import { ProductModal } from '@/components/dashboard/products/ProductModal';
-import { UploadResultsModal } from '@/components/dashboard/products/UploadResultsModal';
-import { categoriesService } from '@/lib/services';
-import { mediaService } from '@/lib/services/mediaService';
 import * as XLSX from 'xlsx';
+import { SearchInput } from '@/components/ui/custom/SearchInput';
 
 const ProductsPage = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -22,14 +20,7 @@ const ProductsPage = () => {
   const [productModalIsOpen, setProductModalIsOpen] = useState(false);
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
   const [currentRow, setCurrentRow] = useState<Product | null>(null);
-  const [uploadModalIsOpen, setUploadModalIsOpen] = useState(false);
-  const [uploadResults, setUploadResults] = useState<{
-    created: number;
-    updated: number;
-    errors: number;
-    errorDetails: string[];
-  } | null>(null);
-
+  const [globalFilter, setGlobalFilter] = useState('');
   const queryClient = useQueryClient();
 
   // Solo necesitamos obtener productos - ya vienen con categorías e imágenes completas
@@ -37,7 +28,6 @@ const ProductsPage = () => {
     data: productsData,
     isLoading,
     error,
-    refetch,
   } = useQuery({
     queryKey: ['products'],
     queryFn: async () => {
@@ -131,52 +121,6 @@ const ProductsPage = () => {
     }
   };
 
-  const handleUploadExcel = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
-      toast.error('Por favor selecciona un archivo Excel (.xlsx o .xls)');
-      return;
-    }
-
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const response = await fetch('/api/products/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Error al procesar el archivo');
-      }
-
-      setUploadResults(result);
-      setUploadModalIsOpen(true);
-
-      // Refrescar todas las consultas para mantener selectores actualizados
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['products'] }),
-        queryClient.invalidateQueries({ queryKey: ['categories'] }),
-        queryClient.invalidateQueries({ queryKey: ['images'] }),
-      ]);
-
-      toast.success('Archivo procesado exitosamente');
-    } catch (error) {
-      console.error('Error al cargar archivo:', error);
-      toast.error('Error al procesar el archivo Excel');
-    }
-
-    // Limpiar el input
-    event.target.value = '';
-  };
-
   const handleDownloadTemplate = () => {
     if (!data || data.length === 0) {
       toast.error('No hay productos para descargar');
@@ -254,36 +198,50 @@ const ProductsPage = () => {
   };
 
   // Filtro global simple - por ahora sin filtros específicos
-  const globalFilterFn = () => {
-    return true;
+  const globalFilterFn = (row: any) => {
+    const product = row.original as Product;
+    if (globalFilter === '') return true;
+    if (product.name.toLowerCase().includes(globalFilter.toLowerCase()))
+      return true;
+    if (product.sku?.toLowerCase().includes(globalFilter.toLowerCase()))
+      return true;
+    if (
+      product.categories?.some((category) =>
+        category.name.toLowerCase().includes(globalFilter.toLowerCase())
+      )
+    )
+      return true;
+
+    return false;
+  };
+
+  const handleSorting = (sorting: SortingState) => {
+    setSorting(sorting);
+    setPageIndex(0);
+  };
+
+  const handleSearch = (value: string) => {
+    setGlobalFilter(value);
+    setPageIndex(0);
   };
 
   return (
     <div className='bg-white rounded-lg shadow-md py-6 p-6 w-full'>
-      <div className='flex justify-between items-center mb-6'>
-        <h2 className='text-2xl font-bold text-gray-900'>
-          Gestión de Productos
-        </h2>
+      <h2 className='text-2xl font-bold text-gray-900'>Gestión de Productos</h2>
+
+      <div className='flex items-center justify-between gap-2 mt-6'>
+        <SearchInput
+          className='w-1/3'
+          placeholder='Buscar producto'
+          value={globalFilter}
+          onChange={handleSearch}
+        />
+
         <div className='flex items-center gap-2'>
           <Button variant='outline' onClick={handleDownloadTemplate}>
             <DownloadIcon className='size-5 mr-2' />
             Descargar Productos
           </Button>
-          <div className='relative'>
-            <input
-              type='file'
-              accept='.xlsx,.xls'
-              onChange={handleUploadExcel}
-              className='absolute inset-0 w-full h-full opacity-0 cursor-pointer'
-              id='excel-upload'
-            />
-            <Button variant='outline' asChild>
-              <label htmlFor='excel-upload' className='cursor-pointer'>
-                <UploadIcon className='size-5 mr-2' />
-                Cargar Excel
-              </label>
-            </Button>
-          </div>
           <Button variant='default' onClick={handleAddProduct}>
             <PlusIcon className='size-5 mr-2' />
             Agregar Producto
@@ -295,10 +253,10 @@ const ProductsPage = () => {
         data={data || []}
         columns={columns}
         isLoading={isLoading || deleteMutation.isPending}
-        globalFilter={{}}
+        globalFilter={globalFilter}
         error={!!error}
         sorting={sorting}
-        handleSorting={setSorting}
+        handleSorting={handleSorting}
         pageIndex={pageIndex}
         setPageIndex={setPageIndex}
         globalFilterFn={globalFilterFn}
@@ -328,17 +286,6 @@ const ProductsPage = () => {
           open={productModalIsOpen}
           closeModal={() => setProductModalIsOpen(false)}
           product={currentRow}
-        />
-      )}
-
-      {uploadModalIsOpen && uploadResults && (
-        <UploadResultsModal
-          open={uploadModalIsOpen}
-          onClose={() => {
-            setUploadModalIsOpen(false);
-            setUploadResults(null);
-          }}
-          results={uploadResults}
         />
       )}
     </div>

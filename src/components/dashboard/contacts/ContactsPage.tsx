@@ -29,8 +29,6 @@ const ContactsPage = () => {
     },
   });
 
-  console.log('data', data);
-
   const deleteMutation = useMutation({
     mutationFn: (contactId: number) => contactService.deleteContact(contactId),
     onError: (err) => {
@@ -100,7 +98,7 @@ const ContactsPage = () => {
           handleSorting={setSorting}
           pageIndex={pageIndex}
           setPageIndex={setPageIndex}
-          globalFilter={{}}
+          globalFilter={''}
           globalFilterFn={() => true}
         />
       </div>

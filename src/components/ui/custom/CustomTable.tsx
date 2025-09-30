@@ -26,15 +26,13 @@ type Props<TData, TValue> = {
   data: TData[];
   columns: ColumnDef<TData, TValue>[];
   isLoading: boolean;
-  globalFilter: {
-    [key: string]: string;
-  };
+  globalFilter: string | { [key: string]: string };
   error: boolean;
   sorting: SortingState;
-  handleSorting: (value: any) => void;
   pageIndex: number;
-  setPageIndex: (value: number) => void;
   globalFilterFn: FilterFn<TData>;
+  handleSorting: (value: any) => void;
+  setPageIndex: (value: number) => void;
 };
 
 function CustomTable<TData, TValue>({
