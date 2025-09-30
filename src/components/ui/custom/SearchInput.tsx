@@ -24,10 +24,12 @@ export const SearchInput: React.FC<SearchInputProps> = ({
         onChange={(e) => onChange(e.target.value)}
       />
       <Search className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 size-4' />
-      <XCircle
-        className=' cursor-pointer absolute right-1 -top-3 transform -translate-y-1/2 size-3 text-red-500'
-        onClick={() => onChange('')}
-      />
+      {value && (
+        <XCircle
+          className=' cursor-pointer absolute right-1 -top-3 transform -translate-y-1/2 size-3 text-red-500'
+          onClick={() => onChange('')}
+        />
+      )}
     </div>
   );
 };
