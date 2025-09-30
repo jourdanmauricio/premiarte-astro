@@ -1,12 +1,13 @@
 // components/AuthSection.tsx
+import { useEffect, useState } from 'react';
+import type { JSX } from 'astro/jsx-runtime';
+
 import {
   SignedIn,
   SignedOut,
   UserButton,
   SignInButton,
 } from '@clerk/astro/react';
-import type { JSX } from 'astro/jsx-runtime';
-import { useEffect, useState } from 'react';
 
 export default function AuthSection(): JSX.Element {
   const [mounted, setMounted] = useState<boolean>(false);

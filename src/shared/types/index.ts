@@ -8,3 +8,4 @@ export * from './contact';
 export * from './cart-Item';
 export * from './quote';
 export * from './budget';
+export * from './customer';

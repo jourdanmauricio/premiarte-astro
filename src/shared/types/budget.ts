@@ -48,12 +48,9 @@ export interface BudgetWithItems extends Budget {
 
 // Tipos para crear nuevos presupuestos
 export interface CreateBudgetData {
-  name: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  observation?: string;
+  customerId: number;
   userId?: string;
+  observation?: string;
   items: CreateBudgetItemData[];
 }
 
@@ -64,17 +61,14 @@ export interface CreateBudgetItemData {
   name: string;
   imageUrl: string;
   imageAlt: string;
-  price: number;
+  price?: number | null;
   quantity: number;
   observation?: string;
 }
 
 // Tipos para actualizar presupuestos
 export interface UpdateBudgetData {
-  name?: string;
-  lastName?: string;
-  email?: string;
-  phone?: string;
+  customerId?: number;
   observation?: string;
   status?: Budget['status'];
   isRead?: boolean;
@@ -87,7 +81,7 @@ export interface UpdateBudgetData {
 // Tipos para filtros y consultas
 export interface BudgetFilters {
   status?: Budget['status'];
-  email?: string;
+  customerId?: number;
   userId?: string;
   dateFrom?: string;
   dateTo?: string;

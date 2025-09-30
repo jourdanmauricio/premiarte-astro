@@ -2,17 +2,16 @@ import { defineAction } from 'astro:actions';
 import { z } from 'astro:schema';
 import { Database } from '@/lib/db';
 import type {
-  CreateQuoteData,
-  CreateQuoteItemData,
+  CreateBudgetData,
+  CreateBudgetItemData,
   CartItem,
   ProductWithCategoriesAndImages,
 } from '@/shared/types';
 
-export const sendQuoteRequest = defineAction({
+export const sendBudgetRequest = defineAction({
   accept: 'form',
   input: z.object({
     name: z.string().min(1, 'El nombre es requerido'),
-    last_name: z.string().min(1, 'El apellido es requerido'),
     email: z
       .string()
       .min(1, 'El correo electrónico es requerido')
@@ -20,8 +19,9 @@ export const sendQuoteRequest = defineAction({
     phone: z.string().min(1, 'El teléfono es requerido'),
     message: z.string().optional(),
   }),
-  handler: async ({ name, last_name, email, phone, message }, context) => {
+  handler: async ({ name, email, phone, message }, context) => {
     try {
+      console.log('sendBudgetRequest!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
       // Obtener productos del carrito desde cookies (misma lógica que loadProductsFromCart)
       const cart = JSON.parse(
         context.cookies.get('cart')?.value ?? '[]'
@@ -48,8 +48,22 @@ export const sendQuoteRequest = defineAction({
       // Obtener información del usuario autenticado (si existe)
       const userId = context.locals.auth()?.userId || undefined;
 
+      // Crear o recuperar el customer
+      const customer = await Database.getOrCreateCustomer({
+        name,
+        email,
+        phone,
+        type: 'retail', // Por defecto retail, se puede cambiar según la lógica de negocio
+      });
+
+      console.log('customer', customer);
+
+      if (!customer || !customer.id) {
+        throw new Error('No se pudo crear o recuperar el cliente');
+      }
+
       // Crear items del presupuesto
-      const quoteItems: CreateQuoteItemData[] = cart.map((item) => {
+      const budgetItems: CreateBudgetItemData[] = cart.map((item) => {
         const dbProduct = products.find(
           (product) => product.id === Number(item.productId)
         );
@@ -67,31 +81,22 @@ export const sendQuoteRequest = defineAction({
           name: productName,
           imageUrl: primaryImage?.url || '',
           imageAlt: primaryImage?.alt || productName,
-          price: (price || 0) * 100, // Convertir a centavos
+          price: price, // Incluir el precio del producto
           quantity: Number(item.quantity),
           observation: undefined, // Por ahora no hay observaciones por item
         };
       });
 
-      // Calcular monto total
-      const totalAmount = quoteItems.reduce(
-        (total, item) => total + item.price * item.quantity,
-        0
-      );
-
       // Crear datos del presupuesto
-      const quoteData: CreateQuoteData = {
-        name,
-        lastName: last_name,
-        email,
-        phone,
+      const budgetData: CreateBudgetData = {
+        customerId: Number(customer.id),
         observation: message || undefined,
         userId,
-        items: quoteItems,
+        items: budgetItems,
       };
 
       // Crear presupuesto en la base de datos
-      const quote = await Database.createQuote(quoteData, totalAmount);
+      const budget = await Database.createBudget(budgetData);
 
       // Limpiar carrito después de enviar el presupuesto exitosamente
       context.cookies.delete('cart');
@@ -100,9 +105,8 @@ export const sendQuoteRequest = defineAction({
         success: true,
         message: 'Te contactaremos pronto con la cotización.',
         data: {
-          quoteId: quote.id,
-          totalItems: quoteItems.length,
-          totalAmount: totalAmount / 100, // Convertir de centavos a pesos para mostrar
+          budgetId: budget.id,
+          totalItems: budgetItems.length,
         },
       };
     } catch (error) {

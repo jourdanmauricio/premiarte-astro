@@ -133,17 +133,6 @@ export const contactFormSchema = z.object({
   message: z.string().min(1, 'El mensaje es requerido'),
 });
 
-export const quoteFormSchema = z.object({
-  name: z.string().min(1, 'Requerido'),
-  last_name: z.string().min(1, 'Requerido'),
-  email: z
-    .string()
-    .min(1, 'Requerido')
-    .email('Ingrese un correo electrónico válido'),
-  phone: z.string().min(1, 'Requerido'),
-  message: z.string().optional(),
-});
-
 export const UploadImageFormSchema = z.object({
   alt: z.string().min(1, 'El nombre alternativo es requerido'),
   tag: z.string().min(1, 'La carpeta es requerida'),
@@ -152,9 +141,7 @@ export const UploadImageFormSchema = z.object({
 
 export const BudgetFormSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
-  lastName: z.string().min(1, 'El apellido es requerido'),
   email: z.string().min(1, 'El email es requerido'),
   phone: z.string().min(1, 'El teléfono es requerido'),
   observation: z.string().optional(),
-  status: z.string().min(1, 'El estado es requerido'),
 });

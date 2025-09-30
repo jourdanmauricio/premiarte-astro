@@ -101,55 +101,26 @@ const products = data;
           presupuesto.
         </p>
 
-        <form id='quote-form' method='POST' class='space-y-4' novalidate>
-          <div class='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-            <div class='space-y-1'>
-              <label
-                for='name'
-                class='block text-sm font-medium text-slate-700'
-              >
-                Nombre *
-              </label>
-              <input
-                type='text'
-                id='name'
-                name='name'
-                value={user?.firstName}
-                placeholder='Ingrese su nombre'
-                class='w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'
-                required
-              />
-              <span
-                id='name-error'
-                class='text-red-500 text-xs h-4 block opacity-0 transition-opacity duration-200'
-              >
-                Requerido
-              </span>
-            </div>
-
-            <div class='space-y-1'>
-              <label
-                for='last_name'
-                class='block text-sm font-medium text-slate-700'
-              >
-                Apellido *
-              </label>
-              <input
-                type='text'
-                id='last_name'
-                name='last_name'
-                value={user?.lastName}
-                placeholder='Ingrese su apellido'
-                class='w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'
-                required
-              />
-              <span
-                id='last_name-error'
-                class='text-red-500 text-xs h-4 block opacity-0 transition-opacity duration-200'
-              >
-                Requerido
-              </span>
-            </div>
+        <form id='budget-form' method='POST' class='space-y-4' novalidate>
+          <div class='space-y-1'>
+            <label for='name' class='block text-sm font-medium text-slate-700'>
+              Nombre y Apellido *
+            </label>
+            <input
+              type='text'
+              id='name'
+              name='name'
+              value={user?.firstName + ' ' + user?.lastName}
+              placeholder='Ingrese su nombre'
+              class='w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors'
+              required
+            />
+            <span
+              id='name-error'
+              class='text-red-500 text-xs h-4 block opacity-0 transition-opacity duration-200'
+            >
+              Requerido
+            </span>
           </div>
 
           <div class='space-y-1'>
@@ -241,7 +212,7 @@ const products = data;
   import { itemsInCart } from '@/store';
   import { CartCookiesClient } from '@/utils';
   import { navigate } from 'astro:transitions/client';
-  import { quoteFormSchema } from '@/shared/schemas';
+  import { BudgetFormSchema } from '@/shared/schemas';
 
   document.addEventListener('astro:page-load', () => {
     // Funcionalidad del carrito
@@ -343,18 +314,12 @@ const products = data;
     });
 
     // Validación del formulario
-    const form = document.getElementById('quote-form') as HTMLFormElement;
+    const form = document.getElementById('budget-form') as HTMLFormElement;
     const nameInput = document.getElementById('name') as HTMLInputElement;
-    const lastNameInput = document.getElementById(
-      'last_name'
-    ) as HTMLInputElement;
     const emailInput = document.getElementById('email') as HTMLInputElement;
     const phoneInput = document.getElementById('phone') as HTMLInputElement;
 
     const nameError = document.getElementById('name-error') as HTMLSpanElement;
-    const lastNameError = document.getElementById(
-      'last_name-error'
-    ) as HTMLSpanElement;
     const emailError = document.getElementById(
       'email-error'
     ) as HTMLSpanElement;
@@ -369,16 +334,13 @@ const products = data;
     if (!nameInput) {
       return;
     }
-    if (!lastNameInput) {
-      return;
-    }
     if (!emailInput) {
       return;
     }
     if (!phoneInput) {
       return;
     }
-    if (!nameError || !lastNameError || !emailError || !phoneError) {
+    if (!nameError || !emailError || !phoneError) {
       return;
     }
 
@@ -386,8 +348,8 @@ const products = data;
     const validateField = (fieldName: string, value: string) => {
       try {
         const fieldSchema =
-          quoteFormSchema.shape[
-            fieldName as keyof typeof quoteFormSchema.shape
+          BudgetFormSchema.shape[
+            fieldName as keyof typeof BudgetFormSchema.shape
           ];
         fieldSchema.parse(value);
         return { success: true, error: null };
@@ -403,7 +365,6 @@ const products = data;
     const validateForm = () => {
       const formData = {
         name: nameInput.value.trim(),
-        last_name: lastNameInput.value.trim(),
         email: emailInput.value.trim(),
         phone: phoneInput.value.trim(),
         message:
@@ -411,7 +372,7 @@ const products = data;
           '',
       };
 
-      const result = quoteFormSchema.safeParse(formData);
+      const result = BudgetFormSchema.safeParse(formData);
       return result;
     };
 
@@ -445,16 +406,6 @@ const products = data;
         showError(nameError, nameInput);
       } else {
         hideError(nameError, nameInput);
-      }
-    });
-
-    lastNameInput.addEventListener('blur', () => {
-      const validation = validateField('last_name', lastNameInput.value.trim());
-      if (!validation.success) {
-        lastNameError.textContent = validation.error;
-        showError(lastNameError, lastNameInput);
-      } else {
-        hideError(lastNameError, lastNameInput);
       }
     });
 
@@ -493,10 +444,11 @@ const products = data;
       // Validar todo el formulario con Zod
       const validation = validateForm();
 
+      console.log('submit!!!!!!!!!!!!!!!!!!!!!!!!!, ', validation);
+
       if (!validation.success) {
         // Limpiar errores previos
         hideError(nameError, nameInput);
-        hideError(lastNameError, lastNameInput);
         hideError(emailError, emailInput);
         hideError(phoneError, phoneInput);
 
@@ -509,10 +461,6 @@ const products = data;
             case 'name':
               nameError.textContent = message;
               showError(nameError, nameInput);
-              break;
-            case 'last_name':
-              lastNameError.textContent = message;
-              showError(lastNameError, lastNameInput);
               break;
             case 'email':
               emailError.textContent = message;
@@ -548,15 +496,11 @@ const products = data;
 
         // Usar la server action de Astro
         const { actions } = await import('astro:actions');
-        const { toast } = await import('sonner');
-        const result = await actions.sendQuoteRequest(formData);
+        const result = await actions.sendBudgetRequest(formData);
 
         if (result.data?.success) {
           // Éxito: mostrar notificación de éxito
-          toast.success('¡Presupuesto enviado exitosamente!', {
-            description: result.data.message,
-            duration: 5000,
-          });
+          alert('¡Presupuesto enviado exitosamente! ' + result.data.message);
 
           // Limpiar formulario
           form.reset();
@@ -575,19 +519,15 @@ const products = data;
           }, 3000);
         } else {
           // Error: mostrar notificación de error
-          toast.error('Error al enviar el presupuesto', {
-            description:
-              result.data?.message || 'Ha ocurrido un error inesperado',
-            duration: 5000,
-          });
+          alert(
+            'Error al enviar el presupuesto: ' +
+              (result.data?.message || 'Ha ocurrido un error inesperado')
+          );
         }
       } catch (error) {
-        const { toast } = await import('sonner');
-        toast.error('Error de conexión', {
-          description:
-            'No se pudo enviar el presupuesto. Verifica tu conexión e inténtalo de nuevo.',
-          duration: 5000,
-        });
+        alert(
+          'Error de conexión: No se pudo enviar el presupuesto. Verifica tu conexión e inténtalo de nuevo.'
+        );
       } finally {
         submitButton.disabled = false;
         // Verificar si aún hay productos en el carrito después de la operación

@@ -5,7 +5,7 @@ import { getCategoriesByPage } from '@/actions/categoeries/get-categories-by-pag
 import { getProductsByCategory } from '@/actions/products/get-products-by-category';
 import { sendContactForm } from '@/actions/contact/send-contact-form.action';
 import { loadProductsFromCart } from '@/actions/cart/load-products-from-cart.action';
-import { sendQuoteRequest } from '@/actions/quotes/send-quote-request.action';
+import { sendBudgetRequest } from '@/actions/budgets/send-budget-request.action';
 
 export const server = {
   // actions
@@ -18,5 +18,5 @@ export const server = {
   getProductsByCategory,
   sendContactForm,
   loadProductsFromCart,
-  sendQuoteRequest,
+  sendBudgetRequest,
 };
