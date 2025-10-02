@@ -1,6 +1,6 @@
 import { Database } from '@/lib/db';
-import { verifyAdminAuth } from '@/lib/utils';
 import type { APIRoute } from 'astro';
+import { verifyAdminAuth } from '@/lib/utils';
 
 export const GET: APIRoute = async (context) => {
   try {
@@ -8,17 +8,18 @@ export const GET: APIRoute = async (context) => {
     if (!authResult.success) {
       return authResult.response;
     }
-    // GET público - no requiere autenticación para mostrar productos en el sitio
-    const budgets = await Database.getAllBudgets();
+    const customersData = await Database.getAllCustomers();
 
-    return new Response(JSON.stringify(budgets), {
+    const customers = customersData.sort((a, b) =>
+      String(a.name || '').localeCompare(String(b.name || ''))
+    );
+    return new Response(JSON.stringify(customers), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
       },
     });
   } catch (error) {
-    console.error('Error al obtener los presupuestos:', error);
     return new Response(
       JSON.stringify({ error: 'Error interno del servidor' }),
       {
@@ -29,27 +30,25 @@ export const GET: APIRoute = async (context) => {
   }
 };
 
+// POST - Crear nueva cliente
 export const POST: APIRoute = async (context) => {
   try {
+    // Verificar autenticación
     const authResult = await verifyAdminAuth(context);
     if (!authResult.success) {
       return authResult.response;
     }
 
+    // Obtener datos del body
     const body = await context.request.json();
-    const {
-      customerId,
-      type,
-      status,
-      totalAmount,
-      observation,
-      items,
-      expiresAt,
-    } = body;
+    const { name, email, phone, type, document, address, observation } = body;
 
-    if (!customerId || !type || !status || !totalAmount || !items) {
+    // Validaciones básicas
+    if (!name || !email || !phone || !type) {
       return new Response(
-        JSON.stringify({ error: 'Faltan campos requeridos' }),
+        JSON.stringify({
+          error: 'Faltan campos requeridos: name, email, phone, type',
+        }),
         {
           status: 400,
           headers: { 'Content-Type': 'application/json' },
@@ -57,33 +56,37 @@ export const POST: APIRoute = async (context) => {
       );
     }
 
-    const budget = await Database.createBudget({
-      customerId,
+    // Crear la cliente
+    const newCustomer = await Database.createCustomer({
+      name,
+      email,
+      phone,
       type,
-      status,
-      totalAmount,
+      document,
+      address,
       observation,
-      expiresAt,
-      userId: authResult.user.id,
-      items,
     });
 
-    if (!budget) {
+    return new Response(JSON.stringify(newCustomer), {
+      status: 201,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  } catch (error: any) {
+    console.error('Error al crear cliente:', error);
+
+    // Manejar errores de constraint (email duplicado)
+    if (error.message?.includes('UNIQUE constraint failed')) {
       return new Response(
-        JSON.stringify({ error: 'Error al crear el presupuesto' }),
+        JSON.stringify({ error: 'Ya existe una cliente con ese email' }),
         {
-          status: 500,
+          status: 409,
           headers: { 'Content-Type': 'application/json' },
         }
       );
     }
 
-    return new Response(JSON.stringify(budget), {
-      status: 201,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  } catch (error) {
-    console.error('Error al crear el presupuesto:', error);
     return new Response(
       JSON.stringify({ error: 'Error interno del servidor' }),
       {

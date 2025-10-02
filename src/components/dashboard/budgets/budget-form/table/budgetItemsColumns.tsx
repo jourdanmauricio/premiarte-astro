@@ -1,24 +1,27 @@
-import { EyeIcon, PencilIcon, Trash2Icon } from 'lucide-react';
+import { PencilIcon, Trash2Icon } from 'lucide-react';
 import { type ColumnDef } from '@tanstack/react-table';
 
-import type { Budget, BudgetItem } from '@/shared/types';
+import type { BudgetItem, BudgetItemRow } from '@/shared/types';
 import { Button } from '@/components/ui/button';
 import { TruncatedCell } from '@/components/ui/custom/truncatedCell';
 
 type DataTableColumnsProps = {
-  onDelete: (budget: Budget) => void;
-  onEdit: (budget: Budget) => void;
+  onDelete: (item: BudgetItemRow) => void;
+  onEdit: (item: BudgetItemRow) => void;
 };
 
 // Tipo para los datos de la tabla (cada fila será un item individual)
-type BudgetItemRow = BudgetItem & {
-  budget: Budget; // Referencia al budget padre
-};
 
 export const getBudgetItemColumns = ({
   onDelete,
   onEdit,
 }: DataTableColumnsProps): ColumnDef<BudgetItemRow>[] => [
+  // {
+  //   id: 'id',
+  //   header: 'ID',
+  //   size: 100,
+  //   cell: ({ row }) => <div>{row.original.id}</div>,
+  // },
   {
     id: 'image',
     header: 'IMAGEN',
@@ -56,17 +59,15 @@ export const getBudgetItemColumns = ({
     id: 'price',
     header: 'PRECIO UNIT.',
     size: 120,
-    cell: ({ row }) => (
-      <div className='text-right'>${(row.original.price / 100).toFixed(2)}</div>
-    ),
+    cell: ({ row }) => <div className='text-right'>${row.original.price}</div>,
   },
   {
     id: 'amount',
     header: 'TOTAL',
     size: 120,
     cell: ({ row }) => (
-      <div className='text-right font-medium'>
-        ${(row.original.amount / 100).toFixed(2)}
+      <div className='text-right'>
+        ${row.original.amount === '0' ? '0' : row.original.amount.toString()}
       </div>
     ),
   },
@@ -86,13 +87,13 @@ export const getBudgetItemColumns = ({
     minSize: 100,
     maxSize: 100,
     cell: ({ row }) => {
-      const budget = row.original.budget; // Accedemos al budget padre
+      const item = row.original; // Accedemos al budget padre
       return (
         <div className='flex items-center justify-center w-full'>
           <Button
             variant='ghost'
             size='sm'
-            onClick={() => onEdit(budget)}
+            onClick={() => onEdit(item)}
             className='h-8 w-8 p-0 hover:bg-red-50'
             type='button'
           >
@@ -101,7 +102,7 @@ export const getBudgetItemColumns = ({
           <Button
             variant='ghost'
             size='sm'
-            onClick={() => onDelete(budget)}
+            onClick={() => onDelete(item)}
             className='h-8 w-8 p-0 hover:bg-red-50'
             type='button'
           >
@@ -112,26 +113,3 @@ export const getBudgetItemColumns = ({
     },
   },
 ];
-
-// Función para transformar los datos de Budget[] a BudgetItemRow[]
-export const transformBudgetsToItemRows = (
-  budgets: Budget[]
-): BudgetItemRow[] => {
-  const itemRows: BudgetItemRow[] = [];
-
-  budgets.forEach((budget) => {
-    if (budget.items && budget.items.length > 0) {
-      budget.items.forEach((item) => {
-        itemRows.push({
-          ...item,
-          budget: budget,
-        });
-      });
-    }
-  });
-
-  return itemRows;
-};
-
-// Exportar el tipo para uso externo
-export type { BudgetItemRow };

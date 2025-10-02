@@ -27,8 +27,6 @@ const BudgetsPage = () => {
     },
   });
 
-  // console.log('data', data);
-
   const deleteMutation = useMutation({
     mutationFn: (budgetId: number) => budgetsService.deleteBudget(budgetId),
     onError: (err) => {
@@ -90,11 +88,11 @@ const BudgetsPage = () => {
           <div className='flex items-center gap-2'>
             <Button variant='outline' onClick={handleDownloadTemplate}>
               <DownloadIcon className='size-5 mr-2' />
-              Descargar Presupuestos
+              Descargar
             </Button>
             <Button variant='default' onClick={handleAddBudget}>
               <PlusIcon className='size-5 mr-2' />
-              Agregar Presupuesto
+              Nuevo
             </Button>
           </div>
         </div>

@@ -12,6 +12,64 @@ export class CustomerService {
     return rows[0] || null;
   }
 
+  static async getAllCustomers() {
+    const { rows } = await turso.execute({
+      sql: 'SELECT * FROM Customer ORDER BY createdAt DESC',
+      args: [],
+    });
+    return rows;
+  }
+
+  static async getCustomerById(id: number) {
+    const { rows } = await turso.execute({
+      sql: 'SELECT * FROM Customer WHERE id = ?',
+      args: [id],
+    });
+    return rows[0] || null;
+  }
+
+  static async updateCustomer(
+    id: number,
+    data: {
+      name: string;
+      email: string;
+      phone: string;
+      type?: 'wholesale' | 'retail';
+      document?: string;
+      address?: string;
+      observation?: string;
+    }
+  ) {
+    const { rows } = await turso.execute({
+      sql: `
+        UPDATE Customer 
+        SET name = ?, email = ?, phone = ?, type = ?, document = ?, address = ?, observation = ?, updatedAt = CURRENT_TIMESTAMP
+        WHERE id = ?
+        RETURNING *
+      `,
+      args: [
+        data.name,
+        data.email,
+        data.phone,
+        data.type || 'retail',
+        data.document || null,
+        data.address || null,
+        data.observation || null,
+        id,
+      ],
+    });
+
+    return rows[0];
+  }
+
+  static async deleteCustomer(id: number) {
+    await turso.execute({
+      sql: 'DELETE FROM Customer WHERE id = ?',
+      args: [id],
+    });
+    return true;
+  }
+
   static async createCustomer(data: {
     name: string;
     email: string;
@@ -76,5 +134,13 @@ export class CustomerService {
 
     // Si no existe, crear uno nuevo
     return await this.createCustomer(data);
+  }
+
+  static async countBudgetsByCustomer(customerId: number) {
+    const { rows } = await turso.execute({
+      sql: 'SELECT COUNT(*) FROM Budget WHERE customerId = ?',
+      args: [customerId],
+    });
+    return rows[0].count;
   }
 }

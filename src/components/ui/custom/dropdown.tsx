@@ -52,6 +52,7 @@ export default function Dropdown({
   const handleOnChange = (value: string) => {
     if (onChange && list) {
       const selectedItem = list.find((item) => item.id === value);
+      console.log('CHANGE STATUS!!!!!!!!!!!!!!!!!!', selectedItem);
       onChange(selectedItem!);
     }
   };

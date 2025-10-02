@@ -1,9 +1,14 @@
+import type { BudgetItemFormSchema } from '@/shared/schemas';
+import type z from 'zod';
+
 export interface Budget {
   id: number;
+  customerId: number;
   name: string;
   lastName: string;
   email: string;
   phone: string;
+  type: 'wholesale' | 'retail';
   observation?: string;
   totalAmount: number; // en centavos
   status: 'pending' | 'approved' | 'rejected' | 'expired';
@@ -12,26 +17,24 @@ export interface Budget {
   expiresAt?: string;
   approvedAt?: string;
   rejectedAt?: string;
-  createdAt: string;
-  updatedAt: string;
   items?: BudgetItem[]; // items del presupuesto (relación)
+  createdAt: string;
 }
 
 export interface BudgetItem {
   id: number;
-  budgetId: number;
   productId: number;
   sku: string;
   slug: string;
   name: string;
   imageUrl: string;
   imageAlt: string;
+  retailPrice: number; // precio unitario en centavos
+  wholesalePrice: number; // precio unitario en centavos
   price: number; // precio unitario en centavos
   quantity: number;
   amount: number; // precio total del item (price * quantity)
   observation?: string;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface BudgetFormData {
@@ -51,18 +54,18 @@ export interface CreateBudgetData {
   customerId: number;
   userId?: string;
   observation?: string;
+  totalAmount: number;
+  type: string;
   items: CreateBudgetItemData[];
 }
 
 export interface CreateBudgetItemData {
   productId: number;
-  sku: string;
-  slug: string;
-  name: string;
-  imageUrl: string;
-  imageAlt: string;
-  price?: number | null;
+  retailPrice: number;
+  wholesalePrice: number;
+  price: number;
   quantity: number;
+  amount: number;
   observation?: string;
 }
 
@@ -87,3 +90,5 @@ export interface BudgetFilters {
   dateTo?: string;
   isRead?: boolean;
 }
+
+export type BudgetItemRow = z.infer<typeof BudgetItemFormSchema>;

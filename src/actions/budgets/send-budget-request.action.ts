@@ -21,7 +21,6 @@ export const sendBudgetRequest = defineAction({
   }),
   handler: async ({ name, email, phone, message }, context) => {
     try {
-      console.log('sendBudgetRequest!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
       // Obtener productos del carrito desde cookies (misma lógica que loadProductsFromCart)
       const cart = JSON.parse(
         context.cookies.get('cart')?.value ?? '[]'
@@ -45,6 +44,8 @@ export const sendBudgetRequest = defineAction({
         })
       )) as unknown as ProductWithCategoriesAndImages[];
 
+      // const products = cart;
+
       // Obtener información del usuario autenticado (si existe)
       const userId = context.locals.auth()?.userId || undefined;
 
@@ -56,12 +57,11 @@ export const sendBudgetRequest = defineAction({
         type: 'retail', // Por defecto retail, se puede cambiar según la lógica de negocio
       });
 
-      console.log('customer', customer);
-
       if (!customer || !customer.id) {
         throw new Error('No se pudo crear o recuperar el cliente');
       }
 
+      let totalAmount = 0;
       // Crear items del presupuesto
       const budgetItems: CreateBudgetItemData[] = cart.map((item) => {
         const dbProduct = products.find(
@@ -71,28 +71,32 @@ export const sendBudgetRequest = defineAction({
           throw new Error('Product with id ' + item.productId + ' not found');
         }
 
-        const { name: productName, sku, images, slug, price } = dbProduct;
-        const primaryImage = images?.[0];
+        const price =
+          customer.type === 'retail'
+            ? Number(dbProduct.retailPrice)
+            : Number(dbProduct.wholesalePrice);
+
+        totalAmount += Number(price) * Number(item.quantity);
 
         return {
+          retailPrice: Number(dbProduct.retailPrice),
+          wholesalePrice: Number(dbProduct.wholesalePrice),
+          price: price,
           productId: Number(item.productId),
-          sku: sku || `PROD-${item.productId}`, // Generar SKU si no existe
-          slug,
-          name: productName,
-          imageUrl: primaryImage?.url || '',
-          imageAlt: primaryImage?.alt || productName,
-          price: price, // Incluir el precio del producto
           quantity: Number(item.quantity),
-          observation: undefined, // Por ahora no hay observaciones por item
+          amount: Number(price) * Number(item.quantity),
+          observation: '',
         };
       });
 
       // Crear datos del presupuesto
       const budgetData: CreateBudgetData = {
         customerId: Number(customer.id),
-        observation: message || undefined,
+        observation: message || '',
         userId,
         items: budgetItems,
+        totalAmount: totalAmount,
+        type: String(customer.type || 'retail'),
       };
 
       // Crear presupuesto en la base de datos

@@ -18,6 +18,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     { path: '/media', label: 'Galería', icon: '🖼️' },
     { path: '/newsletter', label: 'Newsletter', icon: '📧' },
     { path: '/contact', label: 'Contacto', icon: '💬' },
+    { path: '/customers', label: 'Clientes', icon: '👤' },
     { path: '/budgets', label: 'Presupuestos', icon: '💰' },
   ];
 

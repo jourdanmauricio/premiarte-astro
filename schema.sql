@@ -111,15 +111,16 @@ CREATE TABLE IF NOT EXISTS Contact (
 -- Tabla principal para presupuestos
 CREATE TABLE IF NOT EXISTS Budget (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  customerId INTEGER NOT NULL, -- relación con la tabla Customer
-  observation TEXT, -- mensaje/observaciones del cliente
-  totalAmount INTEGER DEFAULT 0, -- monto total en centavos
-  status TEXT DEFAULT 'pending', -- pending, approved, rejected, expired
-  userId TEXT, -- ID del usuario de Clerk si está autenticado
+  customerId INTEGER NOT NULL, 
+  type TEXT, 
+  observation TEXT, 
+  totalAmount INTEGER DEFAULT 0, 
+  status TEXT DEFAULT 'pending',
+  userId TEXT, 
   isRead BOOLEAN DEFAULT FALSE,
-  expiresAt DATETIME, -- fecha de expiración del presupuesto
-  approvedAt DATETIME, -- fecha de aprobación
-  rejectedAt DATETIME, -- fecha de rechazo
+  expiresAt DATETIME, 
+  approvedAt DATETIME,
+  rejectedAt DATETIME,
   createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
   updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (customerId) REFERENCES Customer(id)
@@ -130,15 +131,12 @@ CREATE TABLE IF NOT EXISTS BudgetItem (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   budgetId INTEGER NOT NULL,
   productId INTEGER NOT NULL,
-  sku TEXT NOT NULL,
-  slug TEXT NOT NULL,
-  name TEXT NOT NULL,
-  imageUrl TEXT NOT NULL, -- URL de la imagen del producto
-  imageAlt TEXT NOT NULL, -- Alt text de la imagen
-  price INTEGER NOT NULL, -- precio unitario en centavos
+  price INTEGER NOT NULL, 
+  retailPrice INTEGER NOT NULL, 
+  wholesalePrice INTEGER NOT NULL, 
   quantity INTEGER NOT NULL,
-  amount INTEGER NOT NULL, -- precio total del item (price * quantity)
-  observation TEXT, -- observaciones específicas del item
+  amount INTEGER NOT NULL, 
+  observation TEXT, 
   createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
   updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (budgetId) REFERENCES Budget(id) ON DELETE CASCADE,

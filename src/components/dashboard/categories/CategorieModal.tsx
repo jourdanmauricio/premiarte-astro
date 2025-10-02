@@ -77,7 +77,6 @@ const CategorieModal = ({
       form.reset();
     },
     onError: (error) => {
-      console.error('Error al guardar la categoría:', error);
       toast.error(
         error instanceof Error ? error.message : 'Error al guardar la categoría'
       );

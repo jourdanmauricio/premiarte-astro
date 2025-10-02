@@ -40,3 +40,8 @@ export const budgetStatusList = [
     description: 'Expirado',
   },
 ];
+
+export const customerTypeList = [
+  { id: 'wholesale', description: 'Mayorista' },
+  { id: 'retail', description: 'Minorista' },
+];

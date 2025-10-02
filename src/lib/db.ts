@@ -15,6 +15,7 @@ export class Database {
   static getBudgetById = BudgetService.getBudgetById;
   static deleteBudget = BudgetService.deleteBudget;
   static createBudget = BudgetService.createBudget;
+  static updateBudget = BudgetService.updateBudget;
   static updateBudgetStatus = BudgetService.updateBudgetStatus;
   static markBudgetAsRead = BudgetService.markBudgetAsRead;
 
@@ -85,4 +86,9 @@ export class Database {
   static getCustomerByEmail = CustomerService.getCustomerByEmail;
   static createCustomer = CustomerService.createCustomer;
   static getOrCreateCustomer = CustomerService.getOrCreateCustomer;
+  static getAllCustomers = CustomerService.getAllCustomers;
+  static getCustomerById = CustomerService.getCustomerById;
+  static updateCustomer = CustomerService.updateCustomer;
+  static deleteCustomer = CustomerService.deleteCustomer;
+  static countBudgetsByCustomer = CustomerService.countBudgetsByCustomer;
 }

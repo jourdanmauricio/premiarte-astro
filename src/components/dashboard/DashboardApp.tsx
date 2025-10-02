@@ -4,9 +4,9 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { Sidebar } from './Sidebar';
+import RegenerateButton from '@/components/ui/custom/RegenerateButton';
 import { MediaPage } from '@/components/dashboard/media/MediaPage';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import RegenerateButton from '@/components/ui/custom/RegenerateButton';
 import { ConfigPage } from '@/components/dashboard/settings/ConfigPage';
 import { BudgetsPage } from '@/components/dashboard/budgets/BudgetsPage';
 import { ProductsPage } from '@/components/dashboard/products/ProductsPage';
@@ -15,6 +15,7 @@ import { CategoriesPage } from '@/components/dashboard/categories/CategoriesPage
 import { DashboardHomePage } from '@/components/dashboard/home/DashboardHomePage';
 import { NewsletterPage } from '@/components/dashboard/newsletter/NewsletterPage';
 import { BudgetForm } from '@/components/dashboard/budgets/budget-form/BudgetForm';
+import { CustomersPage } from '@/components/dashboard/customers/CustomersPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -67,6 +68,7 @@ export default function DashboardApp() {
                   <Route path='/media' element={<MediaPage />} />
                   <Route path='/newsletter' element={<NewsletterPage />} />
                   <Route path='/contact' element={<ContactsPage />} />
+                  <Route path='/customers' element={<CustomersPage />} />
                   <Route path='/budgets' element={<BudgetsPage />} />
                   <Route path='/budgets/:id' element={<BudgetForm />} />
                 </Routes>

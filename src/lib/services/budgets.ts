@@ -3,7 +3,14 @@ import { turso } from '../turso';
 export class BudgetService {
   static async getAllBudgets() {
     const { rows } = await turso.execute({
-      sql: 'SELECT * FROM Budget ORDER BY createdAt DESC',
+      sql: `SELECT 
+        b.*,
+        c.name,
+        c.email,
+        c.phone
+      FROM Budget b
+      LEFT JOIN Customer c ON b.customerId = c.id
+      ORDER BY b.createdAt DESC`,
       args: [],
     });
     return rows;
@@ -12,35 +19,51 @@ export class BudgetService {
   static async getBudgetById(id: number) {
     const { rows } = await turso.execute({
       sql: `SELECT 
-      b.id as budget_id,
+      b.id,
+      b.customerId,
       c.name, 
       c.email,
       c.phone,
-      c.observation,
-      c.totalAmount,
-      q.status,
-      q.userId,
-      q.isRead,
-      q.expiresAt,
-      q.approvedAt,
-      q.rejectedAt,
-      q.createdAt,
-      q.updatedAt,
-      qi.id as item_id,
-      qi.productId,
-      qi.sku,
-      qi.slug,
-      qi.name as item_name,
-      qi.imageUrl,
-      qi.imageAlt,
-      qi.price,
-      qi.quantity,
-      qi.amount,
-      qi.observation as item_observation
-    FROM Budget q
-    LEFT JOIN BudgetItem qi ON q.id = qi.budgetId,
-    LEFT JOIN Customer c ON q.customerId = c.id
-    WHERE q.id = ?`,
+      b.type,
+      b.observation,
+      b.totalAmount,
+      b.status,
+      b.userId,
+      b.isRead,
+      b.expiresAt,
+      b.approvedAt,
+      b.rejectedAt,
+      p.sku,
+      p.slug,
+      p.name as item_name,
+      b.createdAt,
+      i.url as imageUrl,
+      i.alt as imageAlt,
+      bi.retailPrice,
+      bi.wholesalePrice,
+      bi.price,
+      bi.id as item_id,
+      bi.productId,
+      bi.quantity,
+      bi.amount,
+      bi.observation as item_observation
+    FROM Budget b
+    LEFT JOIN BudgetItem bi ON b.id = bi.budgetId
+    LEFT JOIN Customer c ON b.customerId = c.id
+    LEFT JOIN Product p ON bi.productId = p.id
+    LEFT JOIN (
+      SELECT pi1.productId, pi1.imageId
+      FROM ProductImage pi1
+      WHERE pi1.id = (
+        SELECT pi2.id 
+        FROM ProductImage pi2 
+        WHERE pi2.productId = pi1.productId 
+        ORDER BY pi2.isPrimary DESC, pi2.order_index ASC, pi2.id ASC
+        LIMIT 1
+      )
+    ) pi ON p.id = pi.productId
+    LEFT JOIN Image i ON pi.imageId = i.id
+    WHERE b.id = ?`,
       args: [id],
     });
 
@@ -51,10 +74,12 @@ export class BudgetService {
     // El primer row contiene los datos del budget
     const firstRow = rows[0];
     const budget = {
-      id: firstRow.budget_id,
+      id: firstRow.id,
       name: firstRow.name,
+      customerId: firstRow.customerId,
       email: firstRow.email,
       phone: firstRow.phone,
+      type: firstRow.type,
       observation: firstRow.observation,
       totalAmount: firstRow.totalAmount,
       status: firstRow.status,
@@ -64,7 +89,6 @@ export class BudgetService {
       approvedAt: firstRow.approvedAt,
       rejectedAt: firstRow.rejectedAt,
       createdAt: firstRow.createdAt,
-      updatedAt: firstRow.updatedAt,
     };
 
     // Procesar todos los items (incluyendo el caso donde no hay items)
@@ -78,6 +102,8 @@ export class BudgetService {
         name: row.item_name,
         imageUrl: row.imageUrl,
         imageAlt: row.imageAlt,
+        retailPrice: row.retailPrice,
+        wholesalePrice: row.wholesalePrice,
         price: row.price,
         quantity: row.quantity,
         amount: row.amount,
@@ -90,47 +116,38 @@ export class BudgetService {
     };
   }
 
-  static async deleteBudget(id: number) {
-    await turso.execute({
-      sql: 'DELETE FROM Budget WHERE id = ?',
-      args: [id],
-    });
-  }
-
   static async createBudget(data: {
     customerId: number;
     observation?: string;
     userId?: string;
+    totalAmount: number;
+    type: string;
+    status: string;
+    expiresAt?: string;
     items: {
       productId: number;
-      sku: string;
-      slug: string;
-      name: string;
-      imageUrl: string;
-      imageAlt: string;
-      price?: number | null;
+      amount: number;
+      retailPrice: number;
+      wholesalePrice: number;
+      price: number;
       quantity: number;
       observation?: string;
     }[];
   }) {
-    // Calcular el monto total del presupuesto
-    const totalAmount = data.items.reduce((total, item) => {
-      const price = item.price || 0;
-      return total + price * item.quantity;
-    }, 0);
-
-    // Crear el presupuesto principal
     const { rows: budgetRows } = await turso.execute({
       sql: `
-        INSERT INTO Budget (customerId, observation, totalAmount, userId)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO Budget (customerId, observation, userId, totalAmount, type, status, expiresAt)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
         RETURNING *
       `,
       args: [
         data.customerId,
         data.observation || null,
-        totalAmount,
         data.userId || null,
+        data.totalAmount,
+        data.type,
+        data.status,
+        data.expiresAt || null,
       ],
     });
 
@@ -139,34 +156,90 @@ export class BudgetService {
 
     // Crear los items del presupuesto
     for (const item of data.items) {
-      const price = item.price || 0;
-      const amount = price * item.quantity;
-
       await turso.execute({
         sql: `
           INSERT INTO BudgetItem (
-            budgetId, productId, sku, slug, name, imageUrl, imageAlt, 
-            price, quantity, amount, observation
+            budgetId, productId, quantity, retailPrice, wholesalePrice, price, amount, observation
           )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `,
         args: [
           budgetId,
           item.productId,
-          item.sku,
-          item.slug,
-          item.name,
-          item.imageUrl,
-          item.imageAlt,
-          price,
           item.quantity,
-          amount,
-          item.observation || null,
+          item.retailPrice,
+          item.wholesalePrice,
+          item.price,
+          item.amount,
+          item.observation || '',
         ],
       });
     }
 
     return budget;
+  }
+
+  static async updateBudget(
+    id: number,
+    data: {
+      observation?: string;
+      totalAmount?: number;
+      status?: string;
+      expiresAt?: string;
+      type?: string;
+      items?: {
+        productId?: number;
+        quantity?: number;
+        retailPrice?: number;
+        wholesalePrice?: number;
+        price?: number;
+        amount?: number;
+        observation?: string;
+        id?: number;
+      }[];
+    }
+  ) {
+    const { rows } = await turso.execute({
+      sql: 'UPDATE Budget SET observation = ?, totalAmount = ?, status = ?, expiresAt = ?, type = ? WHERE id = ? RETURNING *',
+      args: [
+        data.observation || null,
+        data.totalAmount || null,
+        data.status || null,
+        data.expiresAt || null,
+        data.type || null,
+        id,
+      ],
+    });
+
+    // Eliminar los items del presupuesto
+    await turso.execute({
+      sql: 'DELETE FROM BudgetItem WHERE budgetId = ?',
+      args: [id],
+    });
+
+    // Crear los items del presupuesto
+    for (const item of data.items || []) {
+      await turso.execute({
+        sql: `
+          INSERT INTO BudgetItem (
+            budgetId, productId, quantity, retailPrice, wholesalePrice, price, amount, observation
+          )
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `,
+        args: [
+          id,
+          item.productId || 0,
+          item.quantity || 0,
+          item.retailPrice || 0,
+          item.wholesalePrice || 0,
+          item.price || 0,
+          item.amount || 0,
+          item.observation || '',
+        ],
+      });
+    }
+
+    return rows[0];
   }
 
   static async updateBudgetStatus(
@@ -200,5 +273,12 @@ export class BudgetService {
       args: [id],
     });
     return rows[0];
+  }
+
+  static async deleteBudget(id: number) {
+    await turso.execute({
+      sql: 'DELETE FROM Budget WHERE id = ?',
+      args: [id],
+    });
   }
 }

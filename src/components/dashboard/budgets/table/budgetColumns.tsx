@@ -16,36 +16,31 @@ export const getBudgetColumns = ({
   onEdit,
 }: DataTableColumnsProps): ColumnDef<Budget>[] => [
   {
-    id: 'clientName',
+    accessorKey: 'id',
+    header: 'ID',
+    size: 80,
+    cell: ({ row }) => row.original.id,
+  },
+  {
+    id: 'name',
     header: 'CLIENTE',
     size: 200,
-    cell: ({ row }) => (
-      <TruncatedCell
-        value={row.original.name + ' ' + row.original.lastName}
-        linesMax={2}
-      />
-    ),
+    cell: ({ row }) => <TruncatedCell value={row.original.name} linesMax={2} />,
   },
-  {
-    accessorKey: 'email',
-    header: 'EMAIL',
-    size: 250,
-    cell: ({ row }) => (
-      <TruncatedCell value={row.original.email} linesMax={2} />
-    ),
-  },
-  {
-    accessorKey: 'phone',
-    header: 'TELÉFONO',
-    size: 150,
-    cell: ({ row }) => row.original.phone || 'No especificado',
-  },
-  {
-    accessorKey: 'createdAt',
-    header: 'FECHA CREACIÓN',
-    size: 150,
-    cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString(),
-  },
+  // {
+  //   accessorKey: 'email',
+  //   header: 'EMAIL',
+  //   size: 250,
+  //   cell: ({ row }) => (
+  //     <TruncatedCell value={row.original.email} linesMax={2} />
+  //   ),
+  // },
+  // {
+  //   accessorKey: 'phone',
+  //   header: 'TELÉFONO',
+  //   size: 150,
+  //   cell: ({ row }) => row.original.phone || 'No especificado',
+  // },
   {
     accessorKey: 'status',
     header: 'ESTADO',
@@ -53,6 +48,25 @@ export const getBudgetColumns = ({
     cell: ({ row }) =>
       budgetStatusList.find((status) => status.id === row.original.status)
         ?.description,
+  },
+  {
+    accessorKey: 'type',
+    header: 'TIPO',
+    size: 100,
+    cell: ({ row }) =>
+      row.original.type === 'wholesale' ? 'Mayorista' : 'Minorista',
+  },
+  {
+    accessorKey: 'totalAmount',
+    header: 'TOTAL',
+    size: 100,
+    cell: ({ row }) => `$${row.original.totalAmount}`,
+  },
+  {
+    accessorKey: 'createdAt',
+    header: 'FECHA CREACIÓN',
+    size: 150,
+    cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString(),
   },
   {
     accessorKey: 'observation',
