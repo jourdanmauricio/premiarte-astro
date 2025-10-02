@@ -39,7 +39,7 @@ const defaultValues = {
   retailPrice: '',
   wholesalePrice: '',
   price: '',
-  quantity: '',
+  quantity: '1',
   amount: '',
   observation: '',
   createdAt: new Date(),

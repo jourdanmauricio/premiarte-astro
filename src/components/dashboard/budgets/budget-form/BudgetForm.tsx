@@ -1,4 +1,4 @@
-import { LoaderIcon } from 'lucide-react';
+import { LoaderIcon, PlusIcon } from 'lucide-react';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import Dropdown from '@/components/ui/custom/dropdown';
@@ -15,6 +15,7 @@ import { CustomDatePicker } from '@/components/ui/custom/custom-date-picker';
 import { ItemModal } from '@/components/dashboard/budgets/budget-form/ItemModal';
 import { useBudgetForm } from '@/components/dashboard/budgets/budget-form/useBudgetForm';
 import CustomersCombobox from '@/components/ui/custom/customer-combobox';
+import { CustomerModal } from '@/components/dashboard/customers/CustomerModal';
 
 const BudgetForm = () => {
   const {
@@ -36,6 +37,8 @@ const BudgetForm = () => {
     setDeleteModalIsOpen,
     setCurrentItem,
     handleConfirmDelete,
+    customerModalIsOpen,
+    setCustomerModalIsOpen,
   } = useBudgetForm();
 
   return (
@@ -49,7 +52,7 @@ const BudgetForm = () => {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit, onError)}
-          className='grid grid-cols-2 gap-6 w-full items-center mt-6'
+          className='grid grid-cols-2 gap-12 w-full items-center mt-6'
         >
           {isLoading ? (
             <div className='flex justify-center items-center h-[250px] col-span-2'>
@@ -58,26 +61,37 @@ const BudgetForm = () => {
           ) : (
             <>
               {mode === 'CREATE' ? (
-                <CustomersCombobox
-                  label='Cliente'
-                  name='customerId'
-                  placeholder='Cliente'
-                  form={form}
-                  onChange={(value) => {
-                    form.setValue('customerId', value.value);
-                    form.setValue('name', value.label);
-                    form.setValue('email', value.email);
-                    form.setValue('phone', value.phone);
-                    form.setValue('type', value.type);
-                  }}
-                />
+                <div className='flex gap-6 items-end'>
+                  <CustomersCombobox
+                    label='Cliente'
+                    className='w-full h-auto'
+                    name='customerId'
+                    placeholder='Cliente'
+                    form={form}
+                    onChange={(value) => {
+                      form.setValue('customerId', value.value);
+                      form.setValue('name', value.label);
+                      form.setValue('email', value.email);
+                      form.setValue('phone', value.phone);
+                      form.setValue('type', value.type);
+                    }}
+                  />
+                  <Button
+                    variant='outline'
+                    type='button'
+                    onClick={() => setCustomerModalIsOpen(true)}
+                    className='mb-1'
+                  >
+                    <PlusIcon className='size-5' />
+                  </Button>
+                </div>
               ) : (
                 <InputField
                   label='Nombre'
                   name='name'
                   placeholder='Nombre'
                   form={form}
-                  disabled={mode === 'EDIT'}
+                  disabled
                 />
               )}
               <InputField
@@ -85,14 +99,14 @@ const BudgetForm = () => {
                 name='email'
                 placeholder='Email'
                 form={form}
-                disabled={mode === 'EDIT'}
+                disabled
               />
               <InputField
                 label='Teléfono'
                 name='phone'
                 placeholder='Teléfono'
                 form={form}
-                disabled={mode === 'EDIT'}
+                disabled
               />
               <Dropdown
                 label='Estado'
@@ -178,7 +192,7 @@ const BudgetForm = () => {
                   Cancelar
                 </Button>
                 <SubmitButton
-                  label={mode === 'CREATE' ? 'Crear categoría' : 'Guardar'}
+                  label={mode === 'CREATE' ? 'Crear presupuesto' : 'Guardar'}
                   className='min-w-[150px]'
                   showSpinner={isPending}
                   disabled={isPending || !form.formState.isDirty || isLoading}
@@ -212,6 +226,16 @@ const BudgetForm = () => {
             setDeleteModalIsOpen(false);
             setCurrentItem(null);
           }}
+        />
+      )}
+
+      {customerModalIsOpen && (
+        <CustomerModal
+          open={customerModalIsOpen}
+          closeModal={() => {
+            setCustomerModalIsOpen(false);
+          }}
+          customer={null}
         />
       )}
     </div>

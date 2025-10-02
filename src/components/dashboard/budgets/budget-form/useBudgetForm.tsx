@@ -19,7 +19,7 @@ const defaultValues = {
   phone: '',
   type: 'retail' as 'retail' | 'wholesale',
   createdAt: new Date(),
-  expiresAt: new Date(),
+  expiresAt: new Date(new Date().setDate(new Date().getDate() + 15)),
   status: 'pending' as 'pending' | 'approved' | 'rejected' | 'expired',
   observation: '',
   totalAmount: '',
@@ -30,6 +30,7 @@ export const useBudgetForm = () => {
   const [currentItem, setCurrentItem] = useState<BudgetItemRow | null>(null);
   const [showItemModal, setShowItemModal] = useState(false);
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
+  const [customerModalIsOpen, setCustomerModalIsOpen] = useState(false);
 
   const { id } = useParams();
   const mode = id === 'new' ? 'CREATE' : 'EDIT';
@@ -224,6 +225,8 @@ export const useBudgetForm = () => {
     showItemModal,
     deleteModalIsOpen,
     isPending: budgetMutation.isPending,
+    customerModalIsOpen,
+    setCustomerModalIsOpen,
     setDeleteModalIsOpen,
     handleConfirmDelete,
     handleShowItemModal,

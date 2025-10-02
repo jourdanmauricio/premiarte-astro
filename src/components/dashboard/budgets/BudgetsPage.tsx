@@ -85,14 +85,12 @@ const BudgetsPage = () => {
             Gestión de Presupuestos
           </h2>
 
-          <div className='flex items-center gap-2'>
+          <div className='flex items-center gap-4'>
             <Button variant='outline' onClick={handleDownloadTemplate}>
-              <DownloadIcon className='size-5 mr-2' />
-              Descargar
+              <DownloadIcon className='size-5' />
             </Button>
             <Button variant='default' onClick={handleAddBudget}>
-              <PlusIcon className='size-5 mr-2' />
-              Nuevo
+              <PlusIcon className='size-5' />
             </Button>
           </div>
         </div>

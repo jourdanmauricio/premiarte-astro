@@ -1,7 +1,7 @@
 import { PencilIcon, Trash2Icon } from 'lucide-react';
 import { type ColumnDef } from '@tanstack/react-table';
 
-import type { BudgetItem, BudgetItemRow } from '@/shared/types';
+import type { BudgetItemRow } from '@/shared/types';
 import { Button } from '@/components/ui/button';
 import { TruncatedCell } from '@/components/ui/custom/truncatedCell';
 

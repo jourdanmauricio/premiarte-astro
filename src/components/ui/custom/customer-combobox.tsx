@@ -54,15 +54,13 @@ export default function CustomersCombobox({
     },
   });
 
-  console.log('data', data);
-
   return (
     <FormField
       control={form.control}
       name={name}
       render={({ field }) => (
         <FormItem className={`${className}`}>
-          <FormLabel className={`text-[1rem] font-normal ${labelClassName}`}>
+          <FormLabel className={`font-normal ${labelClassName}`}>
             {label}
           </FormLabel>
           <ComboboxForm
