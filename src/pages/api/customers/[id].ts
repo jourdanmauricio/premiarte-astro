@@ -2,6 +2,37 @@ import { Database } from '@/lib/db';
 import type { APIRoute } from 'astro';
 import { verifyAdminAuth } from '@/lib/utils';
 
+// GET - Obtener cliente por ID
+export const GET: APIRoute = async (context) => {
+  try {
+    // Verificar autenticación
+    const authResult = await verifyAdminAuth(context);
+    if (!authResult.success) {
+      return authResult.response;
+    }
+
+    const customerId = parseInt(context.params.id as string);
+    const customer = await Database.getCustomerById(customerId);
+    return new Response(JSON.stringify(customer), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  } catch (error) {
+    console.error('Error al obtener cliente:', error);
+    return new Response(
+      JSON.stringify({ error: 'Error interno del servidor' }),
+      {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+  }
+};
+
 // PUT - Actualizar categoría existente
 export const PUT: APIRoute = async (context) => {
   try {

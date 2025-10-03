@@ -1,4 +1,4 @@
-import { EyeIcon, PencilIcon, Trash2Icon } from 'lucide-react';
+import { EyeIcon, FileText, PencilIcon, Trash2Icon } from 'lucide-react';
 import { type ColumnDef } from '@tanstack/react-table';
 
 import type { Budget } from '@/shared/types';
@@ -9,11 +9,13 @@ import { budgetStatusList } from '@/shared/consts';
 type DataTableColumnsProps = {
   onDelete: (budget: Budget) => void;
   onEdit: (budget: Budget) => void;
+  onView: (budget: Budget) => void;
 };
 
 export const getBudgetColumns = ({
   onDelete,
   onEdit,
+  onView,
 }: DataTableColumnsProps): ColumnDef<Budget>[] => [
   {
     accessorKey: 'id',
@@ -90,11 +92,11 @@ export const getBudgetColumns = ({
           <Button
             variant='ghost'
             size='sm'
-            onClick={() => onDelete(budget)}
+            onClick={() => onView(budget)}
             className='h-8 w-8 p-0 hover:bg-red-50'
             type='button'
           >
-            <EyeIcon className='h-4 w-4 text-blue-600' />
+            <FileText className='h-4 w-4 text-slate-800' />
           </Button>
           <Button
             variant='ghost'

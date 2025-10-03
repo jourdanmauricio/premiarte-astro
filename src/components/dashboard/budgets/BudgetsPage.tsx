@@ -11,10 +11,12 @@ import type { SortingState } from '@tanstack/react-table';
 import { budgetsService } from '@/lib/services/budgetsService';
 import { getBudgetColumns } from '@/components/dashboard/budgets/table/budgetColumns';
 import { navigate } from 'astro/virtual-modules/transitions-router.js';
+import { PdfModal } from '@/components/dashboard/budgets/pdf/PdfModal';
 
 const BudgetsPage = () => {
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
   const [currentBudget, setCurrentBudget] = useState<Budget | null>(null);
+  const [viewModalIsOpen, setViewModalIsOpen] = useState(false);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pageIndex, setPageIndex] = useState(0);
   const queryClient = useQueryClient();
@@ -57,13 +59,19 @@ const BudgetsPage = () => {
     }
   }, [currentBudget]);
 
+  const handleViewBudget = useCallback((budget: Budget) => {
+    setCurrentBudget(budget);
+    setViewModalIsOpen(true);
+  }, []);
+
   const columns = useMemo(
     () =>
       getBudgetColumns({
         onDelete: handleDeleteBudget,
         onEdit: handleEditBudget,
+        onView: handleViewBudget,
       }),
-    [handleDeleteBudget]
+    [handleDeleteBudget, handleEditBudget, handleViewBudget]
   );
 
   const handleDownloadTemplate = () => {
@@ -120,6 +128,17 @@ const BudgetsPage = () => {
           open={deleteModalIsOpen}
           onCloseDialog={() => {
             setDeleteModalIsOpen(false);
+            setCurrentBudget(null);
+          }}
+        />
+      )}
+
+      {viewModalIsOpen && currentBudget !== null && (
+        <PdfModal
+          open={viewModalIsOpen}
+          budget={currentBudget}
+          closeModal={() => {
+            setViewModalIsOpen(false);
             setCurrentBudget(null);
           }}
         />
