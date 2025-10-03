@@ -205,7 +205,6 @@ export class BudgetService {
       }[];
     }
   ) {
-    console.log('data!!!!!!!', data);
     const { rows } = await turso.execute({
       sql: 'UPDATE Budget SET observation = ?, totalAmount = ?, status = ?, expiresAt = ?, type = ?, responsibleId = ? WHERE id = ? RETURNING *',
       args: [

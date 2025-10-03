@@ -3,7 +3,7 @@ import type { UseFormReturn } from 'react-hook-form';
 
 import Dropdown from '@/components/ui/custom/dropdown';
 import DropdownLoadSkeleton from '@/components/ui/custom/skeletons/dropdown-load-skeleton';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { responsiblesService } from '@/lib/services/responsiblesService';
 import type { Responsible } from '@/shared/types';
 
@@ -13,7 +13,7 @@ type ResponsibilityDropdownProps = {
   className?: string;
   labelClassName?: string;
   required?: boolean;
-  onChange?: (v: string) => void;
+  onChange?: (item: { id: string; description: string }) => void;
 };
 
 const ResponsibilityDropdown = ({
@@ -26,8 +26,8 @@ const ResponsibilityDropdown = ({
 }: ResponsibilityDropdownProps) => {
   const label = 'Responsable' + (required ? '*' : '');
 
-  const { data } = useQuery({
-    queryKey: ['responsibilities'],
+  const { data } = useSuspenseQuery({
+    queryKey: ['responsibles'],
     queryFn: async () => {
       const response = await responsiblesService.getResponsibles();
       return response.map((responsible: Responsible) => ({
@@ -51,7 +51,7 @@ const ResponsibilityDropdown = ({
         form={form}
         className={className}
         labelClassName={labelClassName}
-        // onChange={onChange}
+        onChange={onChange}
       />
     </Suspense>
   );

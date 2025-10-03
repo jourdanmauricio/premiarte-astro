@@ -43,8 +43,6 @@ export const useBudgetForm = () => {
     enabled: !!id && mode === 'EDIT',
   });
 
-  console.log('budget', budget);
-
   const form = useForm<z.infer<typeof BudgetFormSchema>>({
     resolver: zodResolver(BudgetFormSchema),
     defaultValues,
@@ -56,7 +54,8 @@ export const useBudgetForm = () => {
         const budgetData = {
           ...budget,
           customerId: budget.customerId,
-          responsibityId: budget.responsibleId,
+          responsibleId:
+            budget.responsibleId && budget.responsibleId.toString(),
           items: budget.items?.map((item) => ({
             ...item,
             quantity: item.quantity.toString(),
@@ -219,7 +218,6 @@ export const useBudgetForm = () => {
   };
 
   const onError = () => console.log('errors', form.formState.errors);
-  console.log('form', form.getValues());
 
   return {
     budget,

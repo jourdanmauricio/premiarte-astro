@@ -188,7 +188,6 @@ const BudgetForm = () => {
                   globalFilterFn={() => true}
                 />
               </div>
-
               <div className='flex justify-end gap-8 col-span-2'>
                 <Button
                   type='button'
