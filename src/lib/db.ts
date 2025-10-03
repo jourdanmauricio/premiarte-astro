@@ -7,6 +7,7 @@ import { ImageService } from './services/images';
 import { SettingService } from './services/settings';
 import { ContactService } from './services/contacts';
 import { CustomerService } from './services/customers';
+import { ResponsibleService } from './services/responsibles';
 
 // Re-exportar todas las funciones de los servicios para mantener compatibilidad
 export class Database {
@@ -91,4 +92,16 @@ export class Database {
   static updateCustomer = CustomerService.updateCustomer;
   static deleteCustomer = CustomerService.deleteCustomer;
   static countBudgetsByCustomer = CustomerService.countBudgetsByCustomer;
+
+  // RESPONSABLES
+  static getAllResponsibles = ResponsibleService.getAllResponsibles;
+  static getResponsibleById = ResponsibleService.getResponsibleById;
+  static getResponsibleByCuit = ResponsibleService.getResponsibleByCuit;
+  static createResponsible = ResponsibleService.createResponsible;
+  static updateResponsible = ResponsibleService.updateResponsible;
+  static deleteResponsible = ResponsibleService.deleteResponsible;
+  static countBudgetsByResponsible =
+    ResponsibleService.countBudgetsByResponsible;
+  static getResponsiblesWithBudgetCount =
+    ResponsibleService.getResponsiblesWithBudgetCount;
 }

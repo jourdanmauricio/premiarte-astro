@@ -3,13 +3,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { Button } from '@/components/ui/button';
-import SubmitButton from '@/components/ui/custom/submit-button';
 import { DialogHeader } from '@/components/ui/dialog';
-import type {
-  BudgetItem,
-  BudgetItemRow,
-  ProductWithDetails,
-} from '@/shared/types';
+import SubmitButton from '@/components/ui/custom/submit-button';
+import type { BudgetItemRow, ProductWithDetails } from '@/shared/types';
 import {
   Dialog,
   DialogContent,
@@ -17,11 +13,11 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
+import { setPrices } from '@/shared/functions';
 import { BudgetItemFormSchema } from '@/shared/schemas';
+import TextareaField from '@/components/ui/custom/textarea-field';
 import ProductsCombobox from '@/components/ui/custom/products-combobox';
 import InputNumberField from '@/components/ui/custom/input-number-field';
-import TextareaField from '@/components/ui/custom/textarea-field';
-import { setPrices } from '@/shared/functions';
 
 interface ItemModalProps {
   open: boolean;

@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { HomePanels } from '@/components/dashboard/settings/sections/home/HomePanels';
+import { ResponsiblePanel } from '@/components/dashboard/settings/sections/responsible/ResponsiblePanel';
 
 const ConfigPage = () => {
   const [activeTab, setActiveTab] = useState('home');
@@ -22,9 +23,7 @@ const ConfigPage = () => {
         >
           <TabsList className='grid w-full grid-cols-5 flex-shrink-0'>
             <TabsTrigger value='home'>Home</TabsTrigger>
-            <TabsTrigger value='categories'>Categorías</TabsTrigger>
-            <TabsTrigger value='products'>Productos</TabsTrigger>
-            <TabsTrigger value='about'>Nosotros</TabsTrigger>
+            <TabsTrigger value='responsible'>Responsables</TabsTrigger>
             <TabsTrigger value='contact'>Contacto</TabsTrigger>
           </TabsList>
 
@@ -32,16 +31,11 @@ const ConfigPage = () => {
             <HomePanels />
           </TabsContent>
 
-          <TabsContent value='categories' className='flex-1 mt-4 overflow-auto'>
-            <span>Categorias</span>
-          </TabsContent>
-
-          <TabsContent value='products' className='flex-1 mt-4 overflow-auto'>
-            <span>Productos</span>
-          </TabsContent>
-
-          <TabsContent value='about' className='flex-1 mt-4 overflow-auto'>
-            <span>Nosotros</span>
+          <TabsContent
+            value='responsible'
+            className='flex-1 mt-4 overflow-auto'
+          >
+            <ResponsiblePanel />
           </TabsContent>
 
           <TabsContent value='contact' className='flex-1 mt-4 overflow-auto'>
