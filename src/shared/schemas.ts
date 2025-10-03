@@ -157,6 +157,7 @@ export const BudgetItemFormSchema = z.object({
 
 export const BudgetFormSchema = z.object({
   customerId: z.number(),
+  responsibleId: z.string().min(1, 'El responsable es requerido'),
   name: z.string().min(1, 'El nombre es requerido'),
   email: z.string().min(1, 'El email es requerido'),
   phone: z.string().min(1, 'El teléfono es requerido'),

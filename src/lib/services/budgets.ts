@@ -33,6 +33,7 @@ export class BudgetService {
       b.expiresAt,
       b.approvedAt,
       b.rejectedAt,
+      b.responsibleId,
       p.sku,
       p.slug,
       p.name as item_name,
@@ -47,6 +48,7 @@ export class BudgetService {
       bi.quantity,
       bi.amount,
       bi.observation as item_observation
+
     FROM Budget b
     LEFT JOIN BudgetItem bi ON b.id = bi.budgetId
     LEFT JOIN Customer c ON b.customerId = c.id
@@ -79,6 +81,7 @@ export class BudgetService {
       customerId: firstRow.customerId,
       email: firstRow.email,
       phone: firstRow.phone,
+      responsibleId: firstRow.responsibleId,
       type: firstRow.type,
       observation: firstRow.observation,
       totalAmount: firstRow.totalAmount,
@@ -118,6 +121,7 @@ export class BudgetService {
 
   static async createBudget(data: {
     customerId: number;
+    responsibleId: number;
     observation?: string;
     userId?: string;
     totalAmount: number;
@@ -136,13 +140,14 @@ export class BudgetService {
   }) {
     const { rows: budgetRows } = await turso.execute({
       sql: `
-        INSERT INTO Budget (customerId, observation, userId, totalAmount, type, status, expiresAt)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO Budget (customerId, responsibleId, observation, userId, totalAmount, type, status, expiresAt)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         RETURNING *
       `,
       args: [
         data.customerId,
         data.observation || null,
+        data.responsibleId,
         data.userId || null,
         data.totalAmount,
         data.type,
@@ -187,6 +192,7 @@ export class BudgetService {
       status?: string;
       expiresAt?: string;
       type?: string;
+      responsibleId?: number;
       items?: {
         productId?: number;
         quantity?: number;
@@ -199,14 +205,16 @@ export class BudgetService {
       }[];
     }
   ) {
+    console.log('data!!!!!!!', data);
     const { rows } = await turso.execute({
-      sql: 'UPDATE Budget SET observation = ?, totalAmount = ?, status = ?, expiresAt = ?, type = ? WHERE id = ? RETURNING *',
+      sql: 'UPDATE Budget SET observation = ?, totalAmount = ?, status = ?, expiresAt = ?, type = ?, responsibleId = ? WHERE id = ? RETURNING *',
       args: [
         data.observation || null,
         data.totalAmount || null,
         data.status || null,
         data.expiresAt || null,
         data.type || null,
+        data.responsibleId || null,
         id,
       ],
     });

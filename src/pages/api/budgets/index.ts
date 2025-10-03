@@ -45,9 +45,17 @@ export const POST: APIRoute = async (context) => {
       observation,
       items,
       expiresAt,
+      responsibleId,
     } = body;
 
-    if (!customerId || !type || !status || !totalAmount || !items) {
+    if (
+      !customerId ||
+      !type ||
+      !status ||
+      !totalAmount ||
+      !items ||
+      !responsibleId
+    ) {
       return new Response(
         JSON.stringify({ error: 'Faltan campos requeridos' }),
         {
@@ -66,6 +74,7 @@ export const POST: APIRoute = async (context) => {
       expiresAt,
       userId: authResult.user.id,
       items,
+      responsibleId,
     });
 
     if (!budget) {

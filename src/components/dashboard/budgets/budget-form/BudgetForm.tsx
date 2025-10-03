@@ -16,6 +16,7 @@ import { ItemModal } from '@/components/dashboard/budgets/budget-form/ItemModal'
 import { useBudgetForm } from '@/components/dashboard/budgets/budget-form/useBudgetForm';
 import CustomersCombobox from '@/components/ui/custom/customer-combobox';
 import { CustomerModal } from '@/components/dashboard/customers/CustomerModal';
+import { ResponsibilityDropdown } from '@/components/ui/custom/dropdowns/ResponsibilityDropdown';
 
 const BudgetForm = () => {
   const {
@@ -28,6 +29,7 @@ const BudgetForm = () => {
     showItemModal,
     deleteModalIsOpen,
     isPending,
+    customerModalIsOpen,
     handleShowItemModal,
     handleAddItem,
     handleEditItem,
@@ -37,7 +39,6 @@ const BudgetForm = () => {
     setDeleteModalIsOpen,
     setCurrentItem,
     handleConfirmDelete,
-    customerModalIsOpen,
     setCustomerModalIsOpen,
   } = useBudgetForm();
 
@@ -91,7 +92,7 @@ const BudgetForm = () => {
                   name='name'
                   placeholder='Nombre'
                   form={form}
-                  disabled
+                  readOnly
                 />
               )}
               <InputField
@@ -99,14 +100,21 @@ const BudgetForm = () => {
                 name='email'
                 placeholder='Email'
                 form={form}
-                disabled
+                readOnly
               />
               <InputField
                 label='Teléfono'
                 name='phone'
                 placeholder='Teléfono'
                 form={form}
-                disabled
+                readOnly
+              />
+              <div></div>
+              <ResponsibilityDropdown
+                name='responsibleId'
+                form={form}
+                className='w-full'
+                labelClassName='w-full'
               />
               <Dropdown
                 label='Estado'

@@ -4,6 +4,7 @@ import type z from 'zod';
 export interface Budget {
   id: number;
   customerId: number;
+  responsibleId: string;
   name: string;
   lastName: string;
   email: string;
@@ -52,6 +53,7 @@ export interface BudgetWithItems extends Budget {
 // Tipos para crear nuevos presupuestos
 export interface CreateBudgetData {
   customerId: number;
+  responsibleId: number;
   userId?: string;
   observation?: string;
   totalAmount: number;
@@ -72,6 +74,7 @@ export interface CreateBudgetItemData {
 // Tipos para actualizar presupuestos
 export interface UpdateBudgetData {
   customerId?: number;
+  responsibleId?: number;
   observation?: string;
   status?: Budget['status'];
   isRead?: boolean;

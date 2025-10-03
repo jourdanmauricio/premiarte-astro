@@ -102,7 +102,15 @@ export const PUT: APIRoute = async (context) => {
 
     // Obtener datos del cuerpo de la petición
     const body = await context.request.json();
-    const { observation, totalAmount, items, status, type, expiresAt } = body;
+    const {
+      observation,
+      totalAmount,
+      items,
+      status,
+      type,
+      expiresAt,
+      responsibleId,
+    } = body;
 
     // Preparar datos para actualizar (solo campos que se proporcionaron)
     const updateData: any = {};
@@ -112,6 +120,7 @@ export const PUT: APIRoute = async (context) => {
     if (type !== undefined) updateData.type = type;
     if (expiresAt !== undefined) updateData.expiresAt = expiresAt;
     if (items !== undefined) updateData.items = items;
+    if (responsibleId !== undefined) updateData.responsibleId = responsibleId;
 
     // Actualizar el presupuesto
     const updatedBudget = await Database.updateBudget(budgetId, updateData);
