@@ -28,6 +28,7 @@ type CustomConfirmDialogProps = {
   closeTopButton?: boolean;
   addIcon?: boolean;
   iconComponente?: ReactElement;
+  isLoading?: boolean;
 };
 
 export default function CustomConfirmDialog({
@@ -51,9 +52,12 @@ export default function CustomConfirmDialog({
       />
     </Avatar>
   ),
+  isLoading = false,
 }: CustomConfirmDialogProps) {
-  function handleOnOpenChange() {
-    onCloseDialog();
+  function handleOnOpenChange(open: boolean) {
+    if (!open && !isLoading) {
+      onCloseDialog();
+    }
   }
 
   return (
@@ -70,23 +74,32 @@ export default function CustomConfirmDialog({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel
-            onClick={onCancelClick}
+            onClick={isLoading ? undefined : onCancelClick}
+            disabled={isLoading}
             className={cn(buttonVariants({ variant: 'outline' }), 'w-1/2')}
           >
             {cancelButtonText}
           </AlertDialogCancel>
           <AlertDialogAction
-            onClick={onContinueClick}
+            onClick={(e) => {
+              e.preventDefault();
+              if (!isLoading) {
+                onContinueClick();
+              }
+            }}
+            disabled={isLoading}
             className={cn(buttonVariants({ variant: 'default' }), 'w-1/2')}
             autoFocus={true}
+            asChild
           >
-            {continueButtonText}
+            <button type='button'>{continueButtonText}</button>
           </AlertDialogAction>
         </AlertDialogFooter>
 
         {closeTopButton && (
           <AlertDialogCancel
-            onClick={onCancelClick}
+            onClick={isLoading ? undefined : onCancelClick}
+            disabled={isLoading}
             className='absolute right-4 top-5 rounded-sm border-none opacity-70 transition-opacity hover:opacity-100 disabled:pointer-events-none'
           >
             <X className='h-6 w-6' />

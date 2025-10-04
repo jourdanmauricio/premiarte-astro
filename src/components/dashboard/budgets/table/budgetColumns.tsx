@@ -1,10 +1,4 @@
-import {
-  EyeIcon,
-  FileText,
-  PackagePlus,
-  PencilIcon,
-  Trash2Icon,
-} from 'lucide-react';
+import { FileText, PackagePlus, PencilIcon, Trash2Icon } from 'lucide-react';
 import { type ColumnDef } from '@tanstack/react-table';
 
 import type { Budget } from '@/shared/types';
@@ -16,12 +10,14 @@ type DataTableColumnsProps = {
   onDelete: (budget: Budget) => void;
   onEdit: (budget: Budget) => void;
   onView: (budget: Budget) => void;
+  onCreateOrder: (budget: Budget) => void;
 };
 
 export const getBudgetColumns = ({
   onDelete,
   onEdit,
   onView,
+  onCreateOrder,
 }: DataTableColumnsProps): ColumnDef<Budget>[] => [
   {
     accessorKey: 'id',
@@ -96,7 +92,7 @@ export const getBudgetColumns = ({
           <Button
             variant='ghost'
             size='sm'
-            onClick={() => onView(budget)}
+            onClick={() => onCreateOrder(budget)}
             className='h-8 w-8 p-0 hover:bg-red-50'
             type='button'
           >

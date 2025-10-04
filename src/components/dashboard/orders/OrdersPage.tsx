@@ -30,7 +30,7 @@ const OrdersPage = () => {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (budgetId: number) => budgetsService.deleteBudget(budgetId),
+    mutationFn: (orderId: number) => ordersService.deleteOrder(orderId),
     onError: (err) => {
       console.error('Error al eliminar el pedido:', err);
       toast.error('Error al eliminar el pedido');

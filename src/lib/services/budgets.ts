@@ -205,45 +205,75 @@ export class BudgetService {
       }[];
     }
   ) {
+    // Construir la consulta SQL dinámicamente solo para los campos proporcionados
+    const updateFields = [];
+    const args = [];
+
+    if (data.observation !== undefined) {
+      updateFields.push('observation = ?');
+      args.push(data.observation);
+    }
+    if (data.totalAmount !== undefined) {
+      updateFields.push('totalAmount = ?');
+      args.push(data.totalAmount);
+    }
+    if (data.status !== undefined) {
+      updateFields.push('status = ?');
+      args.push(data.status);
+    }
+    if (data.expiresAt !== undefined) {
+      updateFields.push('expiresAt = ?');
+      args.push(data.expiresAt);
+    }
+    if (data.type !== undefined) {
+      updateFields.push('type = ?');
+      args.push(data.type);
+    }
+    if (data.responsibleId !== undefined) {
+      updateFields.push('responsibleId = ?');
+      args.push(data.responsibleId);
+    }
+
+    if (updateFields.length === 0) {
+      throw new Error('No hay campos para actualizar');
+    }
+
+    args.push(id);
+
     const { rows } = await turso.execute({
-      sql: 'UPDATE Budget SET observation = ?, totalAmount = ?, status = ?, expiresAt = ?, type = ?, responsibleId = ? WHERE id = ? RETURNING *',
-      args: [
-        data.observation || null,
-        data.totalAmount || null,
-        data.status || null,
-        data.expiresAt || null,
-        data.type || null,
-        data.responsibleId || null,
-        id,
-      ],
+      sql: `UPDATE Budget SET ${updateFields.join(', ')} WHERE id = ? RETURNING *`,
+      args,
     });
 
-    // Eliminar los items del presupuesto
-    await turso.execute({
-      sql: 'DELETE FROM BudgetItem WHERE budgetId = ?',
-      args: [id],
-    });
-
-    // Crear los items del presupuesto
-    for (const item of data.items || []) {
+    // Solo actualizar items si se proporcionan
+    if (data.items !== undefined) {
+      // Eliminar los items del presupuesto
       await turso.execute({
-        sql: `
-          INSERT INTO BudgetItem (
-            budgetId, productId, quantity, retailPrice, wholesalePrice, price, amount, observation
-          )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `,
-        args: [
-          id,
-          item.productId || 0,
-          item.quantity || 0,
-          item.retailPrice || 0,
-          item.wholesalePrice || 0,
-          item.price || 0,
-          item.amount || 0,
-          item.observation || '',
-        ],
+        sql: 'DELETE FROM BudgetItem WHERE budgetId = ?',
+        args: [id],
       });
+
+      // Crear los items del presupuesto
+      for (const item of data.items) {
+        await turso.execute({
+          sql: `
+            INSERT INTO BudgetItem (
+              budgetId, productId, quantity, retailPrice, wholesalePrice, price, amount, observation
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          `,
+          args: [
+            id,
+            item.productId || 0,
+            item.quantity || 0,
+            item.retailPrice || 0,
+            item.wholesalePrice || 0,
+            item.price || 0,
+            item.amount || 0,
+            item.observation || '',
+          ],
+        });
+      }
     }
 
     return rows[0];

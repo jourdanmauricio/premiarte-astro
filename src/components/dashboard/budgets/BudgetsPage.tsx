@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import type { Budget } from '@/shared/types';
+import type { Budget, CreateOrderData } from '@/shared/types';
 import { CustomTable } from '@/components/ui/custom/CustomTable';
 import CustomAlertDialog from '@/components/ui/custom/custom-alert-dialog';
 import type { SortingState } from '@tanstack/react-table';
@@ -12,6 +12,8 @@ import { budgetsService } from '@/lib/services/budgetsService';
 import { getBudgetColumns } from '@/components/dashboard/budgets/table/budgetColumns';
 import { navigate } from 'astro/virtual-modules/transitions-router.js';
 import { PdfModal } from '@/components/dashboard/budgets/pdf/PdfModal';
+import { ordersService } from '@/lib/services';
+import CustomConfirmDialog from '@/components/ui/custom/custom-confirm-dialog';
 
 const BudgetsPage = () => {
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
@@ -19,6 +21,8 @@ const BudgetsPage = () => {
   const [viewModalIsOpen, setViewModalIsOpen] = useState(false);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pageIndex, setPageIndex] = useState(0);
+  const [addOrderModalIsOpen, setAddOrderModalIsOpen] = useState(false);
+
   const queryClient = useQueryClient();
 
   const { data, error, isLoading } = useQuery({
@@ -43,6 +47,34 @@ const BudgetsPage = () => {
     },
   });
 
+  const createOrderMutation = useMutation({
+    mutationFn: async ({
+      order,
+      budgetId,
+    }: {
+      order: CreateOrderData;
+      budgetId: number;
+    }) => {
+      await ordersService.createOrder(order);
+      const budget = await budgetsService.updateBudget(budgetId, {
+        status: 'approved',
+      });
+      return budget;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['budgets'] });
+      toast.success('Pedido creado exitosamente');
+      setCurrentBudget(null);
+      setAddOrderModalIsOpen(false);
+      navigate('/dashboard/orders');
+    },
+    onError: (err) => {
+      console.error('Error al crear el pedido:', err);
+      toast.error('Error al crear el pedido');
+    },
+  });
+
   const handleDeleteBudget = useCallback((budget: Budget) => {
     setCurrentBudget(budget);
     setDeleteModalIsOpen(true);
@@ -64,14 +96,51 @@ const BudgetsPage = () => {
     setViewModalIsOpen(true);
   }, []);
 
+  const handleConfirmAddOrder = useCallback(
+    (budget: Budget) => {
+      setCurrentBudget(budget);
+      setAddOrderModalIsOpen(true);
+    },
+    [currentBudget]
+  );
+
+  const handleAddOrder = useCallback(async (budget: Budget) => {
+    try {
+      const budgetDb = await budgetsService.getBudgetById(budget.id);
+
+      const newOrder = {
+        customerId: budgetDb.customerId,
+        type: budgetDb.type,
+        status: budgetDb.status,
+        totalAmount: budgetDb.totalAmount,
+        observation: budgetDb.observation,
+        items: budgetDb.items || [],
+      };
+
+      await createOrderMutation.mutateAsync({
+        order: newOrder,
+        budgetId: budget.id,
+      });
+    } catch (error) {
+      console.error('Error en handleAddOrder:', error);
+      // El error ya se maneja en onError de la mutación
+    }
+  }, []);
+
   const columns = useMemo(
     () =>
       getBudgetColumns({
         onDelete: handleDeleteBudget,
         onEdit: handleEditBudget,
         onView: handleViewBudget,
+        onCreateOrder: handleConfirmAddOrder,
       }),
-    [handleDeleteBudget, handleEditBudget, handleViewBudget]
+    [
+      handleDeleteBudget,
+      handleEditBudget,
+      handleViewBudget,
+      handleConfirmAddOrder,
+    ]
   );
 
   const handleDownloadTemplate = () => {
@@ -141,6 +210,26 @@ const BudgetsPage = () => {
             setViewModalIsOpen(false);
             setCurrentBudget(null);
           }}
+        />
+      )}
+
+      {addOrderModalIsOpen && currentBudget !== null && (
+        <CustomConfirmDialog
+          open={addOrderModalIsOpen}
+          onCloseDialog={() => setAddOrderModalIsOpen(false)}
+          onContinueClick={() => handleAddOrder(currentBudget)}
+          onCancelClick={() => setAddOrderModalIsOpen(false)}
+          description={
+            <span>
+              ¿Estás seguro de querer crear un pedido para el presupuesto "
+              {currentBudget.name}"?
+            </span>
+          }
+          cancelButtonText='Cancelar'
+          continueButtonText={
+            createOrderMutation.isPending ? 'Creando...' : 'Crear pedido'
+          }
+          isLoading={createOrderMutation.isPending}
         />
       )}
     </>

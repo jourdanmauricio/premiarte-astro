@@ -12,30 +12,36 @@ export const GET: APIRoute = async (context) => {
     }
 
     // Obtener ID del presupuesto
-    const orderId = parseInt(context.params.id as string);
+    const budgetId = parseInt(context.params.id as string);
 
-    if (isNaN(orderId)) {
-      return new Response(JSON.stringify({ error: 'ID de pedido inválido' }), {
-        status: 400,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+    if (isNaN(budgetId)) {
+      return new Response(
+        JSON.stringify({ error: 'ID de presupuesto inválido' }),
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
     }
 
     // Obtener el presupuesto
-    const order = await Database.getOrderById(orderId);
+    const budget = await Database.getBudgetById(budgetId);
 
-    if (!order) {
-      return new Response(JSON.stringify({ error: 'Pedido no encontrado' }), {
-        status: 404,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+    if (!budget) {
+      return new Response(
+        JSON.stringify({ error: 'Presupuesto no encontrado' }),
+        {
+          status: 404,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
     }
 
-    return new Response(JSON.stringify(order), {
+    return new Response(JSON.stringify(budget), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
@@ -65,27 +71,35 @@ export const PUT: APIRoute = async (context) => {
     }
 
     // Obtener ID del presupuesto
-    const orderId = parseInt(context.params.id as string);
+    const budgetId = parseInt(context.params.id as string);
 
-    if (isNaN(orderId)) {
-      return new Response(JSON.stringify({ error: 'ID de pedido inválido' }), {
-        status: 400,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+    if (isNaN(budgetId)) {
+      return new Response(
+        JSON.stringify({ error: 'ID de presupuesto inválido' }),
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
     }
 
     // Verificar que el presupuesto existe
-    const existingBudget = await Database.getOrderById(orderId);
+    const existingBudget = await Database.getBudgetById(budgetId);
+
+    console.log('existingBudget', existingBudget, budgetId);
 
     if (!existingBudget) {
-      return new Response(JSON.stringify({ error: 'Pedido no encontrado' }), {
-        status: 404,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      return new Response(
+        JSON.stringify({ error: 'Presupuesto no encontrado' }),
+        {
+          status: 404,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
     }
 
     // Obtener datos del cuerpo de la petición
@@ -111,7 +125,7 @@ export const PUT: APIRoute = async (context) => {
     if (responsibleId !== undefined) updateData.responsibleId = responsibleId;
 
     // Actualizar el presupuesto
-    const updatedBudget = await Database.updateOrder(orderId, updateData);
+    const updatedBudget = await Database.updateBudget(budgetId, updateData);
 
     return new Response(JSON.stringify(updatedBudget), {
       status: 200,
@@ -143,33 +157,39 @@ export const DELETE: APIRoute = async (context) => {
     }
 
     // Obtener ID del presupuesto
-    const orderId = parseInt(context.params.id as string);
+    const budgetId = parseInt(context.params.id as string);
 
-    if (isNaN(orderId)) {
-      return new Response(JSON.stringify({ error: 'ID de pedido inválido' }), {
-        status: 400,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+    if (isNaN(budgetId)) {
+      return new Response(
+        JSON.stringify({ error: 'ID de presupuesto inválido' }),
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
     }
 
     // Verificar que el presupuesto existe
-    const existingBudget = await Database.getOrderById(orderId);
+    const existingBudget = await Database.getBudgetById(budgetId);
 
     if (!existingBudget) {
-      return new Response(JSON.stringify({ error: 'Pedido no encontrado' }), {
-        status: 404,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      return new Response(
+        JSON.stringify({ error: 'Presupuesto no encontrado' }),
+        {
+          status: 404,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
     }
 
-    await Database.deleteOrder(orderId);
+    await Database.deleteBudget(budgetId);
 
     return new Response(
-      JSON.stringify({ message: 'Pedido eliminado exitosamente' }),
+      JSON.stringify({ message: 'Presupuesto eliminado exitosamente' }),
       {
         status: 200,
         headers: {
