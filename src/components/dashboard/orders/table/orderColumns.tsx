@@ -7,22 +7,20 @@ import {
 } from 'lucide-react';
 import { type ColumnDef } from '@tanstack/react-table';
 
-import type { Budget } from '@/shared/types';
 import { Button } from '@/components/ui/button';
 import { TruncatedCell } from '@/components/ui/custom/truncatedCell';
 import { budgetStatusList } from '@/shared/consts';
+import type { Order } from '@/shared/types';
 
 type DataTableColumnsProps = {
-  onDelete: (budget: Budget) => void;
-  onEdit: (budget: Budget) => void;
-  onView: (budget: Budget) => void;
+  onDelete: (order: Order) => void;
+  onEdit: (order: Order) => void;
 };
 
-export const getBudgetColumns = ({
+export const getOrderColumns = ({
   onDelete,
   onEdit,
-  onView,
-}: DataTableColumnsProps): ColumnDef<Budget>[] => [
+}: DataTableColumnsProps): ColumnDef<Order>[] => [
   {
     accessorKey: 'id',
     header: 'ID',
@@ -90,31 +88,13 @@ export const getBudgetColumns = ({
     header: 'ACCIONES',
     size: 150,
     cell: ({ row }) => {
-      const budget = row.original;
+      const order = row.original;
       return (
         <div className='flex items-center justify-center w-full'>
           <Button
             variant='ghost'
             size='sm'
-            onClick={() => onView(budget)}
-            className='h-8 w-8 p-0 hover:bg-red-50'
-            type='button'
-          >
-            <PackagePlus className='h-4 w-4 text-green-800' />
-          </Button>
-          <Button
-            variant='ghost'
-            size='sm'
-            onClick={() => onView(budget)}
-            className='h-8 w-8 p-0 hover:bg-red-50'
-            type='button'
-          >
-            <FileText className='h-4 w-4 text-slate-800' />
-          </Button>
-          <Button
-            variant='ghost'
-            size='sm'
-            onClick={() => onEdit(budget)}
+            onClick={() => onEdit(order)}
             className='h-8 w-8 p-0 hover:bg-red-50'
             type='button'
           >
@@ -123,7 +103,7 @@ export const getBudgetColumns = ({
           <Button
             variant='ghost'
             size='sm'
-            onClick={() => onDelete(budget)}
+            onClick={() => onDelete(order)}
             className='h-8 w-8 p-0 hover:bg-red-50'
             type='button'
           >

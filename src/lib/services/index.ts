@@ -5,3 +5,4 @@ export { newsletterService } from './newsletterService';
 export { settingsService } from './settingsService';
 export { budgetsService } from './budgetsService';
 export { responsiblesService } from './responsiblesService';
+export { ordersService } from './ordersService';

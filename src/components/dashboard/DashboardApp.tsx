@@ -16,6 +16,8 @@ import { DashboardHomePage } from '@/components/dashboard/home/DashboardHomePage
 import { NewsletterPage } from '@/components/dashboard/newsletter/NewsletterPage';
 import { BudgetForm } from '@/components/dashboard/budgets/budget-form/BudgetForm';
 import { CustomersPage } from '@/components/dashboard/customers/CustomersPage';
+import { OrdersPage } from '@/components/dashboard/orders/OrdersPage';
+import { OrderForm } from '@/components/dashboard/orders/order-form/OrderForm';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -71,6 +73,8 @@ export default function DashboardApp() {
                   <Route path='/customers' element={<CustomersPage />} />
                   <Route path='/budgets' element={<BudgetsPage />} />
                   <Route path='/budgets/:id' element={<BudgetForm />} />
+                  <Route path='/orders' element={<OrdersPage />} />
+                  <Route path='/orders/:id' element={<OrderForm />} />
                 </Routes>
               </div>
             </main>

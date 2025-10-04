@@ -48,7 +48,11 @@ const PdfModal = ({ open, closeModal, budget }: PdfModalProps) => {
 
   return (
     <Dialog open={open} onOpenChange={closeModal}>
-      <DialogContent className='max-h-[95%] sm:max-w-7xl h-full overflow-y-auto w-full'>
+      <DialogContent
+        className='max-h-[95%] sm:max-w-7xl h-full overflow-y-auto w-full'
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle className='dialog-title'>{`Presupuesto: ${budgetData.name}`}</DialogTitle>
           <DialogDescription />

@@ -20,6 +20,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     { path: '/contact', label: 'Contacto', icon: '💬' },
     { path: '/customers', label: 'Clientes', icon: '👤' },
     { path: '/budgets', label: 'Presupuestos', icon: '💰' },
+    { path: '/orders', label: 'Pedidos', icon: '📦' },
   ];
 
   return (

@@ -8,6 +8,7 @@ import { SettingService } from './services/settings';
 import { ContactService } from './services/contacts';
 import { CustomerService } from './services/customers';
 import { ResponsibleService } from './services/responsibles';
+import { OrderService } from '@/lib/services/orders';
 
 // Re-exportar todas las funciones de los servicios para mantener compatibilidad
 export class Database {
@@ -104,4 +105,12 @@ export class Database {
     ResponsibleService.countBudgetsByResponsible;
   static getResponsiblesWithBudgetCount =
     ResponsibleService.getResponsiblesWithBudgetCount;
+
+  // PEDIDOS
+  static getAllOrders = OrderService.getAllOrders;
+  static getOrderById = OrderService.getOrderById;
+  static deleteOrder = OrderService.deleteOrder;
+  static createOrder = OrderService.createOrder;
+  static updateOrder = OrderService.updateOrder;
+  static updateOrderStatus = OrderService.updateOrderStatus;
 }

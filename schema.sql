@@ -188,3 +188,38 @@ CREATE TABLE IF NOT EXISTS Responsible (
 -- Índices para la tabla Responsible
 CREATE UNIQUE INDEX IF NOT EXISTS idx_responsible_cuit_unique ON Responsible(cuit);
 CREATE INDEX IF NOT EXISTS idx_responsible_created_at ON Responsible(createdAt);
+
+-- Tabla para pedidos
+CREATE TABLE IF NOT EXISTS Order (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  customerId INTEGER NOT NULL,
+  type TEXT NOT NULL,
+  status TEXT NOT NULL,
+  totalAmount INTEGER NOT NULL, 
+  observation TEXT,
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (customerId) REFERENCES Customer(id)
+);
+
+-- Tabla para los items del pedido
+CREATE TABLE IF NOT EXISTS OrderItem (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, 
+  orderId INTEGER NOT NULL,
+  productId INTEGER NOT NULL,
+  price INTEGER NOT NULL, 
+  retailPrice INTEGER NOT NULL, 
+  wholesalePrice INTEGER NOT NULL, 
+  quantity INTEGER NOT NULL,
+  amount INTEGER NOT NULL, 
+  observation TEXT,
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (orderId) REFERENCES Order(id) ON DELETE CASCADE,
+  FOREIGN KEY (productId) REFERENCES Product(id)
+);
+
+-- Índices para la tabla Order
+CREATE INDEX IF NOT EXISTS idx_order_customer_id ON Order(customerId);
+CREATE INDEX IF NOT EXISTS idx_order_status ON Order(status);
+CREATE INDEX IF NOT EXISTS idx_order_item_order_id ON OrderItem(orderId);

@@ -6,7 +6,7 @@ export * from './settings';
 export * from './newsletter';
 export * from './contact';
 export * from './cart-Item';
-export * from './quote';
 export * from './budget';
 export * from './customer';
 export * from './responsible';
+export * from './order';

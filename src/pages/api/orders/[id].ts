@@ -77,9 +77,9 @@ export const PUT: APIRoute = async (context) => {
     }
 
     // Verificar que el presupuesto existe
-    const existingBudget = await Database.getOrderById(orderId);
+    const existingOrder = await Database.getOrderById(orderId);
 
-    if (!existingBudget) {
+    if (!existingOrder) {
       return new Response(JSON.stringify({ error: 'Pedido no encontrado' }), {
         status: 404,
         headers: {
@@ -90,15 +90,7 @@ export const PUT: APIRoute = async (context) => {
 
     // Obtener datos del cuerpo de la petición
     const body = await context.request.json();
-    const {
-      observation,
-      totalAmount,
-      items,
-      status,
-      type,
-      expiresAt,
-      responsibleId,
-    } = body;
+    const { observation, totalAmount, items, status, type } = body;
 
     // Preparar datos para actualizar (solo campos que se proporcionaron)
     const updateData: any = {};
@@ -106,14 +98,12 @@ export const PUT: APIRoute = async (context) => {
     if (totalAmount !== undefined) updateData.totalAmount = totalAmount;
     if (status !== undefined) updateData.status = status;
     if (type !== undefined) updateData.type = type;
-    if (expiresAt !== undefined) updateData.expiresAt = expiresAt;
     if (items !== undefined) updateData.items = items;
-    if (responsibleId !== undefined) updateData.responsibleId = responsibleId;
 
     // Actualizar el presupuesto
-    const updatedBudget = await Database.updateOrder(orderId, updateData);
+    const updatedOrder = await Database.updateOrder(orderId, updateData);
 
-    return new Response(JSON.stringify(updatedBudget), {
+    return new Response(JSON.stringify(updatedOrder), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
@@ -133,7 +123,7 @@ export const PUT: APIRoute = async (context) => {
   }
 };
 
-// DELETE - Eliminar presupuesto
+// DELETE - Eliminar pedido
 export const DELETE: APIRoute = async (context) => {
   try {
     // Verificar autenticación
@@ -155,9 +145,9 @@ export const DELETE: APIRoute = async (context) => {
     }
 
     // Verificar que el presupuesto existe
-    const existingBudget = await Database.getOrderById(orderId);
+    const existingOrder = await Database.getOrderById(orderId);
 
-    if (!existingBudget) {
+    if (!existingOrder) {
       return new Response(JSON.stringify({ error: 'Pedido no encontrado' }), {
         status: 404,
         headers: {

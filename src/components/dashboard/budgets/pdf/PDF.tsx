@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
   totalText: {
     fontSize: 12,
     fontFamily: 'Helvetica',
-    fontWeight: 'bold',
+    fontWeight: '500',
     padding: 10,
     backgroundColor: '#f0f0f0',
     borderWidth: 1,

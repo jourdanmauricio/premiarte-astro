@@ -41,6 +41,13 @@ export const budgetStatusList = [
   },
 ];
 
+export const orderStatusList = [
+  { id: 'pending', description: 'Pendiente' },
+  { id: 'approved', description: 'Aprobado' },
+  { id: 'rejected', description: 'Rechazado' },
+  { id: 'expired', description: 'Expirado' },
+];
+
 export const customerTypeList = [
   { id: 'wholesale', description: 'Mayorista' },
   { id: 'retail', description: 'Minorista' },
