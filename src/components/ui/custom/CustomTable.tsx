@@ -78,7 +78,7 @@ function CustomTable<TData, TValue>({
   const hasData = table.getRowModel().rows?.length > 0;
   const hasError = Boolean(error);
 
-  const height = table.getRowModel().rows?.length * 48 + 45;
+  const height = Math.max(table.getRowModel().rows?.length * 48 + 45, 145);
 
   return (
     <>

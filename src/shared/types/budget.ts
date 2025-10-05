@@ -12,7 +12,7 @@ export interface Budget {
   type: 'wholesale' | 'retail';
   observation?: string;
   totalAmount: number; // en centavos
-  status: 'pending' | 'approved' | 'rejected' | 'expired';
+  status: 'pending' | 'sent' | 'approved' | 'closed';
   userId?: string; // ID del usuario de Clerk
   isRead: boolean;
   expiresAt?: string;
@@ -96,3 +96,5 @@ export interface BudgetFilters {
 }
 
 export type BudgetItemRow = z.infer<typeof BudgetItemFormSchema>;
+
+export type BudgetStatus = 'pending' | 'sent' | 'approved' | 'closed';

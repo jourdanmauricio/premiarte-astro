@@ -10,7 +10,12 @@ import { budgetsService } from '@/lib/services/budgetsService';
 import { useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { getBudgetItemColumns } from './table/budgetItemsColumns';
-import type { BudgetItemRow } from '@/shared/types';
+import type {
+  BudgetItemRow,
+  BudgetStatus,
+  CreateBudgetData,
+  UpdateBudgetData,
+} from '@/shared/types';
 import { toast } from 'sonner';
 
 const defaultValues = {
@@ -20,7 +25,7 @@ const defaultValues = {
   type: 'retail' as 'retail' | 'wholesale',
   createdAt: new Date(),
   expiresAt: new Date(new Date().setDate(new Date().getDate() + 15)),
-  status: 'pending' as 'pending' | 'approved' | 'rejected' | 'expired',
+  status: 'pending' as BudgetStatus,
   observation: '',
   totalAmount: '',
   items: [],
@@ -69,7 +74,7 @@ export const useBudgetForm = () => {
           observation: budget.observation ?? '',
           totalAmount: budget.totalAmount ? budget.totalAmount.toString() : '0',
           type: budget.type || 'retail',
-          status: budget.status,
+          status: budget.status as BudgetStatus,
           createdAt: budget.createdAt ? new Date(budget.createdAt) : undefined,
           expiresAt: budget.expiresAt ? new Date(budget.expiresAt) : undefined,
           approvedAt: budget.approvedAt
@@ -85,44 +90,27 @@ export const useBudgetForm = () => {
   }, [mode, budget]);
 
   const budgetMutation = useMutation({
-    mutationFn: async (data: z.infer<typeof BudgetFormSchema>) => {
-      const budgetData = {
-        ...data,
-        customerId: data.customerId || 0,
-        responsibleId: Number(data.responsibleId),
-        observation: data.observation || '',
-        expiresAt: data.expiresAt?.toISOString() || undefined,
-        type: data.type || 'retail',
-        totalAmount: data.totalAmount ? parseFloat(data.totalAmount) : 0,
-        status: data.status || 'pending',
-        items: data.items.map((item) => ({
-          ...item,
-          productId: item.productId || 0,
-          retailPrice: item.retailPrice ? parseFloat(item.retailPrice) : 0,
-          wholesalePrice: item.wholesalePrice
-            ? parseFloat(item.wholesalePrice)
-            : 0,
-          price: item.price ? parseFloat(item.price) : 0,
-          quantity: item.quantity ? parseInt(item.quantity) : 0,
-          amount: item.amount ? parseFloat(item.amount) : 0,
-        })),
-      };
-
+    mutationFn: async (budgetData: CreateBudgetData | UpdateBudgetData) => {
       if (mode === 'EDIT' && budget?.id) {
-        return budgetsService.updateBudget(budget.id, budgetData);
+        await budgetsService.updateBudget(
+          budget.id,
+          budgetData as UpdateBudgetData
+        );
       } else {
-        return budgetsService.createBudget(budgetData);
+        await budgetsService.createBudget(budgetData as CreateBudgetData);
       }
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['budgets'] });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['budgets'] }),
+        queryClient.invalidateQueries({ queryKey: ['budget', id] }),
+      ]);
       toast.success(
         mode === 'CREATE'
           ? 'Presupuesto creado correctamente'
           : 'Presupuesto actualizado correctamente'
       );
       navigate('/dashboard/budgets');
-      await queryClient.invalidateQueries({ queryKey: ['budget', id] });
     },
     onError: (error) => {
       toast.error(
@@ -213,8 +201,30 @@ export const useBudgetForm = () => {
     handleCalculateTotal();
   };
 
-  const onSubmit = (data: z.infer<typeof BudgetFormSchema>) => {
-    budgetMutation.mutate(data);
+  const onSubmit = async (data: z.infer<typeof BudgetFormSchema>) => {
+    const budgetData = {
+      ...data,
+      customerId: data.customerId || 0,
+      responsibleId: Number(data.responsibleId),
+      observation: data.observation || '',
+      expiresAt: data.expiresAt?.toISOString() || undefined,
+      type: data.type || 'retail',
+      totalAmount: data.totalAmount ? parseFloat(data.totalAmount) : 0,
+      status: data.status || ('pending' as BudgetStatus),
+      items: data.items.map((item) => ({
+        ...item,
+        productId: item.productId || 0,
+        retailPrice: item.retailPrice ? parseFloat(item.retailPrice) : 0,
+        wholesalePrice: item.wholesalePrice
+          ? parseFloat(item.wholesalePrice)
+          : 0,
+        price: item.price ? parseFloat(item.price) : 0,
+        quantity: item.quantity ? parseInt(item.quantity) : 0,
+        amount: item.amount ? parseFloat(item.amount) : 0,
+      })),
+    };
+
+    await budgetMutation.mutateAsync(budgetData);
   };
 
   const onError = () => console.log('errors', form.formState.errors);

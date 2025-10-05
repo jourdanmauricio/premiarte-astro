@@ -1,4 +1,4 @@
-import { FileText, PackagePlus, PencilIcon, Trash2Icon } from 'lucide-react';
+import { EditIcon, FileText, PackagePlus, Trash2Icon } from 'lucide-react';
 import { type ColumnDef } from '@tanstack/react-table';
 
 import type { Budget } from '@/shared/types';
@@ -22,7 +22,7 @@ export const getBudgetColumns = ({
   {
     accessorKey: 'id',
     header: 'ID',
-    size: 80,
+    size: 60,
     cell: ({ row }) => row.original.id,
   },
   {
@@ -31,27 +31,41 @@ export const getBudgetColumns = ({
     size: 200,
     cell: ({ row }) => <TruncatedCell value={row.original.name} linesMax={2} />,
   },
-  // {
-  //   accessorKey: 'email',
-  //   header: 'EMAIL',
-  //   size: 250,
-  //   cell: ({ row }) => (
-  //     <TruncatedCell value={row.original.email} linesMax={2} />
-  //   ),
-  // },
-  // {
-  //   accessorKey: 'phone',
-  //   header: 'TELÉFONO',
-  //   size: 150,
-  //   cell: ({ row }) => row.original.phone || 'No especificado',
-  // },
+
   {
     accessorKey: 'status',
     header: 'ESTADO',
     size: 100,
-    cell: ({ row }) =>
-      budgetStatusList.find((status) => status.id === row.original.status)
-        ?.description,
+    cell: ({ row }) => {
+      const budget = row.original;
+
+      let color = 'text-neutral-700';
+
+      if (
+        budget.status === 'sent' &&
+        budget.expiresAt &&
+        new Date(budget.expiresAt) < new Date()
+      )
+        'text-red-500';
+
+      if (
+        budget.status === 'pending' &&
+        budget.createdAt &&
+        new Date(budget.createdAt) <
+          new Date(new Date().setDate(new Date().getDate() - 1))
+      ) {
+        color = 'text-yellow-500';
+      }
+
+      return (
+        <span className={color}>
+          {
+            budgetStatusList.find((status) => status.id === budget.status)
+              ?.description
+          }
+        </span>
+      );
+    },
   },
   {
     accessorKey: 'type',
@@ -84,16 +98,16 @@ export const getBudgetColumns = ({
   {
     id: 'actions',
     header: 'ACCIONES',
-    size: 150,
+    size: 160,
     cell: ({ row }) => {
       const budget = row.original;
       return (
-        <div className='flex items-center justify-center w-full'>
+        <div className='flex items-center justify-center w-full gap-2'>
           <Button
             variant='ghost'
             size='sm'
             onClick={() => onCreateOrder(budget)}
-            className='h-8 w-8 p-0 hover:bg-red-50'
+            className='h-8 w-8 p-0 hover:bg-green-50'
             type='button'
           >
             <PackagePlus className='h-4 w-4 text-green-800' />
@@ -102,7 +116,7 @@ export const getBudgetColumns = ({
             variant='ghost'
             size='sm'
             onClick={() => onView(budget)}
-            className='h-8 w-8 p-0 hover:bg-red-50'
+            className='h-8 w-8 p-0 hover:bg-slate-50'
             type='button'
           >
             <FileText className='h-4 w-4 text-slate-800' />
@@ -111,10 +125,10 @@ export const getBudgetColumns = ({
             variant='ghost'
             size='sm'
             onClick={() => onEdit(budget)}
-            className='h-8 w-8 p-0 hover:bg-red-50'
+            className='h-8 w-8 p-0 hover:bg-blue-50'
             type='button'
           >
-            <PencilIcon className='h-4 w-4 text-blue-600' />
+            <EditIcon className='h-4 w-4 text-blue-600' />
           </Button>
           <Button
             variant='ghost'

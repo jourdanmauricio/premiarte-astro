@@ -28,16 +28,16 @@ export const budgetStatusList = [
     description: 'Pendiente',
   },
   {
+    id: 'sent',
+    description: 'Enviado',
+  },
+  {
     id: 'approved',
     description: 'Aprobado',
   },
   {
-    id: 'rejected',
-    description: 'Rechazado',
-  },
-  {
-    id: 'expired',
-    description: 'Expirado',
+    id: 'closed',
+    description: 'Cerrado',
   },
 ];
 

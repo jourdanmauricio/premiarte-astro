@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Toaster } from '@/components/ui/sonner';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -30,6 +30,15 @@ const queryClient = new QueryClient({
 
 export default function DashboardApp() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    // Ocultar spinner y mostrar app
+    const spinner = document.getElementById('loading-spinner');
+    const root = document.getElementById('root');
+
+    if (spinner) spinner.classList.add('hidden');
+    if (root) root.classList.add('loaded');
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
