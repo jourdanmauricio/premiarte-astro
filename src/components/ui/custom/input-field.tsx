@@ -19,6 +19,7 @@ type InputFieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'form'> & {
   labelClassName?: string;
   enableClean?: boolean;
   errorClassName?: string;
+  icon?: React.ReactNode;
 };
 
 export default function InputField({
@@ -32,6 +33,7 @@ export default function InputField({
   onChange,
   onFocus,
   onBlur,
+  icon,
   ...inputProps
 }: InputFieldProps) {
   const { getFieldState, formState } = useFormContext();
@@ -42,18 +44,21 @@ export default function InputField({
       control={form.control}
       name={name}
       render={({ field }) => (
-        <FormItem className={className}>
+        <FormItem className={cn(className, 'relative')}>
           <FormLabel className={`font-normal ${labelClassName}`}>
             {label}
           </FormLabel>
+          {icon && (
+            <div className='absolute right-3 top-5 -translate-y-1/2 transform cursor-pointer text-gray-500'>
+              {icon}
+            </div>
+          )}
           {enableClean && field.value && (
-            <div className='relative w-full'>
-              <div
-                className='absolute right-1 -top-2 -translate-y-1/2 transform cursor-pointer'
-                onClick={() => field.onChange('')}
-              >
-                <XCircle className='h-4 w-4 text-red-500' />
-              </div>
+            <div
+              className='absolute right-1 -top-2 -translate-y-1/2 transform cursor-pointer'
+              onClick={() => field.onChange('')}
+            >
+              <XCircle className='h-4 w-4 text-red-500' />
             </div>
           )}
           <FormControl>

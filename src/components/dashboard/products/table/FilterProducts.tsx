@@ -1,19 +1,29 @@
+import z from 'zod';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
 import { CategoriesDropdown } from '@/components/ui/custom/dropdowns/CategoriesDropdown';
 import InputForm from '@/components/ui/custom/input-field';
 import { Form } from '@/components/ui/form';
-import { useForm } from 'react-hook-form';
-import { useEffect } from 'react';
+import { SearchIcon } from 'lucide-react';
 
 interface FilterProductsProps {
   globalFilter: { search: string; category: string };
   handleSearch: (key: string, value: string) => void;
 }
 
+const FilterProductsSchema = z.object({
+  search: z.string().optional(),
+  category: z.string().optional(),
+});
+
 const FilterProducts = ({
   globalFilter,
   handleSearch,
 }: FilterProductsProps) => {
   const form = useForm({
+    resolver: zodResolver(FilterProductsSchema),
     defaultValues: globalFilter,
   });
 
@@ -40,6 +50,7 @@ const FilterProducts = ({
             placeholder='Buscar producto'
             form={form}
             enableClean
+            icon={<SearchIcon className='size-4' />}
           />
           <CategoriesDropdown
             name='category'

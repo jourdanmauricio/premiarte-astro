@@ -29,7 +29,7 @@ const ProductsPage = () => {
     setPageIndex,
     globalFilterFn,
     handleSearch,
-    handleDownloadTemplate,
+    handleDownload,
     handleAddProduct,
     handleSorting,
     handleConfirmDelete,
@@ -52,7 +52,7 @@ const ProductsPage = () => {
           <Button variant='outline' onClick={handlePriceUpdate}>
             <DollarSignIcon className='size-5' />
           </Button>
-          <Button variant='outline' onClick={handleDownloadTemplate}>
+          <Button variant='outline' onClick={handleDownload}>
             <DownloadIcon className='size-5' />
           </Button>
           <Button variant='default' onClick={handleAddProduct}>

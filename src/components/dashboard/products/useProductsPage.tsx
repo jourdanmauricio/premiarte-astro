@@ -123,7 +123,7 @@ const useProductsPage = () => {
     }
   };
 
-  const handleDownloadTemplate = () => {
+  const handleDownload = () => {
     if (!data || data.length === 0) {
       toast.error('No hay productos para descargar');
       return;
@@ -132,18 +132,23 @@ const useProductsPage = () => {
     try {
       // Preparar datos para Excel (solo campos simples, sin categorías, imágenes ni descuentos)
       const excelData = data.map((product) => ({
+        Id: product.id,
         SKU: product.sku || '', // Campo obligatorio para identificación
         Nombre: product.name,
-        Precio_Mayorista: product.wholesalePrice,
-        Descripción: product.description,
-        Stock: product.stock,
+        Categorías: product.categories
+          ?.map((category) => category.name)
+          .join(', '),
         Precio_Retail: product.retailPrice,
-        Slug: product.slug,
-        Activo: product.isActive ? 'Sí' : 'No',
-        Destacado: product.isFeatured ? 'Sí' : 'No',
+        Precio_Mayorista: product.wholesalePrice,
         Fecha_Actualización_Precio: product.priceUpdatedAt
           ? new Date(product.priceUpdatedAt).toLocaleDateString('es-ES')
           : '',
+        Precio_Actualizado: product.priceUpdated,
+        Stock: product.stock,
+        Activo: product.isActive ? 'Sí' : 'No',
+        Destacado: product.isFeatured ? 'Sí' : 'No',
+        Descripción: product.description,
+        Slug: product.slug,
       }));
 
       // Solo usar los datos existentes (sin filas vacías adicionales)
@@ -166,7 +171,7 @@ const useProductsPage = () => {
           );
 
           // Limitar el ancho máximo de la columna descripción (triple del tamaño anterior)
-          if (colIndex === 3) {
+          if (colIndex === 11) {
             // Columna "Descripción"
             return { wch: Math.min(maxWidth, 150) };
           }
@@ -271,7 +276,7 @@ const useProductsPage = () => {
     setPageIndex,
     globalFilterFn,
     handleSearch,
-    handleDownloadTemplate,
+    handleDownload,
     handleAddProduct,
     handleSorting,
     handleConfirmDelete,
