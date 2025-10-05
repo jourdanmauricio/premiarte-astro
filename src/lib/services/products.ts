@@ -537,6 +537,11 @@ export class ProductService {
 
     const updatedProducts = [];
 
+    const operationText =
+      operation === 'add'
+        ? `Incrementar ${percentage}%`
+        : `Decrementar ${percentage}%`;
+
     for (const productId of productIds) {
       // Obtener solo los precios del producto directamente de la BD
       const { rows } = await turso.execute({
@@ -570,10 +575,11 @@ export class ProductService {
           SET retailPrice = ?, 
               wholesalePrice = ?, 
               priceUpdatedAt = CURRENT_TIMESTAMP,
+              priceUpdated = ?,
               updatedAt = CURRENT_TIMESTAMP
           WHERE id = ?
         `,
-        args: [newRetailPrice, newWholesalePrice, productId],
+        args: [newRetailPrice, newWholesalePrice, operationText, productId],
       });
 
       updatedProducts.push({

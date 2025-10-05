@@ -102,17 +102,26 @@ export const getProductColumns = ({
   {
     accessorKey: 'priceUpdatedAt',
     header: 'F ACT PRECIO',
-    size: 130,
-    cell: ({ row }) =>
-      row.original.priceUpdatedAt
-        ? format(new Date(row.original.priceUpdatedAt), 'dd/MM/yyyy')
-        : '-',
+    size: 150,
+    cell: ({ row }) => {
+      const product = row.original;
+      return (
+        <div className='text-sm flex flex-col'>
+          <span>
+            {product.priceUpdatedAt
+              ? format(new Date(product.priceUpdatedAt), 'dd/MM/yyyy')
+              : '-'}
+          </span>
+          <span>{product.priceUpdated ? product.priceUpdated : '-'}</span>
+        </div>
+      );
+    },
   },
   {
     accessorKey: 'categories',
     header: 'CATEGORÍAS',
-    size: 150,
-    minSize: 120,
+    size: 0,
+    minSize: 180,
     cell: ({ row }) => {
       const product = row.original;
       if (!product.categories || product.categories.length === 0) {

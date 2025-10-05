@@ -230,21 +230,15 @@ const useProductsPage = () => {
   };
 
   const handlePriceUpdate = () => {
-    // Ahora rowSelection contiene los IDs de los productos seleccionados
     const selectedProductIds = Object.keys(rowSelection).filter(
       (key) => rowSelection[key]
     );
-    console.log('Productos seleccionados (IDs):', selectedProductIds);
-
     if (selectedProductIds.length === 0) {
       toast.error('No hay productos seleccionados para actualizar precios');
       return;
     }
 
     setUpdatePriceModalIsOpen(true);
-
-    // Aquí puedes hacer lo que necesites con los IDs de los productos
-    // Por ejemplo, actualizar precios, exportar, etc.
   };
 
   const handleSorting = (sorting: SortingState) => {
