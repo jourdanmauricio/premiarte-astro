@@ -1,11 +1,12 @@
-import { PlusIcon, DownloadIcon } from 'lucide-react';
+import { PlusIcon, DownloadIcon, DollarSignIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import CustomAlertDialog from '@/components/ui/custom/custom-alert-dialog';
 import { CustomTable } from '@/components/ui/custom/CustomTable';
-import { ProductModal } from '@/components/dashboard/products/modal/ProductModal';
-import { SearchInput } from '@/components/ui/custom/SearchInput';
+import { ProductModal } from '@/components/dashboard/products/modals/ProductModal';
 import useProductsPage from '@/components/dashboard/products/useProductsPage';
+import { UpdatePriceModal } from '@/components/dashboard/products/modals/UpdatePriceModal';
+import { FilterProducts } from '@/components/dashboard/products/table/FilterProducts';
 
 const ProductsPage = () => {
   const {
@@ -20,6 +21,11 @@ const ProductsPage = () => {
     deleteModalIsOpen,
     currentRow,
     globalFilter,
+    rowSelection,
+    updatePriceModalIsOpen,
+    setUpdatePriceModalIsOpen,
+    setRowSelection,
+    handlePriceUpdate,
     setPageIndex,
     globalFilterFn,
     handleSearch,
@@ -37,21 +43,20 @@ const ProductsPage = () => {
       <h2 className='text-2xl font-bold text-gray-900'>Gestión de Productos</h2>
 
       <div className='flex items-center justify-between gap-2 mt-6'>
-        <SearchInput
-          className='w-1/3'
-          placeholder='Buscar producto'
-          value={globalFilter}
-          onChange={handleSearch}
+        <FilterProducts
+          globalFilter={globalFilter}
+          handleSearch={handleSearch}
         />
 
-        <div className='flex items-center gap-2'>
+        <div className='flex items-center gap-4'>
+          <Button variant='outline' onClick={handlePriceUpdate}>
+            <DollarSignIcon className='size-5' />
+          </Button>
           <Button variant='outline' onClick={handleDownloadTemplate}>
-            <DownloadIcon className='size-5 mr-2' />
-            Descargar Productos
+            <DownloadIcon className='size-5' />
           </Button>
           <Button variant='default' onClick={handleAddProduct}>
-            <PlusIcon className='size-5 mr-2' />
-            Agregar Producto
+            <PlusIcon className='size-5' />
           </Button>
         </div>
       </div>
@@ -67,6 +72,9 @@ const ProductsPage = () => {
         pageIndex={pageIndex}
         setPageIndex={setPageIndex}
         globalFilterFn={globalFilterFn}
+        setRowSelection={setRowSelection}
+        rowSelection={rowSelection}
+        getRowId={(row) => row.id.toString()}
       />
 
       {deleteModalIsOpen && (
@@ -93,6 +101,16 @@ const ProductsPage = () => {
           open={productModalIsOpen}
           closeModal={() => setProductModalIsOpen(false)}
           product={currentRow}
+        />
+      )}
+
+      {updatePriceModalIsOpen && (
+        <UpdatePriceModal
+          open={updatePriceModalIsOpen}
+          closeModal={() => setUpdatePriceModalIsOpen(false)}
+          products={Object.keys(rowSelection).filter(
+            (key) => rowSelection[key]
+          )}
         />
       )}
     </div>

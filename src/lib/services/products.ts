@@ -200,14 +200,11 @@ export class ProductService {
     slug: string;
     description: string;
     sku?: string;
-    price?: number;
     stock?: number;
     isActive?: boolean;
     isFeatured?: boolean;
     retailPrice?: number;
     wholesalePrice?: number;
-    discount?: number;
-    discountType?: string;
     images?: number[];
     categories?: number[];
     relatedProducts?: number[];
@@ -217,10 +214,10 @@ export class ProductService {
     const { rows } = await turso.execute({
       sql: `
         INSERT INTO Product (
-          name, slug, description, sku, price, stock, isActive, isFeatured,
-          retailPrice, wholesalePrice, discount, discountType, priceUpdatedAt
+          name, slug, description, sku, stock, isActive, isFeatured,
+          retailPrice, wholesalePrice, priceUpdatedAt
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         RETURNING *
       `,
       args: [
@@ -228,14 +225,11 @@ export class ProductService {
         data.slug,
         data.description,
         data.sku || null,
-        data.price || 0,
         data.stock || 0,
         data.isActive ?? true,
         data.isFeatured ?? false,
         data.retailPrice || 0,
         data.wholesalePrice || 0,
-        data.discount || 0,
-        data.discountType || 'percentage',
         data.priceUpdatedAt || null,
       ],
     });
@@ -271,14 +265,11 @@ export class ProductService {
       slug?: string;
       description?: string;
       sku?: string;
-      price?: number;
       stock?: number;
       isActive?: boolean;
       isFeatured?: boolean;
       retailPrice?: number;
       wholesalePrice?: number;
-      discount?: number;
-      discountType?: string;
       images?: number[];
       categories?: number[];
       relatedProducts?: number[];
@@ -304,10 +295,6 @@ export class ProductService {
       updates.push('sku = ?');
       args.push(data.sku);
     }
-    if (data.price !== undefined) {
-      updates.push('price = ?');
-      args.push(data.price);
-    }
     if (data.stock !== undefined) {
       updates.push('stock = ?');
       args.push(data.stock);
@@ -327,14 +314,6 @@ export class ProductService {
     if (data.wholesalePrice !== undefined) {
       updates.push('wholesalePrice = ?');
       args.push(data.wholesalePrice);
-    }
-    if (data.discount !== undefined) {
-      updates.push('discount = ?');
-      args.push(data.discount);
-    }
-    if (data.discountType !== undefined) {
-      updates.push('discountType = ?');
-      args.push(data.discountType);
     }
 
     // Si se actualiza el precio, actualizar también priceUpdatedAt
@@ -536,5 +515,81 @@ export class ProductService {
         }
       }
     }
+  }
+
+  // ACTUALIZACIÓN MASIVA DE PRECIOS
+  static async updatePricesBulk({
+    productIds,
+    operation,
+    percentage,
+  }: {
+    productIds: number[];
+    operation: 'add' | 'subtract';
+    percentage: number;
+  }) {
+    if (productIds.length === 0) {
+      throw new Error('No se proporcionaron productos para actualizar');
+    }
+
+    if (percentage < 0 || percentage > 100) {
+      throw new Error('El porcentaje debe estar entre 0 y 100');
+    }
+
+    const updatedProducts = [];
+
+    for (const productId of productIds) {
+      // Obtener solo los precios del producto directamente de la BD
+      const { rows } = await turso.execute({
+        sql: 'SELECT id, name, retailPrice, wholesalePrice FROM Product WHERE id = ?',
+        args: [productId],
+      });
+
+      if (rows.length === 0) {
+        console.warn(`Producto con ID ${productId} no encontrado`);
+        continue;
+      }
+
+      const product = rows[0];
+
+      // Calcular nuevos precios
+      const retailPrice = product.retailPrice || 0;
+      const wholesalePrice = product.wholesalePrice || 0;
+
+      const multiplier =
+        operation === 'add' ? 1 + percentage / 100 : 1 - percentage / 100;
+
+      const newRetailPrice =
+        Math.round(Number(retailPrice) * multiplier * 100) / 100;
+      const newWholesalePrice =
+        Math.round(Number(wholesalePrice) * multiplier * 100) / 100;
+
+      // Actualizar el producto
+      await turso.execute({
+        sql: `
+          UPDATE Product 
+          SET retailPrice = ?, 
+              wholesalePrice = ?, 
+              priceUpdatedAt = CURRENT_TIMESTAMP,
+              updatedAt = CURRENT_TIMESTAMP
+          WHERE id = ?
+        `,
+        args: [newRetailPrice, newWholesalePrice, productId],
+      });
+
+      updatedProducts.push({
+        id: productId,
+        name: product.name,
+        oldRetailPrice: retailPrice,
+        newRetailPrice,
+        oldWholesalePrice: wholesalePrice,
+        newWholesalePrice,
+      });
+    }
+
+    return {
+      success: true,
+      updatedCount: updatedProducts.length,
+      products: updatedProducts,
+    };
   }
 }

@@ -45,7 +45,6 @@ export default function ProductsCombobox({
     queryKey: ['products'],
     queryFn: async () => {
       const response = await productsService.getProducts();
-      console.log('response!!!!', response);
       return response.map((product: Product) => ({
         ...product,
         label: product.name,

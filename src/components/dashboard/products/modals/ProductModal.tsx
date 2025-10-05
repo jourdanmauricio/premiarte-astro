@@ -1,9 +1,3 @@
-import { z } from 'zod';
-import { toast } from 'sonner';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-
 import {
   Dialog,
   DialogContent,
@@ -14,10 +8,7 @@ import { generateSlug } from '@/lib/utils';
 import { Form } from '@/components/ui/form';
 import type { Product } from '@/shared/types';
 import { Button } from '@/components/ui/button';
-import { productsService } from '@/lib/services';
-import { ProductFromSchema } from '@/shared/schemas';
 import { DialogHeader } from '@/components/ui/dialog';
-import Dropdown from '@/components/ui/custom/dropdown';
 import InputField from '@/components/ui/custom/input-field';
 import SubmitButton from '@/components/ui/custom/submit-button';
 import TextareaField from '@/components/ui/custom/textarea-field';
@@ -26,7 +17,7 @@ import InputNumberField from '@/components/ui/custom/input-number-field';
 import ImagesSelector from '@/components/ui/custom/images-selector/ImagesSelector';
 import CategorySelector from '@/components/ui/custom/category-selector/CategorySelector';
 import ProductSelector from '@/components/ui/custom/product-selector/ProductSelector';
-import useProductModal from '@/components/dashboard/products/modal/useProductModal';
+import useProductModal from '@/components/dashboard/products/modals/useProductModal';
 
 interface ProductModalProps {
   open: boolean;
@@ -120,17 +111,8 @@ const ProductModal = ({ open, closeModal, product }: ProductModalProps) => {
                     integerDigits={10}
                   />
 
-                  <InputNumberField
-                    label='Precio'
-                    name='price'
-                    placeholder='Precio'
-                    form={form}
-                    integerDigits={10}
-                    decimalDigits={2}
-                    onChangeInputNumberField={(e) =>
-                      handlePriceChange('price')(e.target.value)
-                    }
-                  />
+                  <div></div>
+
                   <InputNumberField
                     label='Precio de venta'
                     name='retailPrice'
@@ -152,34 +134,6 @@ const ProductModal = ({ open, closeModal, product }: ProductModalProps) => {
                     decimalDigits={2}
                     onChangeInputNumberField={(e) =>
                       handlePriceChange('wholesalePrice')(e.target.value)
-                    }
-                  />
-
-                  <Dropdown
-                    label='Tipo de descuento'
-                    list={[
-                      { id: 'percentage', description: 'Porcentaje' },
-                      { id: 'fixed', description: 'Fijo' },
-                    ]}
-                    name='discountType'
-                    form={form}
-                    placeholder='Tipo de descuento'
-                    onChange={(e) => {
-                      form.setValue('discount', '0');
-                    }}
-                  />
-
-                  <InputNumberField
-                    label='Descuento'
-                    name='discount'
-                    placeholder='Descuento'
-                    form={form}
-                    regExp={
-                      form.watch('discountType') === 'percentage'
-                        ? new RegExp('^(0|[1-9]\\d?|100)$')
-                        : new RegExp(
-                            '^(0(,\\d{0,2})?|[1-9]\\d{0,9}(,\\d{0,2})?)$'
-                          )
                     }
                   />
 

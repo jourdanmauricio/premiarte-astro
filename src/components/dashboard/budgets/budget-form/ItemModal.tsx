@@ -101,6 +101,8 @@ const ItemModal = ({
 
   const onError = () => console.log('errors', form.formState.errors);
 
+  console.log('form.watch() item modal', form.watch());
+
   return (
     <Dialog open={open} onOpenChange={closeModal}>
       <DialogContent className='max-h-[95%] max-w-xl sm:max-w-xl overflow-y-auto w-full'>

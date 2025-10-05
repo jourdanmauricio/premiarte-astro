@@ -23,6 +23,7 @@ type BaseInputFieldProps = {
   regExp?: RegExp;
   integerDigits?: number;
   decimalDigits?: number;
+  icon?: React.ReactNode;
   onChangeInputNumberField?: (e: any) => void;
 };
 
@@ -65,6 +66,7 @@ export default function InputNumberField({
   integerDigits,
   decimalDigits,
   onChangeInputNumberField,
+  icon,
   ...props
 }: InputFieldProps) {
   const { getFieldState, formState } = useFormContext();
@@ -111,6 +113,13 @@ export default function InputNumberField({
                 onClick={() => field.onChange('')}
               >
                 <X className='h-4 w-4 text-neutral-500' />
+              </div>
+            </div>
+          )}
+          {icon && (
+            <div className='relative w-full'>
+              <div className='absolute right-3 top-5 -translate-y-1/2 transform cursor-pointer'>
+                {icon}
               </div>
             </div>
           )}
@@ -178,19 +187,7 @@ export default function InputNumberField({
               {...props}
             />
           </FormControl>
-          {/* <div
-            className={cn(
-              `relative transition-all duration-300 ease-in-out ${fieldState.error ? 'opacity-100' : 'opacity-0'}`,
-              errorClassName
-            )}
-          >
-            {fieldState.error && (
-              // <span className='absolute -top-1 font-normal text-destructive'>
-              //    {fieldState.error.message}
-              <FormMessage className='absolute -top-1 font-normal' />
-              //  </span>
-            )}
-          </div> */}
+
           <div
             className={cn(
               `relative transition-all duration-300 ease-in-out ${fieldState.invalid ? 'opacity-100' : 'opacity-0'}`,

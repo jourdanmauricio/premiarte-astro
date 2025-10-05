@@ -4,6 +4,7 @@ import { EditIcon, Trash2Icon } from 'lucide-react';
 import { TruncatedCell } from '@/components/ui/custom/truncatedCell';
 import type { Product, ProductWithDetails } from '@/shared/types';
 import { format } from 'date-fns';
+import { Checkbox } from '@/components/ui/checkbox';
 
 type DataTableColumnsProps = {
   onEdit: (product: Product) => void;
@@ -14,6 +15,29 @@ export const getProductColumns = ({
   onEdit,
   onDelete,
 }: DataTableColumnsProps): ColumnDef<ProductWithDetails>[] => [
+  {
+    id: 'select',
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllRowsSelected() ||
+          (table.getIsSomeRowsSelected() && 'indeterminate')
+        }
+        onCheckedChange={(value) => table.toggleAllRowsSelected(!!value)}
+        aria-label='Select all'
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label='Select row'
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+    size: 56,
+  },
   {
     accessorKey: 'images',
     header: 'IMAGEN',
@@ -62,12 +86,17 @@ export const getProductColumns = ({
   {
     accessorKey: 'price',
     header: 'PRECIO',
-    size: 120,
-    minSize: 100,
+    size: 140,
     cell: ({ row }) => {
       const product = row.original;
-      const price = product.price ?? 0;
-      return <span className='font-medium'>${price.toLocaleString()}</span>;
+      const retailPrice = product.retailPrice ?? 0;
+      const wholesalePrice = product.wholesalePrice ?? 0;
+      return (
+        <div className='text-sm flex flex-col'>
+          <span>Min: ${retailPrice.toLocaleString()}</span>
+          <span>May: ${wholesalePrice.toLocaleString()}</span>
+        </div>
+      );
     },
   },
   {

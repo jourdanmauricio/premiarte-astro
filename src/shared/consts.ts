@@ -52,3 +52,8 @@ export const customerTypeList = [
   { id: 'wholesale', description: 'Mayorista' },
   { id: 'retail', description: 'Minorista' },
 ];
+
+export const operationsList = [
+  { id: 'add', description: 'Incrementar' },
+  { id: 'subtract', description: 'Decrementar' },
+];

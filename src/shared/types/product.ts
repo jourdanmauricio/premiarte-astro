@@ -6,7 +6,6 @@ export interface Product {
   id: number;
   name: string;
   slug: string;
-  price?: number;
   sku?: string;
   description: string;
   stock?: number;
@@ -14,9 +13,8 @@ export interface Product {
   isFeatured: boolean;
   retailPrice?: number | undefined;
   wholesalePrice?: number | undefined;
-  discount?: number | undefined;
-  discountType: 'percentage' | 'fixed';
   priceUpdatedAt?: string;
+  priceUpdated?: string;
   relatedProducts: number[] | null;
   images: number[] | null;
   categories: Category[] | null;

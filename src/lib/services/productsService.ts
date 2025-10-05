@@ -70,6 +70,25 @@ class ProductsService {
       throw new Error(`Error al eliminar el producto con ID ${id}`);
     }
   }
+
+  async updatePricesBulk(
+    productIds: number[],
+    percentage: number,
+    operation: 'add' | 'subtract'
+  ) {
+    const response = await fetch(`${this.baseUrl}/update-prices`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ productIds, percentage, operation }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al actualizar los precios');
+    }
+    return response.json();
+  }
 }
 
 // Exportar una instancia singleton del servicio

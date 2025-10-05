@@ -53,11 +53,12 @@ export interface BudgetWithItems extends Budget {
 // Tipos para crear nuevos presupuestos
 export interface CreateBudgetData {
   customerId: number;
-  responsibleId: number;
+  responsibleId?: number;
   userId?: string;
   observation?: string;
   totalAmount: number;
   type: string;
+  status: string;
   items: CreateBudgetItemData[];
 }
 

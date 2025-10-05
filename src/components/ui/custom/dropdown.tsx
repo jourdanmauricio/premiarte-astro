@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { X, XCircle } from 'lucide-react';
 
 import { useFormContext, type UseFormReturn } from 'react-hook-form';
 
@@ -33,6 +34,7 @@ type DropdownProps = {
   className?: string;
   disabled?: boolean;
   labelClassName?: string;
+  enableClean?: boolean;
 };
 
 export default function Dropdown({
@@ -45,6 +47,7 @@ export default function Dropdown({
   className,
   disabled = false,
   labelClassName,
+  enableClean,
 }: DropdownProps) {
   const { getFieldState, formState } = useFormContext();
   const fieldState = getFieldState(name, formState);
@@ -66,6 +69,16 @@ export default function Dropdown({
             <FormLabel className={`font-normal ${labelClassName}`}>
               {label}
             </FormLabel>
+            {enableClean && field.value && (
+              <div className='relative w-full'>
+                <div
+                  className='absolute right-1 -top-2 -translate-y-1/2 transform cursor-pointer'
+                  onClick={() => field.onChange('')}
+                >
+                  <XCircle className='h-4 w-4 text-red-500' />
+                </div>
+              </div>
+            )}
             <Select
               onValueChange={(value) => {
                 field.onChange(value);

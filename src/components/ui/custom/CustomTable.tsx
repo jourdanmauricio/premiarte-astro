@@ -31,8 +31,11 @@ type Props<TData, TValue> = {
   sorting: SortingState;
   pageIndex: number;
   globalFilterFn: FilterFn<TData>;
+  rowSelection?: any;
   handleSorting: (value: any) => void;
   setPageIndex: (value: number) => void;
+  setRowSelection?: (value: any) => void;
+  getRowId?: (row: TData) => string;
 };
 
 function CustomTable<TData, TValue>({
@@ -43,9 +46,12 @@ function CustomTable<TData, TValue>({
   error,
   sorting,
   pageIndex,
+  rowSelection,
   handleSorting,
   setPageIndex,
+  setRowSelection,
   globalFilterFn,
+  getRowId,
 }: Props<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -55,8 +61,11 @@ function CustomTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    onRowSelectionChange: setRowSelection,
     globalFilterFn: globalFilterFn,
+    getRowId: getRowId,
     state: {
+      rowSelection,
       sorting,
       globalFilter: globalFilter,
       pagination: {
@@ -72,7 +81,7 @@ function CustomTable<TData, TValue>({
   return (
     <>
       <div className='mt-8 flex min-h-[180px] w-full flex-col'>
-        <ScrollArea type='always'>
+        <ScrollArea className='h-[530px] w-full' type='auto'>
           <Table className='w-full'>
             <TableHeader className='w-full bg-white'>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -164,7 +173,7 @@ function CustomTable<TData, TValue>({
                         return (
                           <TableCell
                             key={cell.id}
-                            className='flex w-full px-4 py-0 text-base text-neutral-700 whitespace-normal break-words'
+                            className='flex w-full px-4 py-0 text-sm text-neutral-700 whitespace-normal break-words'
                             style={{
                               minWidth: cell.column.columnDef.minSize,
                               maxWidth: cell.column.columnDef.maxSize,

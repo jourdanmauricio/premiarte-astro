@@ -92,11 +92,13 @@ export const sendBudgetRequest = defineAction({
       // Crear datos del presupuesto
       const budgetData: CreateBudgetData = {
         customerId: Number(customer.id),
+        // responsibleId: Number(userId),
         observation: message || '',
         userId,
         items: budgetItems,
         totalAmount: totalAmount,
         type: String(customer.type || 'retail'),
+        status: 'pending',
       };
 
       // Crear presupuesto en la base de datos

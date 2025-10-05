@@ -6,7 +6,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { X } from 'lucide-react';
+import { XCircle } from 'lucide-react';
 import { useFormContext, type UseFormReturn } from 'react-hook-form';
 import { cn } from '@/lib/utils';
 import type { InputHTMLAttributes } from 'react';
@@ -49,10 +49,10 @@ export default function InputField({
           {enableClean && field.value && (
             <div className='relative w-full'>
               <div
-                className='absolute right-3 top-5 -translate-y-1/2 transform cursor-pointer'
+                className='absolute right-1 -top-2 -translate-y-1/2 transform cursor-pointer'
                 onClick={() => field.onChange('')}
               >
-                <X className='h-4 w-4 text-neutral-500' />
+                <XCircle className='h-4 w-4 text-red-500' />
               </div>
             </div>
           )}

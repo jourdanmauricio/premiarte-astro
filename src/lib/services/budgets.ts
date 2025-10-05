@@ -121,7 +121,7 @@ export class BudgetService {
 
   static async createBudget(data: {
     customerId: number;
-    responsibleId: number;
+    responsibleId?: number;
     observation?: string;
     userId?: string;
     totalAmount: number;
@@ -147,7 +147,7 @@ export class BudgetService {
       args: [
         data.customerId,
         data.observation || null,
-        data.responsibleId,
+        data.responsibleId || null,
         data.userId || null,
         data.totalAmount,
         data.type,

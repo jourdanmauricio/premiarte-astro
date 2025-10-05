@@ -14,7 +14,15 @@ const useProductsPage = () => {
   const [productModalIsOpen, setProductModalIsOpen] = useState(false);
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
   const [currentRow, setCurrentRow] = useState<Product | null>(null);
-  const [globalFilter, setGlobalFilter] = useState('');
+  const [globalFilter, setGlobalFilter] = useState<{
+    search: string;
+    category: string;
+  }>({ search: '', category: '' });
+  const [rowSelection, setRowSelection] = useState<{ [key: string]: boolean }>(
+    {}
+  );
+  const [updatePriceModalIsOpen, setUpdatePriceModalIsOpen] = useState(false);
+
   const queryClient = useQueryClient();
 
   // Solo necesitamos obtener productos - ya vienen con categorías e imágenes completas
@@ -30,6 +38,7 @@ const useProductsPage = () => {
     },
     refetchOnWindowFocus: false,
   });
+  // console.log('productsData', productsData);
 
   // Los datos ya vienen completos del backend, solo necesitamos mapearlos al tipo esperado
   const data = useMemo(() => {
@@ -67,7 +76,6 @@ const useProductsPage = () => {
         queryClient.setQueryData(['products'], context.previousProducts);
       }
 
-      console.error('Error al eliminar producto:', err);
       toast.error('Error al eliminar el producto');
     },
     onSuccess: () => {
@@ -126,11 +134,10 @@ const useProductsPage = () => {
       const excelData = data.map((product) => ({
         SKU: product.sku || '', // Campo obligatorio para identificación
         Nombre: product.name,
-        Precio: product.price,
+        Precio_Mayorista: product.wholesalePrice,
         Descripción: product.description,
         Stock: product.stock,
         Precio_Retail: product.retailPrice,
-        Precio_Mayorista: product.wholesalePrice,
         Slug: product.slug,
         Activo: product.isActive ? 'Sí' : 'No',
         Destacado: product.isFeatured ? 'Sí' : 'No',
@@ -186,7 +193,6 @@ const useProductsPage = () => {
 
       toast.success('Productos descargados exitosamente');
     } catch (error) {
-      console.error('Error al generar archivo:', error);
       toast.error('Error al descargar los productos');
     }
   };
@@ -194,19 +200,51 @@ const useProductsPage = () => {
   // Filtro global simple - por ahora sin filtros específicos
   const globalFilterFn = (row: any) => {
     const product = row.original as Product;
-    if (globalFilter === '') return true;
-    if (product.name.toLowerCase().includes(globalFilter.toLowerCase()))
-      return true;
-    if (product.sku?.toLowerCase().includes(globalFilter.toLowerCase()))
-      return true;
-    if (
-      product.categories?.some((category) =>
-        category.name.toLowerCase().includes(globalFilter.toLowerCase())
-      )
-    )
-      return true;
+    if (Object.keys(globalFilter).length === 0) return true;
 
-    return false;
+    if (Object.values(globalFilter).every((value) => value === '')) return true;
+
+    // Evaluar todas las condiciones y que todas se cumplan
+    let matchesCategory = true;
+    let matchesSearch = true;
+
+    // Si hay filtro de categoría, verificar que coincida
+    if (globalFilter.category && globalFilter.category !== '') {
+      matchesCategory =
+        product.categories?.some(
+          (category) => category.id === Number(globalFilter.category)
+        ) || false;
+    }
+
+    // Si hay filtro de búsqueda, verificar que coincida en nombre o SKU
+    if (globalFilter.search && globalFilter.search !== '') {
+      const searchTerm = globalFilter.search.toLowerCase();
+      matchesSearch =
+        product.name.toLowerCase().includes(searchTerm) ||
+        product.sku?.toLowerCase().includes(searchTerm) ||
+        false;
+    }
+
+    // Solo retorna true si ambas condiciones se cumplen
+    return matchesCategory && matchesSearch;
+  };
+
+  const handlePriceUpdate = () => {
+    // Ahora rowSelection contiene los IDs de los productos seleccionados
+    const selectedProductIds = Object.keys(rowSelection).filter(
+      (key) => rowSelection[key]
+    );
+    console.log('Productos seleccionados (IDs):', selectedProductIds);
+
+    if (selectedProductIds.length === 0) {
+      toast.error('No hay productos seleccionados para actualizar precios');
+      return;
+    }
+
+    setUpdatePriceModalIsOpen(true);
+
+    // Aquí puedes hacer lo que necesites con los IDs de los productos
+    // Por ejemplo, actualizar precios, exportar, etc.
   };
 
   const handleSorting = (sorting: SortingState) => {
@@ -214,10 +252,12 @@ const useProductsPage = () => {
     setPageIndex(0);
   };
 
-  const handleSearch = (value: string) => {
-    setGlobalFilter(value);
+  const handleSearch = useCallback((key: string, value: string) => {
+    setGlobalFilter((prev) => ({ ...prev, [key]: value }));
     setPageIndex(0);
-  };
+    setRowSelection({});
+  }, []);
+
   return {
     data,
     error,
@@ -230,6 +270,10 @@ const useProductsPage = () => {
     deleteModalIsOpen,
     currentRow,
     globalFilter,
+    rowSelection,
+    updatePriceModalIsOpen,
+    setRowSelection,
+    setUpdatePriceModalIsOpen,
     setPageIndex,
     globalFilterFn,
     handleSearch,
@@ -240,6 +284,7 @@ const useProductsPage = () => {
     setDeleteModalIsOpen,
     setProductModalIsOpen,
     setCurrentRow,
+    handlePriceUpdate,
   };
 };
 

@@ -4,28 +4,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { generateSlug } from '@/lib/utils';
-import { Form } from '@/components/ui/form';
 import type { Product } from '@/shared/types';
-import { Button } from '@/components/ui/button';
 import { productsService } from '@/lib/services';
 import { ProductFromSchema } from '@/shared/schemas';
-import { DialogHeader } from '@/components/ui/dialog';
-import Dropdown from '@/components/ui/custom/dropdown';
-import InputField from '@/components/ui/custom/input-field';
-import SubmitButton from '@/components/ui/custom/submit-button';
-import TextareaField from '@/components/ui/custom/textarea-field';
-import BooleanCheckbox from '@/components/ui/custom/boolean-checkbox';
-import InputNumberField from '@/components/ui/custom/input-number-field';
-import ImagesSelector from '@/components/ui/custom/images-selector/ImagesSelector';
-import CategorySelector from '@/components/ui/custom/category-selector/CategorySelector';
-import ProductSelector from '@/components/ui/custom/product-selector/ProductSelector';
 
 const defaultValues = {
   name: '',
@@ -34,13 +15,12 @@ const defaultValues = {
   imageId: 0,
   isActive: true,
   isFeatured: false,
-  price: '',
   sku: '',
   stock: '',
   retailPrice: '',
   wholesalePrice: '',
-  discount: '',
-  discountType: 'percentage' as const,
+  // priceUpdatedAt: '',
+  // priceUpdated: '',
   relatedProducts: [],
   images: [],
   categories: [],
@@ -74,7 +54,6 @@ const useProductModal = (product: Product | null, closeModal: () => void) => {
                       : { id: cat, name: '', slug: '' } // Si es solo ID, crear objeto mínimo
                 )
               : [],
-            price: product.price ? product.price.toString() : '',
             sku: product.sku ? product.sku.toString() : '',
             stock: product.stock ? product.stock.toString() : '',
             retailPrice: product.retailPrice
@@ -83,8 +62,6 @@ const useProductModal = (product: Product | null, closeModal: () => void) => {
             wholesalePrice: product.wholesalePrice
               ? product.wholesalePrice.toString()
               : '',
-            discount: product.discount ? product.discount.toString() : '',
-            discountType: product.discountType || 'percentage',
             priceUpdatedAt: product.priceUpdatedAt
               ? product.priceUpdatedAt
               : '',
@@ -97,7 +74,6 @@ const useProductModal = (product: Product | null, closeModal: () => void) => {
       const productData = {
         ...data,
         // Convertir strings a números para los campos numéricos
-        price: data.price ? parseFloat(data.price) : undefined,
         stock: data.stock ? parseInt(data.stock) : undefined,
         retailPrice: data.retailPrice
           ? parseFloat(data.retailPrice)
@@ -105,8 +81,6 @@ const useProductModal = (product: Product | null, closeModal: () => void) => {
         wholesalePrice: data.wholesalePrice
           ? parseFloat(data.wholesalePrice)
           : undefined,
-        discount: data.discount ? parseFloat(data.discount) : undefined,
-        discountType: data.discountType || 'percentage',
         categories: data.categories.map((category) => category.id),
       };
 
@@ -146,9 +120,7 @@ const useProductModal = (product: Product | null, closeModal: () => void) => {
   const onError = () => console.log('errors', form.formState.errors);
 
   // Función helper para detectar cambios de precio
-  const handlePriceChange = (
-    fieldName: 'price' | 'retailPrice' | 'wholesalePrice'
-  ) => {
+  const handlePriceChange = (fieldName: 'retailPrice' | 'wholesalePrice') => {
     return (value: string) => {
       // Solo actualizar si estamos en modo edición y el valor ha cambiado
       if (mode === 'EDIT' && product) {
