@@ -1,15 +1,16 @@
+import * as XLSX from 'xlsx';
 import { toast } from 'sonner';
 import { DownloadIcon } from 'lucide-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
+import type { SortingState } from '@tanstack/react-table';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { Button } from '@/components/ui/button';
-import { categoriesService, newsletterService } from '@/lib/services';
-import type { Category, NewsletterSubscriber } from '@/shared/types';
+import { newsletterService } from '@/lib/services';
+import type { NewsletterSubscriber } from '@/shared/types';
 import { CustomTable } from '@/components/ui/custom/CustomTable';
 import CustomAlertDialog from '@/components/ui/custom/custom-alert-dialog';
 import { getNewsletterColumns } from '@/components/dashboard/newsletter/table/newsletterColumns';
-import type { SortingState } from '@tanstack/react-table';
 
 const NewsletterPage = () => {
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
@@ -27,6 +28,8 @@ const NewsletterPage = () => {
       return response;
     },
   });
+
+  console.log('data', data);
 
   const deleteMutation = useMutation({
     mutationFn: (newsletterId: number) =>
@@ -65,10 +68,61 @@ const NewsletterPage = () => {
     [handleDeleteNewsletter]
   );
 
-  const handleDownloadTemplate = () => {
+  const handleDownload = () => {
     if (!data || data.length === 0) {
       toast.error('No hay newsletter para descargar');
       return;
+    }
+    try {
+      const excelData = data.map((newsletter) => ({
+        Id: newsletter.id,
+        Nombre: newsletter.name,
+        Email: newsletter.email,
+        Activo: newsletter.isActive ? 'Sí' : 'No',
+        Fecha_Suscripcion: newsletter.subscribedAt
+          ? new Date(newsletter.subscribedAt).toLocaleDateString()
+          : '',
+      }));
+
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(excelData);
+
+      // Función para ajustar automáticamente el ancho de las columnas
+      const autoFitColumns = (
+        worksheet: XLSX.WorkSheet,
+        worksheetData: (string | number | null | undefined)[][]
+      ) => {
+        const colWidths = worksheetData[0].map((_, colIndex) => {
+          const maxWidth = Math.max(
+            ...worksheetData.map((row) => {
+              const cell = row[colIndex];
+              return cell ? cell.toString().length + 2 : 10;
+            })
+          );
+
+          return { wch: maxWidth };
+        });
+        worksheet['!cols'] = colWidths;
+      };
+
+      // Convertir datos a array 2D para autoFitColumns
+      const worksheetData = [
+        Object.keys(excelData[0]), // Encabezados
+        ...excelData.map((row) => Object.values(row)), // Datos
+      ];
+
+      autoFitColumns(ws, worksheetData);
+
+      // Agregar hoja al workbook
+      XLSX.utils.book_append_sheet(wb, ws, 'Newsletter');
+
+      // Generar archivo y descargar
+      const fileName = `newsletter-${new Date().toISOString().split('T')[0]}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+
+      toast.success('Newsletter descargado exitosamente');
+    } catch (error) {
+      toast.error('Error al descargar el newsletter');
     }
   };
 
@@ -80,9 +134,8 @@ const NewsletterPage = () => {
             Gestión de Newsletter
           </h2>
 
-          <Button variant='outline' onClick={handleDownloadTemplate}>
-            <DownloadIcon className='size-5 mr-2' />
-            Descargar Newsletter
+          <Button variant='outline' onClick={handleDownload}>
+            <DownloadIcon className='size-5' />
           </Button>
         </div>
 

@@ -29,7 +29,7 @@ export const getNewsletterColumns = ({
   },
   {
     accessorKey: 'isActive',
-    header: 'ESTADO',
+    header: 'ACTIVO',
     size: 80,
     cell: ({ row }) => (row.original.isActive ? 'Sí' : 'No'),
   },

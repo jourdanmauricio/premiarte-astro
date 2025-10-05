@@ -1,3 +1,4 @@
+import * as XLSX from 'xlsx';
 import { toast } from 'sonner';
 import { DownloadIcon } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
@@ -9,8 +10,8 @@ import type { Contact } from '@/shared/types/contact';
 import { contactService } from '@/lib/services/contactService';
 import { CustomTable } from '@/components/ui/custom/CustomTable';
 import CustomAlertDialog from '@/components/ui/custom/custom-alert-dialog';
-import { getContactColumns } from '@/components/dashboard/contacts/table/contactColumns';
 import ViewContactModal from '@/components/dashboard/contacts/ViewContactModal';
+import { getContactColumns } from '@/components/dashboard/contacts/table/contactColumns';
 
 const ContactsPage = () => {
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
@@ -70,8 +71,64 @@ const ContactsPage = () => {
 
   const handleDownloadContacts = () => {
     if (!data || data.length === 0) {
-      toast.error('No hay contactos para descargar');
+      toast.error('No hay newsletter para descargar');
       return;
+    }
+    try {
+      const excelData = data.map((newsletter) => ({
+        Id: newsletter.id,
+        Nombre: newsletter.name,
+        Email: newsletter.email,
+        Telefono: newsletter.phone,
+        Mensaje: newsletter.message,
+        Fecha_Creacion: newsletter.createdAt
+          ? new Date(newsletter.createdAt).toLocaleDateString()
+          : '',
+      }));
+
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(excelData);
+
+      // Función para ajustar automáticamente el ancho de las columnas
+      const autoFitColumns = (
+        worksheet: XLSX.WorkSheet,
+        worksheetData: (string | number | null | undefined)[][]
+      ) => {
+        const colWidths = worksheetData[0].map((_, colIndex) => {
+          const maxWidth = Math.max(
+            ...worksheetData.map((row) => {
+              const cell = row[colIndex];
+              return cell ? cell.toString().length + 2 : 10;
+            })
+          );
+
+          if (colIndex === 4) {
+            return { wch: Math.min(maxWidth, 150) };
+          }
+
+          return { wch: maxWidth };
+        });
+        worksheet['!cols'] = colWidths;
+      };
+
+      // Convertir datos a array 2D para autoFitColumns
+      const worksheetData = [
+        Object.keys(excelData[0]), // Encabezados
+        ...excelData.map((row) => Object.values(row)), // Datos
+      ];
+
+      autoFitColumns(ws, worksheetData);
+
+      // Agregar hoja al workbook
+      XLSX.utils.book_append_sheet(wb, ws, 'Contactos');
+
+      // Generar archivo y descargar
+      const fileName = `contactos-${new Date().toISOString().split('T')[0]}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+
+      toast.success('Contactos descargado exitosamente');
+    } catch (error) {
+      toast.error('Error al descargar el contacto');
     }
   };
 
@@ -84,8 +141,7 @@ const ContactsPage = () => {
           </h2>
 
           <Button variant='outline' onClick={handleDownloadContacts}>
-            <DownloadIcon className='size-5 mr-2' />
-            Descargar Contactos
+            <DownloadIcon className='size-5' />
           </Button>
         </div>
 
