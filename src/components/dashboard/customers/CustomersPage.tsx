@@ -1,3 +1,4 @@
+import * as XLSX from 'xlsx';
 import { toast } from 'sonner';
 import { DownloadIcon, PlusIcon } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -75,6 +76,68 @@ const CustomersPage = () => {
       toast.error('No hay clientes para descargar');
       return;
     }
+    try {
+      // Preparar datos para Excel (solo campos simples, sin categorías, imágenes ni descuentos)
+      const excelData = data.map((customer) => ({
+        Id: customer.id,
+        Nombre: customer.name,
+        Email: customer.email,
+        Telefono: customer.phone,
+        Documento: customer.document,
+        Tipo: customer.type == 'wholesale' ? 'Mayorista' : 'Minorista',
+        Direccion: customer.address,
+        Observacion: customer.observation,
+      }));
+
+      // Solo usar los datos existentes (sin filas vacías adicionales)
+
+      // Crear workbook
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(excelData);
+
+      // Función para ajustar automáticamente el ancho de las columnas
+      const autoFitColumns = (
+        worksheet: XLSX.WorkSheet,
+        worksheetData: (string | number | null | undefined)[][]
+      ) => {
+        const colWidths = worksheetData[0].map((_, colIndex) => {
+          const maxWidth = Math.max(
+            ...worksheetData.map((row) => {
+              const cell = row[colIndex];
+              return cell ? cell.toString().length + 2 : 10;
+            })
+          );
+
+          // Limitar el ancho máximo de la columna descripción (triple del tamaño anterior)
+          if (colIndex === 7) {
+            // Columna "Descripción"
+            return { wch: Math.min(maxWidth, 150) };
+          }
+
+          return { wch: maxWidth };
+        });
+        worksheet['!cols'] = colWidths;
+      };
+
+      // Convertir datos a array 2D para autoFitColumns
+      const worksheetData = [
+        Object.keys(excelData[0]), // Encabezados
+        ...excelData.map((row) => Object.values(row)), // Datos
+      ];
+
+      autoFitColumns(ws, worksheetData);
+
+      // Agregar hoja al workbook
+      XLSX.utils.book_append_sheet(wb, ws, 'Clientes');
+
+      // Generar archivo y descargar
+      const fileName = `clientes-${new Date().toISOString().split('T')[0]}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+
+      toast.success('Clientes descargados exitosamente');
+    } catch (error) {
+      toast.error('Error al descargar los clientes');
+    }
   };
 
   const handleAddCustomer = () => {
@@ -90,7 +153,7 @@ const CustomersPage = () => {
             Gestión de Clientes
           </h2>
 
-          <div className='flex items-center gap-2'>
+          <div className='flex items-center gap-4'>
             <Button variant='outline' onClick={handleDownload}>
               <DownloadIcon className='size-5' />
             </Button>
