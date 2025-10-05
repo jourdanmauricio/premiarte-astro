@@ -78,10 +78,16 @@ function CustomTable<TData, TValue>({
   const hasData = table.getRowModel().rows?.length > 0;
   const hasError = Boolean(error);
 
+  const height = table.getRowModel().rows?.length * 48 + 45;
+
   return (
     <>
       <div className='mt-8 flex min-h-[180px] w-full flex-col'>
-        <ScrollArea className='h-[530px] w-full' type='auto'>
+        <ScrollArea
+          className='w-full'
+          style={{ height: `${height}px` }}
+          type='auto'
+        >
           <Table className='w-full'>
             <TableHeader className='w-full bg-white'>
               {table.getHeaderGroups().map((headerGroup) => (
