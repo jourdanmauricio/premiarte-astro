@@ -19,8 +19,6 @@ const defaultValues = {
   stock: '',
   retailPrice: '',
   wholesalePrice: '',
-  // priceUpdatedAt: '',
-  // priceUpdated: '',
   relatedProducts: [],
   images: [],
   categories: [],
