@@ -55,6 +55,7 @@ export function ImageUploadTab({
         alt: data.alt,
         tag: data.tag,
         observation: data.observation,
+        public_id: data.alt,
       });
     },
     onSuccess: (result) => {
@@ -128,7 +129,16 @@ export function ImageUploadTab({
 
     // Auto-completar campos del formulario
     const fileName = file.name.split('.')[0];
-    form.setValue('alt', fileName);
+    let altText = fileName;
+    if (defaultTag === 'Productos') {
+      altText = `product_${file.name}`;
+    }
+
+    if (defaultTag === 'Categorías') {
+      altText = `category_${file.name}`;
+    }
+
+    form.setValue('alt', altText);
   };
 
   const handleFileInputChange = (

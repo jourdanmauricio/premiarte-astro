@@ -28,7 +28,12 @@ class MediaService {
   // Subir nueva imagen
   async uploadImage(
     file: File,
-    additionalData?: { alt?: string; tag?: string; observation?: string }
+    additionalData?: {
+      alt?: string;
+      tag?: string;
+      observation?: string;
+      public_id?: string;
+    }
   ): Promise<Image> {
     const formData = new FormData();
     formData.append('file', file);
@@ -42,6 +47,9 @@ class MediaService {
     }
     if (additionalData?.observation) {
       formData.append('observation', additionalData.observation);
+    }
+    if (additionalData?.public_id) {
+      formData.append('public_id', additionalData.public_id);
     }
 
     const response = await fetch(this.baseUrl, {

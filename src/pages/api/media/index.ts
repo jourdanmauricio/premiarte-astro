@@ -53,6 +53,7 @@ export const POST: APIRoute = async (context) => {
     const alt = formData.get('alt') as string;
     const tag = formData.get('tag') as string;
     const observation = formData.get('observation') as string;
+    const public_id = formData.get('public_id') as string;
 
     // Validar campos requeridos
     if (!file || !alt) {
@@ -75,6 +76,10 @@ export const POST: APIRoute = async (context) => {
           {
             resource_type: 'auto',
             folder: 'premiarte',
+            use_filename: true,
+            unique_filename: false,
+            overwrite: true,
+            public_id: public_id,
           },
           (error, result) => {
             if (error) reject(error);
