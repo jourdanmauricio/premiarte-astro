@@ -1,6 +1,7 @@
 ---
 import Image from 'astro/components/Image.astro';
-
+import PrimaryButton from '@/components/shared/PrimaryButton';
+import SecondaryButton from '@/components/shared/SecondaryButton';
 const { hero, heroImageData, heroImageLogoData } = Astro.props;
 ---
 
@@ -35,18 +36,28 @@ const { hero, heroImageData, heroImageLogoData } = Astro.props;
 
       {/* Botones de acción mejorados */}
       <div
-        class='flex flex-col justify-center gap-4 pt-4 sm:flex-row lg:justify-start mt-8'
+        class='flex flex-col justify-center gap-4 pt-4 sm:flex-row lg:justify-end mt-8'
       >
-        <button
+        <!-- <button
           class='rounded-lg bg-gradient-to-r from-red-600 to-orange-600 px-8 py-4 text-lg font-semibold text-white shadow-xl transition-all duration-300 hover:scale-105 hover:from-red-700 hover:to-orange-700 hover:shadow-2xl'
         >
           <a href={hero.buttonLink}>{hero.buttonText}</a>
-        </button>
-        <button
+        </button> -->
+        <PrimaryButton
+          label={hero.buttonText || 'Ver Productos'}
+          href={hero.buttonLink || '/productos'}
+          className='px-8 py-6 text-lg font-semibold text-white min-w-40'
+        />
+        <!-- <button
           class='rounded-lg border-2 border-orange-600 px-8 py-4 text-lg font-semibold text-orange-600 transition-all duration-300 hover:scale-105 hover:bg-orange-600 hover:text-white hover:shadow-lg'
         >
           Ofertas Especiales
-        </button>
+        </button> -->
+        <SecondaryButton
+          label='Más Información'
+          href='/contacto'
+          className='px-8 py-6 text-lg font-semibold text-white min-w-40'
+        />
       </div>
     </div>
     {/* Imagen lateral mejorada */}

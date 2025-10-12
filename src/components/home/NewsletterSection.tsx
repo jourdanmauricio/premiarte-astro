@@ -10,6 +10,8 @@ import { useState } from 'react';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import InputField from '@/components/ui/custom/input-field';
+import PrimaryButton from '@/components/shared/PrimaryButton';
+import SubmmitButton from '@/components/shared/SubmitButton';
 
 const newsletterSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
@@ -104,7 +106,7 @@ const Newsletter = () => {
                   />
                 </div>
 
-                <Button
+                {/* <Button
                   type='submit'
                   className='w-full rounded-lg bg-gradient-to-r from-red-600 to-orange-600 px-8 py-4 text-lg font-semibold text-white shadow-xl transition-all duration-300 hover:scale-105 hover:from-red-700 hover:to-orange-700 hover:shadow-2xl disabled:transform-none disabled:cursor-not-allowed disabled:opacity-50'
                   disabled={isLoading}
@@ -117,7 +119,13 @@ const Newsletter = () => {
                   ) : (
                     'Suscríbete'
                   )}
-                </Button>
+                </Button> */}
+                <SubmmitButton
+                  label='Suscríbete'
+                  showSpinner={isLoading}
+                  disabled={isLoading}
+                  className='px-8 py-6 text-lg font-semibold text-white min-w-40 w-full'
+                />
               </form>
             </Form>
           </div>

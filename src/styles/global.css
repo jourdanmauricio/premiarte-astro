@@ -135,7 +135,6 @@
      animation-timing-function: ease-out; 
 } */
 
-
 @keyframes show-image {
     from {
         opacity: 0;

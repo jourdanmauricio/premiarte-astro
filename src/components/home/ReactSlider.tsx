@@ -12,6 +12,8 @@ import { useEffect, useState } from 'react';
 import Autoplay from 'embla-carousel-autoplay';
 // import { cn } from '@/lib/utils';
 import type { Slide } from '@/components/home/HomePage.astro';
+import PrimaryButton from '@/components/shared/PrimaryButton';
+import SecondaryButton from '@/components/shared/SecondaryButton';
 
 interface props {
   slider: Slide[];
@@ -87,7 +89,7 @@ const ReactSlider = ({ slider }: props) => {
                       </div>
 
                       <div className='mt-4 flex flex-col gap-4 sm:flex-row'>
-                        <Button
+                        {/* <Button
                           className='group relative overflow-hidden rounded-lg border-0 bg-gradient-to-r from-red-600 to-orange-600 px-8 py-4 font-semibold text-white shadow-xl transition-all duration-300 hover:scale-105 hover:from-red-700 hover:to-orange-700 hover:shadow-2xl'
                           asChild
                         >
@@ -97,15 +99,24 @@ const ReactSlider = ({ slider }: props) => {
                             </span>
                             <div className='absolute inset-0 translate-x-[-100%] bg-white/20 transition-transform duration-500 group-hover:translate-x-0'></div>
                           </a>
-                        </Button>
+                        </Button> */}
+                        <PrimaryButton
+                          label={slide.buttonText || 'Ver Productos'}
+                          href={slide.buttonLink || '/productos'}
+                        />
 
-                        <Button
+                        {/* <Button
                           variant='outline'
                           className='rounded-lg border-white/30 bg-white/10 px-8 py-4 font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-white/50 hover:bg-white/20'
                           asChild
                         >
                           <a href='/contacto'>Más Información</a>
-                        </Button>
+                        </Button> */}
+
+                        <SecondaryButton
+                          label='Más Información'
+                          href='/contacto'
+                        />
                       </div>
                     </div>
                   </CardContent>
