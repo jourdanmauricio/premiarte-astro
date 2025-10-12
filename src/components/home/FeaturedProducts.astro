@@ -1,7 +1,9 @@
 ---
-const { featuredProducts } = Astro.props;
-import ProductsCard from '@/components/home/ProductsCard.astro';
 import { Database } from '@/lib/db';
+import Subtitle from '@/components/shared/Subtitle.astro';
+import ProductsCard from '@/components/home/ProductsCard.astro';
+
+const { featuredProducts } = Astro.props;
 
 const products = await Database.getAllProducts({ featured: true });
 ---
@@ -9,15 +11,7 @@ const products = await Database.getAllProducts({ featured: true });
 <section class='container relative px-4 py-16 md:px-20 md:py-24 lg:py-32'>
   <div class='flex flex-col items-center gap-12 lg:gap-16'>
     <div class='text-center w-full'>
-      <h2
-        class='text-center text-2xl font-semibold tracking-tight text-orange-500 md:text-3xl'
-      >
-        <span
-          class='bg-gradient-to-r from-orange-600 via-red-600 to-orange-700 bg-clip-text text-transparent drop-shadow-sm'
-        >
-          {featuredProducts.title || 'Premiarte'}
-        </span>
-      </h2>
+      <Subtitle subtitle={featuredProducts.title} />
       {
         featuredProducts.text && (
           <div class='text-lg leading-relaxed text-muted-foreground md:text-xl mt-8 w-full'>

@@ -11,17 +11,6 @@ const homeSettings = settings.find((s) => s.key === 'home');
 const parsedValue = JSON.parse(homeSettings?.value || '[]');
 const footer = parsedValue.footer;
 
-// {
-//   siteName: 'Premiarte',
-//   logoId: 103,
-//   siteText: 'Trofeos, medallas, enmarcados',
-//   socialLinks: [
-//     { href: '#', label: 'Facebook', image: 121 },
-//     { href: '#', label: 'Instagram', image: 122 },
-//     { href: '#', label: 'twitter', image: 123 }
-//   ]
-// }
-
 const socialLinksImages = await Promise.all(
   footer.socialLinks.map(async (socialLink: SocialLink) => {
     if (socialLink.image) {
@@ -100,7 +89,9 @@ const footerWithImages = {
         <h3 class='text-base font-medium text-muted-foreground text-center'>
           {footerWithImages.siteAbout}
         </h3>
-        <div class='max-w-[600px] text-muted-foreground md:text-sm mx-auto'>
+        <div
+          class='max-w-[600px] text-center text-muted-foreground md:text-sm mx-auto'
+        >
           <p>
             {footerWithImages.siteAboutDescription}
           </p>
@@ -121,16 +112,16 @@ const footerWithImages = {
         </div>
       </div>
     </div>
-    <div class='mt-8 border-t pt-8'>
+    <div class='mt-8 border-t pt-8 text-center'>
       <div
-        class='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'
+        class='flex flex-col gap-4 md:flex-row items-center md:justify-between'
       >
-        <p class='text-xs text-muted-foreground'>
+        <p class='text-xs text-muted-foreground text-center'>
           &copy; {new Date().getFullYear()}{' '}
           {/*{footer.textReserved || 'Premiearte'}.*/}© 2025 Premiarte derechos
           reservados.
         </p>
-        <div class='flex gap-4'>
+        <div class='flex gap-4 mx-auto'>
           <a href='#' class='text-xs text-muted-foreground hover:text-primary'>
             Privacy Policy
           </a>
@@ -141,7 +132,9 @@ const footerWithImages = {
             Cookies Policy
           </a>
         </div>
-        <div class='flex items-center gap-2 text-xs text-muted-foreground'>
+        <div
+          class='flex items-center gap-2 text-xs text-muted-foreground mx-auto'
+        >
           Desarrollo
           <a
             href='#'

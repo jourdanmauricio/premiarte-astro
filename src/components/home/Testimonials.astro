@@ -1,0 +1,44 @@
+---
+import { Card, CardContent } from '@/components/ui/card';
+import type { Testimonial } from '@/shared/types/settings';
+import Subtitle from '@/components/shared/Subtitle.astro';
+import { StarsRating } from '@/components/home/StarsRating';
+
+export interface TestimonialsProps {
+  testimonials: {
+    title?: string;
+    testimonials: Testimonial[];
+  };
+}
+
+const { testimonials } = Astro.props;
+---
+
+<section class='py-20'>
+  <div class='container px-4 md:px-6'>
+    <Subtitle subtitle={testimonials.title || 'Testimonios'} />
+
+    <div class='grid grid-cols-1 gap-6 pt-24 md:grid-cols-3'>
+      {
+        testimonials.testimonials.map((testimonial: Testimonial) => (
+          <Card className='bg-background'>
+            <CardContent className='p-6'>
+              <div class='mb-4 flex flex-col gap-2'>
+                <h3 class='text-lg font-semibold'>{testimonial.name}</h3>
+                <div class='flex items-center gap-2'>
+                  <StarsRating rating={testimonial.rating} client:load />
+                  <span class='text-sm text-muted-foreground'>
+                    {Number(testimonial.rating).toFixed(1)}
+                  </span>
+                </div>
+              </div>
+              <p class='text-muted-foreground leading-relaxed'>
+                "{testimonial.description}"
+              </p>
+            </CardContent>
+          </Card>
+        ))
+      }
+    </div>
+  </div>
+</section>

@@ -5,8 +5,8 @@ import FeaturedProducts from '@/components/home/FeaturedProducts.astro';
 import { Database } from '@/lib/db';
 import { turso } from '@/lib/turso';
 import type { Settings } from '@/shared/types';
-import Testimonials from '@/components/home/Testimonials';
-import { ServicesSection } from '@/components/home/Services';
+import Testimonials from '@/components/home/Testimonials.astro';
+import Services from '@/components/home/Services.astro';
 import FeaturedCategoriesSection from '@/components/home/FeaturedCategoriesSection.astro';
 import NewsletterSection from '@/components/home/NewsletterSection';
 
@@ -130,7 +130,7 @@ const featuredCategories = parsedValue.featuredCategories;
       />
       <FeaturedProducts featuredProducts={featuredProducts} />
 
-      <ServicesSection
+      <Services
         title={services.title}
         subtitle={services.subtitle}
         services={servicesWithImages}
