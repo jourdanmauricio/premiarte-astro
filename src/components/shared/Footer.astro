@@ -107,7 +107,10 @@ const footerWithImages = {
             <p>{footerWithImages.siteAddress}</p>
             <p>{footerWithImages.siteCity}</p>
             <p>{footerWithImages.sitePhone}</p>
-            <p>{footerWithImages.siteEmail}</p>
+            <!-- <p>{footerWithImages.siteEmail}</p> -->
+            <a href={`mailto:${footerWithImages.siteEmail}`}>
+              {footerWithImages.siteEmail}
+            </a>
           </div>
         </div>
       </div>
