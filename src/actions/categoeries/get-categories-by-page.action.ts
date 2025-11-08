@@ -10,6 +10,8 @@ export const getCategoriesByPage = defineAction({
   }),
   handler: async () => {
     const categories = await Database.getAllCategories({});
-    return categories;
+    return categories.sort((a, b) =>
+      String(a.name).localeCompare(String(b.name))
+    );
   },
 });
