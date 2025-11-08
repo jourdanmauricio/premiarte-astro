@@ -2,25 +2,34 @@
 import type { Category } from '@/shared/types';
 
 const { categories, pathname } = Astro.props;
+// Normalizar pathname removiendo trailing slash si existe
+const normalizedPathname =
+  pathname.endsWith('/') && pathname !== '/' ? pathname.slice(0, -1) : pathname;
 ---
 
 <sidebar class='space-y-2 sticky top-0 min-w-48'>
   <!-- <h3 class='text-lg min-w-48 font-medium'>Categorías</h3> -->
   <a
     href={`/categoria/productos`}
-    class={`my-8 group flex cursor-pointer items-center space-x-2 ${pathname.startsWith('/categoria/productos') ? 'font-bold text-orange-500' : 'font-normal text-muted-foreground'} transition-colors hover:text-primary`}
+    class={`my-8 group flex cursor-pointer items-center space-x-2 ${normalizedPathname.startsWith('/categoria/productos') ? 'font-bold text-orange-500' : 'font-normal text-muted-foreground'} transition-colors hover:text-primary`}
   >
     Todos los productos
   </a>
   {
-    categories.map((category: Category) => (
-      // class={`group flex cursor-pointer items-center space-x-2 ${pathname.startsWith(`/categoria/${category.slug}`) ? 'font-bold text-orange-500' : 'font-normal text-muted-foreground'} transition-colors hover:text-primary`}
-      <a
-        href={`/categoria/${category.slug}`}
-        class={`group flex cursor-pointer items-center space-x-2 ${pathname === `/categoria/${category.slug}` ? 'font-bold text-orange-500' : 'font-normal text-muted-foreground'} transition-colors hover:text-primary`}
-      >
-        {category.name}
-      </a>
-    ))
+    categories.map((category: Category) => {
+      // Verificar si estamos en esta categoría exacta, incluyendo páginas de paginación
+      const isActive =
+        normalizedPathname === `/categoria/${category.slug}` ||
+        normalizedPathname.startsWith(`/categoria/${category.slug}/page/`);
+
+      return (
+        <a
+          href={`/categoria/${category.slug}`}
+          class={`group flex cursor-pointer items-center space-x-2 ${isActive ? 'font-bold text-orange-500' : 'font-normal text-muted-foreground'} transition-colors hover:text-primary`}
+        >
+          {category.slug}
+        </a>
+      );
+    })
   }
 </sidebar>
