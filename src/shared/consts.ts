@@ -15,7 +15,7 @@ export const navItems = [
 ];
 
 export const navBarLinks = [
-  { name: 'home', href: '/' },
+  { name: 'Inicio', href: '/' },
   { name: 'Categorías', href: '/categorias' },
   { name: 'Productos', href: '/categoria/productos' },
   // { name: 'Sobre nosotros', href: '/sobre-nosotros' },
