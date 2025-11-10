@@ -3,6 +3,7 @@ import { ClientRouter } from 'astro:transitions';
 
 import NavBar from '@/components/shared/NavBar.astro';
 import ToasterProvider from '@/components/ui/ToasterProvider.tsx';
+import WhatsAppButton from '@/components/shared/WhatsAppButton.astro';
 
 import '../styles/global.css';
 import Footer from '@/components/shared/Footer.astro';
@@ -56,6 +57,9 @@ const { title } = Astro.props;
     </main>
 
     {!isDashboard && <Footer />}
+
+    <!-- Botón flotante de WhatsApp -->
+    {!isDashboard && <WhatsAppButton />}
 
     <!-- Toaster para notificaciones solo en páginas públicas -->
     {!isDashboard && <ToasterProvider client:load />}
