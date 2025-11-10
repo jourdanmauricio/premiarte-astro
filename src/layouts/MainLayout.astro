@@ -7,6 +7,9 @@ import WhatsAppButton from '@/components/shared/WhatsAppButton.astro';
 
 import '../styles/global.css';
 import Footer from '@/components/shared/Footer.astro';
+import { Database } from '@/lib/db';
+import type { Settings } from '@/shared/types';
+import { turso } from '@/lib/turso';
 // import Footer from '@/components/shared/Footer';
 
 interface Props {
@@ -14,6 +17,19 @@ interface Props {
   description?: string;
   image?: string;
 }
+
+const settings = (await Database.getAllSettings()) as unknown as Settings[];
+
+const homeSettings = settings.find((s) => s.key === 'home');
+const parsedValue = JSON.parse(homeSettings?.value || '[]');
+const menu = parsedValue.menu;
+
+const menuLogoImage = await turso
+  .execute({
+    sql: 'SELECT url, alt FROM Image WHERE id = ?',
+    args: [menu.logoId],
+  })
+  .then((result) => result.rows[0] || null);
 
 const isDashboard = Astro.url.pathname.startsWith('/dashboard');
 
@@ -25,8 +41,50 @@ const { title } = Astro.props;
   <head>
     <meta charset='UTF-8' />
     <meta name='viewport' content='width=device-width' />
-    <link rel='icon' type='image/svg+xml' href='/favicon.svg' />
-    <meta name='generator' content={Astro.generator} />
+    <link
+      rel='icon'
+      type='image/svg+xml'
+      href={String(menuLogoImage?.url) || '/favicon.svg'}
+    />
+    <meta
+      name='classification'
+      content='Premiarte, Trofeos, Venta y Fabricacion de Trofeos, Medallas, Reconocimientos, Placas Grabadas, Copas, Promocionales, Venta, Fabrica y Diseño de trofeos, La Plata'
+    />
+    <meta
+      name='description'
+      content='Premiarte, Trofeos, Venta y Fabricacion de Trofeos, Medallas, Reconocimientos, Placas Grabadas, Copas, Promocionales, Venta, Fabrica y Diseño de trofeos, La Plata'
+    />
+    <meta
+      name='keywords'
+      content='Premiarte, Trofeos, Venta y Fabricacion de Trofeos, Medallas, Reconocimientos, Placas Grabadas, Copas, Promocionales, Venta, Fabrica y Diseño de trofeos, La Plata'
+    />
+    <meta
+      name='abstract'
+      content='Premiarte, Trofeos, Venta y Fabricacion de Trofeos, Medallas, Reconocimientos, Placas Grabadas, Copas, Promocionales, Venta, Fabrica y Diseño de trofeos, La Plata'
+    />
+    <meta name='author' content='Premiarte' />
+    <meta name='robots' content='all' />
+    <meta name='googlebot' content='all' />
+    <meta name='generator' content='Premiarte.com.ar | Premiarte' />
+    <meta name='subject' content='Premiarte.com.ar | Premiarte' />
+    <meta name='distribution' content='Global' />
+    <meta name='content-language' content='es' />
+    <meta name='language' content='es' />
+    <meta name='og:title' content='Premiarte' />
+    <meta
+      name='og:description'
+      content='Premiarte, Trofeos, Venta y Fabricacion de Trofeos, Medallas, Reconocimientos, Placas Grabadas, Copas, Promocionales, Venta, Fabrica y Diseño de trofeos, La Plata'
+    />
+    <meta
+      name='og:image'
+      content={String(menuLogoImage?.url) || '/favicon.svg'}
+    />
+    <meta name='og:url' content={Astro.url.href} />
+    <meta name='og:site_name' content='www.premiarte.com.ar' />
+    <meta name='og:type' content='website' />
+    <meta name='og:locale' content='es_ES' />
+    <meta name='og:locale:alternate' content='en_US' />
+    <meta name='og:locale:alternate' content='es_AR' />
     <title>{title}</title>
     <ClientRouter fallback='none' />
   </head>
