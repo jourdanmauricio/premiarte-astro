@@ -223,3 +223,9 @@ export const OrderFormSchema = z.object({
   createdAt: z.date().optional(),
   items: z.array(OrderItemFormSchema),
 });
+
+export const SocialLinkFormSchema = z.object({
+  href: z.string().min(1, { message: 'Enlace requerido' }),
+  label: z.string().min(1, { message: 'Etiqueta requerida' }),
+  image: z.number().min(1, { message: 'Imagen requerida' }),
+});

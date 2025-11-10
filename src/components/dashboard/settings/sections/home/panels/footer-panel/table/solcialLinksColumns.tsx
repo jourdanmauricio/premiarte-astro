@@ -2,7 +2,7 @@ import { type ColumnDef } from '@tanstack/react-table';
 import { Button } from '@/components/ui/button';
 import { EditIcon, Trash2Icon, ArrowUpIcon, ArrowDownIcon } from 'lucide-react';
 import { TruncatedCell } from '@/components/ui/custom/truncatedCell';
-import type { Image } from '@/shared/types';
+import type { SocialLink } from '@/shared/types';
 
 // Tipo para los datos enriquecidos de social links
 type EnrichedSocialLink = {
@@ -15,8 +15,8 @@ type EnrichedSocialLink = {
 };
 
 type DataTableColumnsProps = {
-  onEdit: (index: number) => void;
-  onDelete: (index: number) => void;
+  onEdit: (socialLink: SocialLink) => void;
+  onDelete: (socialLink: SocialLink) => void;
   onMove: (fromIndex: number, toIndex: number) => void;
 };
 
@@ -124,7 +124,7 @@ export const getSocialLinkColumns = ({
           <Button
             variant='ghost'
             size='sm'
-            onClick={() => onEdit(socialLink.index)}
+            onClick={() => onEdit(socialLink as SocialLink)}
             className='h-8 w-8 p-0 hover:bg-blue-50'
             type='button'
           >
@@ -133,7 +133,7 @@ export const getSocialLinkColumns = ({
           <Button
             variant='ghost'
             size='sm'
-            onClick={() => onDelete(socialLink.index)}
+            onClick={() => onDelete(socialLink as SocialLink)}
             className='h-8 w-8 p-0 hover:bg-red-50'
             type='button'
           >

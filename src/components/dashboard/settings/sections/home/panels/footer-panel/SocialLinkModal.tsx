@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
+import { SocialLinkFormSchema } from '@/shared/schemas';
 import type { SettingsFormSchema } from '@/shared/schemas';
 import type { Image } from '@/shared/types';
 import { ImageSelector } from '@/components/ui/custom/single-image-selector/image-selector/ImageSelector';
@@ -25,12 +26,6 @@ interface SocialLinkModalProps {
   form: UseFormReturn<MainFormData>;
   images: Image[];
 }
-
-const SocialLinkFormSchema = z.object({
-  href: z.string().min(1, { message: 'Enlace requerido' }),
-  label: z.string().min(1, { message: 'Etiqueta requerida' }),
-  image: z.number().min(1, { message: 'Imagen requerida' }),
-});
 
 type SocialLinkFormData = z.infer<typeof SocialLinkFormSchema>;
 type MainFormData = z.infer<typeof SettingsFormSchema>;

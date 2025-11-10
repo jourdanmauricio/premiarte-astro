@@ -1,5 +1,5 @@
 import type z from 'zod';
-import type { Image } from '@/shared/types';
+import type { Image, SocialLink } from '@/shared/types';
 import type { UseFormReturn } from 'react-hook-form';
 import type { SettingsFormSchema } from '@/shared/schemas';
 import InputField from '@/components/ui/custom/input-field';
@@ -11,6 +11,7 @@ import { PlusIcon } from 'lucide-react';
 import { SocialLinkModal } from '@/components/dashboard/settings/sections/home/panels/footer-panel/SocialLinkModal';
 import { ImageSelector } from '@/components/ui/custom/single-image-selector/image-selector';
 import TextareaField from '@/components/ui/custom/textarea-field';
+import CustomAlertDialog from '@/components/ui/custom/custom-alert-dialog';
 
 interface FooterPanelProps {
   form: UseFormReturn<z.infer<typeof SettingsFormSchema>>;
@@ -23,6 +24,9 @@ const FooterPanel = ({ form, images }: FooterPanelProps) => {
     number | null
   >(null);
   const [socialLinkModalIsOpen, setSocialLinkModalIsOpen] = useState(false);
+  const [currentSocialLink, setCurrentSocialLink] = useState<SocialLink | null>(
+    null
+  );
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
 
   const socialLinks = form.watch('home.footer') || [];
@@ -32,33 +36,47 @@ const FooterPanel = ({ form, images }: FooterPanelProps) => {
   );
 
   const handleAddSocialLink = useCallback(() => {
+    setCurrentSocialLink(null);
     setCurrentSocialLinkIndex(null);
     setSocialLinkModalIsOpen(true);
   }, []);
 
-  const handleEditSocialLink = useCallback((index: number) => {
-    setCurrentSocialLinkIndex(index);
-    setSocialLinkModalIsOpen(true);
-  }, []);
+  const handleEditSocialLink = useCallback(
+    (socialLink: SocialLink) => {
+      console.log('handleEditSocialLink', socialLink);
+      const index =
+        socialLinks.socialLinks?.findIndex(
+          (link) =>
+            link.href === socialLink.href && link.label === socialLink.label
+        ) ?? null;
+      setCurrentSocialLink(socialLink);
+      setCurrentSocialLinkIndex(index !== -1 ? index : null);
+      setSocialLinkModalIsOpen(true);
+    },
+    [socialLinks.socialLinks]
+  );
 
-  const handleDeleteSocialLink = useCallback((index: number) => {
-    setCurrentSocialLinkIndex(index);
+  const handleDeleteSocialLink = useCallback((socialLink: SocialLink) => {
+    setCurrentSocialLink(socialLink);
     setDeleteModalIsOpen(true);
   }, []);
 
   const handleConfirmDelete = useCallback(() => {
-    if (currentSocialLinkIndex !== null) {
-      const currentSlides = form.getValues('home.testimonials') || [];
-      const newSlides = currentSlides.testimonials.filter(
+    if (currentSocialLink !== null) {
+      const currentSocialLinks = [
+        ...(form.getValues('home.footer.socialLinks') || []),
+      ];
+      const newSocialLinks = currentSocialLinks.filter(
         (_, index) => index !== currentSocialLinkIndex
       );
-      form.setValue('home.testimonials.testimonials', newSlides, {
+      form.setValue('home.footer.socialLinks', newSocialLinks, {
         shouldDirty: true,
       });
       setDeleteModalIsOpen(false);
+      setCurrentSocialLink(null);
       setCurrentSocialLinkIndex(null);
     }
-  }, [currentSocialLinkIndex, form]);
+  }, [currentSocialLink, form]);
 
   const handleMoveSocialLink = useCallback(
     (fromIndex: number, toIndex: number) => {
@@ -211,14 +229,16 @@ const FooterPanel = ({ form, images }: FooterPanelProps) => {
         <InputField label='Email' name='home.footer.siteEmail' form={form} />
       </div>
 
-      <SocialLinkModal
-        open={socialLinkModalIsOpen}
-        closeModal={() => setSocialLinkModalIsOpen(false)}
-        socialLink={null}
-        socialLinkIndex={null}
-        form={form}
-        images={images}
-      />
+      {socialLinkModalIsOpen && (
+        <SocialLinkModal
+          open={socialLinkModalIsOpen}
+          closeModal={() => setSocialLinkModalIsOpen(false)}
+          socialLink={currentSocialLink}
+          socialLinkIndex={currentSocialLinkIndex}
+          form={form}
+          images={images}
+        />
+      )}
 
       {logoImageSelectorOpen && (
         <ImageSelector
@@ -227,6 +247,21 @@ const FooterPanel = ({ form, images }: FooterPanelProps) => {
           onSelect={handleImageSelection}
           multipleSelect={false}
           selectedImages={selectedLogoImage ? [selectedLogoImage] : []}
+        />
+      )}
+      {deleteModalIsOpen && (
+        <CustomAlertDialog
+          title='Eliminar red social'
+          description={`¿Estás seguro de querer eliminar la red social "${currentSocialLink?.label}"? Esta acción no se puede deshacer.`}
+          cancelButtonText='Cancelar'
+          continueButtonText={'Eliminar'}
+          onContinueClick={handleConfirmDelete}
+          open={deleteModalIsOpen}
+          onCloseDialog={() => {
+            setDeleteModalIsOpen(false);
+            setCurrentSocialLink(null);
+            setCurrentSocialLinkIndex(null);
+          }}
         />
       )}
     </>
