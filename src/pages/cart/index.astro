@@ -493,8 +493,17 @@ const products = data;
 
         const formData = new FormData(form);
 
+        // Convertir FormData a objeto para evitar problemas con CSRF
+        // Las actions funcionan mejor con objetos planos que con FormData
+        const data = {
+          name: formData.get('name') as string,
+          email: formData.get('email') as string,
+          phone: formData.get('phone') as string,
+          message: (formData.get('message') as string) || '',
+        };
+
         // Usar la server action de Astro
-        const result = await actions.sendBudgetRequest(formData);
+        const result = await actions.sendBudgetRequest(data);
 
         if (result.data?.success) {
           // Éxito: mostrar notificación de éxito

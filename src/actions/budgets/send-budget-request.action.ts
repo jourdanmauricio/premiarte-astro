@@ -9,7 +9,7 @@ import type {
 } from '@/shared/types';
 
 export const sendBudgetRequest = defineAction({
-  accept: 'form',
+  accept: 'json',
   input: z.object({
     name: z.string().min(1, 'El nombre es requerido'),
     email: z
