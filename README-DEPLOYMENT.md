@@ -42,6 +42,11 @@ turso db shell premiarte-db < schema.sql
 Solo necesitas configurar estas variables:
 
 ```bash
+# ORIGEN del sitio (OBLIGATORIA para producción)
+# ⚠️ MUY IMPORTANTE: Necesaria para protección CSRF de Astro Actions
+# Debe ser la URL completa de tu sitio en producción
+ORIGIN=https://tudominio.com
+
 # Clerk Authentication (OBLIGATORIAS)
 PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_tu_clave_aqui
 CLERK_SECRET_KEY=sk_live_tu_clave_aqui
@@ -55,6 +60,14 @@ CLOUDINARY_CLOUD_NAME=tu_cloud_name
 CLOUDINARY_API_KEY=tu_api_key
 CLOUDINARY_API_SECRET=tu_api_secret
 ```
+
+**⚠️ IMPORTANTE**: La variable `ORIGIN` es OBLIGATORIA en producción. Sin ella, obtendrás el error:
+
+```
+403 - Cross-site POST form submissions are forbidden
+```
+
+Esta variable permite que Astro valide correctamente las peticiones POST de los formularios y Astro Actions.
 
 ### 3. Ventajas de usar Turso
 
@@ -161,7 +174,7 @@ Usuario presiona botón → Dashboard → API /regenerate → Coolify → Deploy
 
 #### 4. **Variables necesarias en Coolify**
 
-Además de las variables de Turso y Clerk, agregar:
+Además de las variables de Turso, Clerk y ORIGIN, agregar:
 
 ```bash
 # Regeneración automática
@@ -184,9 +197,62 @@ COOLIFY_APPLICATION_ID=tu_application_id
 - ✅ **Seguro**: Solo usuarios admin pueden triggear deployos
 - ✅ **Sin GitHub intermedio**: Coolify maneja directamente el repositorio
 
+## Troubleshooting
+
+### Error: 403 - Cross-site POST form submissions are forbidden
+
+**Síntoma**: Los formularios funcionan en desarrollo pero fallan en producción con error 403.
+
+**Causa**: Problema con protección CSRF de Astro, usualmente por falta de la variable `ORIGIN` o por configuración de proxy (Cloudflare).
+
+**Soluciones**:
+
+#### Solución 1: Configurar variable ORIGIN
+
+1. En Coolify, ve a tu aplicación → Environment Variables
+2. Agrega la variable:
+   ```
+   ORIGIN=https://tudominio.com
+   ```
+   (Reemplaza con la URL real de tu sitio en producción)
+3. Redeploy la aplicación
+4. Verifica que el dominio coincida exactamente (incluye `https://` y no agregues `/` al final)
+
+#### Solución 2: Cloudflare con SSL Flexible
+
+Si usas Cloudflare con SSL Flexible (conexión HTTPS al navegador, HTTP al servidor):
+
+**El problema**: Cloudflare reenvía las peticiones como HTTP, pero Astro espera HTTPS.
+
+**La solución**: El proyecto ya incluye un middleware (`src/middleware.ts`) que maneja automáticamente los headers de Cloudflare (`X-Forwarded-Proto` y `X-Forwarded-Host`) para que Astro reconozca correctamente el protocolo original.
+
+**Recomendación**: Si tu servidor soporta SSL, cambia Cloudflare a modo **"Full"** o **"Full (strict)"** en SSL/TLS → Overview para mayor seguridad.
+
+**Nota**: La variable `ORIGIN` sigue siendo necesaria con ambas soluciones.
+
+### Error de conexión a base de datos
+
+**Síntoma**: La aplicación no puede conectarse a Turso.
+
+**Solución**:
+
+1. Verifica que `TURSO_DATABASE_URL` y `TURSO_AUTH_TOKEN` estén correctamente configurados
+2. Comprueba que el token no haya expirado: `turso db tokens create premiarte-db`
+3. Verifica la conectividad desde tu servidor
+
+### Clerk no funciona en producción
+
+**Síntoma**: La autenticación falla o redirige incorrectamente.
+
+**Solución**:
+
+1. Asegúrate de usar las claves de **producción** (`pk_live_...` y `sk_live_...`)
+2. En el dashboard de Clerk, configura el dominio de producción en "Allowed Origins"
+3. Verifica que `PUBLIC_CLERK_PUBLISHABLE_KEY` esté correcta
+
 ## Resumen
 
-- **Solo configura variables de Turso, Clerk y Coolify** en el panel
+- **Configura ORIGIN, Turso, Clerk y Coolify** en el panel
 - **Sin volúmenes Docker** - todo en la nube
 - **Sin migraciones complejas** - SQL directo
 - **Regeneración automática** desde el dashboard admin
