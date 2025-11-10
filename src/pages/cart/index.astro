@@ -213,6 +213,7 @@ const products = data;
   import { CartCookiesClient } from '@/utils';
   import { navigate } from 'astro:transitions/client';
   import { BudgetFormSchema, BudgetPageFormSchema } from '@/shared/schemas';
+  import { actions } from 'astro:actions';
 
   document.addEventListener('astro:page-load', () => {
     // Funcionalidad del carrito
@@ -493,7 +494,6 @@ const products = data;
         const formData = new FormData(form);
 
         // Usar la server action de Astro
-        const { actions } = await import('astro:actions');
         const result = await actions.sendBudgetRequest(formData);
 
         if (result.data?.success) {
