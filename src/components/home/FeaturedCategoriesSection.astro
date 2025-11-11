@@ -8,7 +8,9 @@ const { featuredCategories } = Astro.props;
 const categories = await Database.getAllCategories({ featured: true });
 ---
 
-<section class='container relative px-4 py-16 md:px-20 md:py-24 lg:py-32'>
+<section
+  class='container relative px-4 py-16 md:px-20 md:py-24 lg:py-32 max-w-[1300px] mx-auto text-center'
+>
   <div class='flex flex-col items-center gap-12 lg:gap-16'>
     <div class='text-center w-full'>
       <Subtitle subtitle={featuredCategories.title} />
@@ -20,7 +22,7 @@ const categories = await Database.getAllCategories({ featured: true });
         )
       }
 
-      <div class='flex flex-wrap justify-center gap-20 pt-24'>
+      <div class='flex flex-wrap justify-center gap-8 pt-24'>
         {
           categories.map((category) => (
             <div class='img-appear group relative w-64'>

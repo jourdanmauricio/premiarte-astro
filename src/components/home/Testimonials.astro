@@ -14,31 +14,31 @@ export interface TestimonialsProps {
 const { testimonials } = Astro.props;
 ---
 
-<section class='py-20'>
-  <div class='container px-4 md:px-6'>
-    <Subtitle subtitle={testimonials.title || 'Testimonios'} />
+<section
+  class='container relative px-4 py-16 md:px-20 md:py-24 lg:py-32 max-w-[1300px] mx-auto text-center'
+>
+  <Subtitle subtitle={testimonials.title || 'Testimonios'} />
 
-    <div class='grid grid-cols-1 gap-6 pt-24 md:grid-cols-3'>
-      {
-        testimonials.testimonials.map((testimonial: Testimonial) => (
-          <Card className='bg-background'>
-            <CardContent className='p-6'>
-              <div class='mb-4 flex flex-col gap-2'>
-                <h3 class='text-lg font-semibold'>{testimonial.name}</h3>
-                <div class='flex items-center gap-2'>
-                  <StarsRating rating={testimonial.rating} client:load />
-                  <span class='text-sm text-muted-foreground'>
-                    {Number(testimonial.rating).toFixed(1)}
-                  </span>
-                </div>
+  <div class='flex flex-wrap justify-center gap-8 pt-24'>
+    {
+      testimonials.testimonials.map((testimonial: Testimonial) => (
+        <Card className='bg-background w-64'>
+          <CardContent className='p-6'>
+            <div class='mb-4 flex flex-col gap-2'>
+              <h3 class='text-lg font-semibold'>{testimonial.name}</h3>
+              <div class='flex items-center gap-2'>
+                <StarsRating rating={testimonial.rating} client:load />
+                <span class='text-sm text-muted-foreground'>
+                  {Number(testimonial.rating).toFixed(1)}
+                </span>
               </div>
-              <p class='text-muted-foreground leading-relaxed'>
-                "{testimonial.description}"
-              </p>
-            </CardContent>
-          </Card>
-        ))
-      }
-    </div>
+            </div>
+            <p class='text-muted-foreground leading-relaxed'>
+              "{testimonial.description}"
+            </p>
+          </CardContent>
+        </Card>
+      ))
+    }
   </div>
 </section>
