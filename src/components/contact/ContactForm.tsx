@@ -155,11 +155,9 @@ const ContactForm = () => {
                 <div>
                   <h3 className='font-medium'>Dirección</h3>
                   <address className='not-italic text-muted-foreground'>
-                    123 Pet Street
+                    Calle 70 N° 999 e/ 14 y 15
                     <br />
-                    Dogville, NY 10001
-                    <br />
-                    United States
+                    La Plata, Buenos Aires - C.P. 1900
                   </address>
                 </div>
               </div>
@@ -171,12 +169,12 @@ const ContactForm = () => {
                 <div>
                   <h3 className='font-medium'>Teléfono</h3>
                   <p className='text-muted-foreground'>
-                    <a
-                      href='tel:+(221) 619-6520'
-                      className='hover:text-orange-500'
+                    <span
+                    // href='tel:+(221) 619-6520'
+                    // className='hover:text-orange-500'
                     >
                       (221) 619-6520
-                    </a>
+                    </span>
                   </p>
                 </div>
               </div>
@@ -204,7 +202,7 @@ const ContactForm = () => {
         <div className='mt-8'>
           <Card>
             <CardContent className='p-6'>
-              <h2 className='mb-8 text-xl font-semibold'>
+              <h2 className='mb-6 text-xl font-semibold'>
                 Síguenos en nuestras redes sociales
               </h2>
               <div className='flex gap-4'>

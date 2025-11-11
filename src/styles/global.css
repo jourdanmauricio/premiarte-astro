@@ -156,7 +156,7 @@
 }
 
 .pill {
-    @apply mb-2 border border-muted-foreground px-2 py-1 text-sm text-muted-foreground w-fit mx-auto rounded-full;
+    @apply mb-2 border-2 border-orange-300 px-2 py-1 text-sm text-orange-300 w-fit rounded-full;
 }
 
 .btn-quantity {

@@ -7,38 +7,27 @@ import { SearchIcon } from 'lucide-react';
 const { product } = Astro.props;
 ---
 
-<a href={`/productos/${product.slug}`} class=''>
+<a
+  href={`/productos/${product.slug}`}
+  class='shadow-xl transition-all duration-300 hover:drop-shadow-3xl hover:shadow-orange-200/10'
+>
   <div
-    class='aspect-square overflow-hidden rounded-sm bg-background hover:cursor-pointer relative'
+    class='aspect-square overflow-hidden rounded-t-sm bg-background hover:cursor-pointer relative border border-orange-50/10'
   >
     <Image
       src={product.images[0]?.url || '/placeholder.svg'}
       alt={product.images[0]?.alt || 'Product image'}
-      width={250}
-      height={250}
+      width={288}
+      height={288}
       class='h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 img-appear'
       style={{
         // viewTransitionName: transitionNames.image,
       }}
     />
-
-    <div
-      class='absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-500 group-hover:opacity-100'
-    >
-      <button
-        class=`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background 
-        transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 
-        disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary 
-        text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2`
-      >
-        <SearchIcon className='mr-2 h-4 w-4' />
-        Ver detalle
-        {product.id}
-      </button>
-    </div>
   </div>
-  <div class='mt-4 space-y-1 text-center'>
-    <div class='pill'>
+
+  <div class='mt-4 space-y-1 text-center px-2 mb-4'>
+    <div class='pill mx-auto'>
       {product.categories[0].name}
     </div>
     <h3

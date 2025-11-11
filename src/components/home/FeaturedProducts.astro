@@ -21,10 +21,10 @@ const products = await Database.getAllProducts({ featured: true });
         )
       }
 
-      <div class='flex flex-wrap justify-center gap-20 pt-24'>
+      <div class='flex flex-wrap justify-center gap-16 pt-24'>
         {
           products.map((product) => (
-            <div class='img-appear group relative w-64'>
+            <div class='img-appear group border border-orange-50/10 rounded-sm relative w-72 shadow-xl transition-all duration-300 hover:drop-shadow-3xl hover:shadow-orange-200/10'>
               <ProductsCard product={product} />
             </div>
           ))
@@ -32,19 +32,6 @@ const products = await Database.getAllProducts({ featured: true });
       </div>
 
       <div class='mt-20 text-center'>
-        <!-- <button
-          class='border border-input bg-background hover:bg-accent hover:text-accent-foreground inline-flex
-          items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background
-          transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring
-          focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none
-          [&_svg]:size-4 [&_svg]:shrink-0 px-6 py-4'
-        >
-          <a href={featuredProducts.buttonLink}>
-            <span class='text-xl text-orange-500'>
-              {featuredProducts.buttonText}
-            </span>
-          </a> 
-        </button> -->
         <SecondaryButton
           label={featuredProducts.buttonText || 'Ver Productos'}
           href={featuredProducts.buttonLink || '/categoria/productos'}

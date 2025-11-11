@@ -125,7 +125,7 @@ const logoImage = home.menu?.logoId
 
     // Limpiar todas las líneas del menú de escritorio
     document.querySelectorAll('[data-href]').forEach((el) => {
-      el.classList.remove('border-blue-500');
+      el.classList.remove('border-orange-500');
       el.classList.add('border-transparent');
       el.removeAttribute('style');
     });
@@ -136,13 +136,13 @@ const logoImage = home.menu?.logoId
     );
     if (activeElement) {
       activeElement.classList.remove('border-transparent');
-      activeElement.classList.add('border-blue-500');
+      activeElement.classList.add('border-orange-500');
       activeElement.style.viewTransitionName = 'menu-line';
     }
 
     // Resaltar enlace activo en el menú móvil
     document.querySelectorAll('[data-mobile-href]').forEach((el) => {
-      el.classList.remove('bg-blue-600', 'text-white');
+      el.classList.remove('bg-orange-500', 'text-white');
       el.classList.add('text-gray-300');
     });
 
@@ -151,7 +151,7 @@ const logoImage = home.menu?.logoId
     );
     if (activeMobileElement) {
       activeMobileElement.classList.remove('text-gray-300');
-      activeMobileElement.classList.add('bg-blue-600', 'text-white');
+      activeMobileElement.classList.add('bg-orange-500', 'text-white');
     }
   }
 
