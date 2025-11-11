@@ -11,7 +11,7 @@ const { category } = Astro.props;
   <div class='relative aspect-square overflow-hidden rounded-sm border'>
     <Image
       src={category.image?.url || '/placeholder.svg'}
-      alt={category.image?.alt || category.name}
+      alt={`Categoría ${category.image?.alt}` || `Categoría ${category.name}`}
       width={256}
       height={256}
       class='object-contain w-full h-full transition-transform group-hover:scale-105'
