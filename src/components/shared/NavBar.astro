@@ -123,6 +123,18 @@ const logoImage = home.menu?.logoId
   function setActiveMenu() {
     const currentPath = window.location.pathname;
 
+    // Determinar qué path debe estar activo
+    let activePath = currentPath;
+
+    // Si la ruta comienza con /categoria/ pero no es /categorias,
+    // activar el link de productos
+    if (
+      currentPath.startsWith('/categoria/') &&
+      currentPath !== '/categorias'
+    ) {
+      activePath = '/categoria/productos';
+    }
+
     // Limpiar todas las líneas del menú de escritorio
     document.querySelectorAll('[data-href]').forEach((el) => {
       el.classList.remove('border-orange-500');
@@ -131,9 +143,7 @@ const logoImage = home.menu?.logoId
     });
 
     // Activar la línea actual en el menú de escritorio
-    const activeElement = document.querySelector(
-      `[data-href="${currentPath}"]`
-    );
+    const activeElement = document.querySelector(`[data-href="${activePath}"]`);
     if (activeElement) {
       activeElement.classList.remove('border-transparent');
       activeElement.classList.add('border-orange-500');

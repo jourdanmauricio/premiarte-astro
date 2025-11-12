@@ -12,9 +12,7 @@ export interface ServicesProps {
 const { title, subtitle, services } = Astro.props;
 ---
 
-<section
-  class='container relative px-4 pt-16 md:px-20 md:pt-24 lg:pt-32 mx-auto text-center'
->
+<section class='section-container'>
   <Subtitle subtitle={title || 'Nuestros Servicios'} />
   {
     subtitle && (

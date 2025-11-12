@@ -61,8 +61,8 @@ const Newsletter = () => {
   };
 
   return (
-    <section className='relative overflow-hidden py-24'>
-      <div className='container relative z-10 px-4 md:px-6'>
+    <section className='section-container mb-24'>
+      <div className='relative z-10 px-4 md:px-6'>
         <div className='flex flex-col items-center space-y-8 text-center'>
           {/* Título mejorado */}
           <div className='space-y-4'>
@@ -106,20 +106,6 @@ const Newsletter = () => {
                   />
                 </div>
 
-                {/* <Button
-                  type='submit'
-                  className='w-full rounded-lg bg-gradient-to-r from-red-600 to-orange-600 px-8 py-4 text-lg font-semibold text-white shadow-xl transition-all duration-300 hover:scale-105 hover:from-red-700 hover:to-orange-700 hover:shadow-2xl disabled:transform-none disabled:cursor-not-allowed disabled:opacity-50'
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <div className='flex items-center gap-2'>
-                      <div className='h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white'></div>
-                      Suscribiendo...
-                    </div>
-                  ) : (
-                    'Suscríbete'
-                  )}
-                </Button> */}
                 <SubmmitButton
                   label='Suscríbete'
                   showSpinner={isLoading}

@@ -155,6 +155,10 @@
     animation-fill-mode: both;
 }
 
+.section-container {
+    @apply container relative px-4 pt-16 md:px-20 md:pt-24 lg:pt-40 mx-auto text-center;
+}
+
 .pill {
     @apply mb-2 border-2 border-orange-300 px-2 py-1 text-sm text-orange-300 w-fit rounded-full;
 }

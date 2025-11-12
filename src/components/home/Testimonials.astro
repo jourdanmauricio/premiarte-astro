@@ -14,9 +14,7 @@ export interface TestimonialsProps {
 const { testimonials } = Astro.props;
 ---
 
-<section
-  class='container relative px-4 pt-16 md:px-20 md:pt-24 lg:pt-32 max-w-[1300px] mx-auto text-center'
->
+<section class='section-container'>
   <Subtitle subtitle={testimonials.title || 'Testimonios'} />
 
   <div class='flex flex-wrap justify-center gap-8 pt-24'>
