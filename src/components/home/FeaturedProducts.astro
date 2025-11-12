@@ -21,7 +21,7 @@ const products = await Database.getAllProducts({ featured: true });
         )
       }
 
-      <div class='flex flex-wrap justify-center gap-8 pt-24'>
+      <div class='flex flex-wrap justify-center gap-8 pt-16'>
         {
           products.map((product) => (
             <div class='img-appear group border border-orange-50/10 rounded-sm relative w-64 shadow-xl transition-all duration-300 hover:drop-shadow-3xl hover:shadow-orange-200/10'>
@@ -31,7 +31,14 @@ const products = await Database.getAllProducts({ featured: true });
         }
       </div>
 
-      <div class='mt-20 text-center'>
+      <p
+        class='my-16 mb-12 text-center text-xl font-normal tracking-tight text-muted-foreground md:text-xl'
+      >
+        Agregá este producto al carrito para pedir tu presupuesto. Seleccioná
+        los productos que te interesen y solicitá tu cotización
+      </p>
+
+      <div class='text-center'>
         <SecondaryButton
           label={featuredProducts.buttonText || 'Ver Productos'}
           href={featuredProducts.buttonLink || '/categoria/productos'}
