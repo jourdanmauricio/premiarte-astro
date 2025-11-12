@@ -10,6 +10,43 @@ const products = await Database.getAllProducts({ featured: true });
 ---
 
 <section class='section-container'>
+  <Subtitle subtitle='¿Cómo solicitar tu presupuesto?' />
+
+  <div class='flex flex-wrap justify-center gap-8 pt-24'>
+    <div class='max-w-[350px]'>
+      <p class='text-3xl'>1️⃣</p>
+      <p class='font-semibold mt-2 text-orange-300 text-xl'>
+        Elegí tus productos:
+      </p>
+      <p class='text-muted-foreground mt-2 text-lg'>
+        Explorá nuestros trofeos, medallas y reconocimientos personalizados
+      </p>
+    </div>
+    <div class='max-w-[350px]'>
+      <p class='text-3xl'>2️⃣</p>
+      <p class='font-semibold mt-2 text-orange-300 text-xl'>
+        Agregalos al carrito:
+      </p>
+      <p class='text-muted-foreground mt-2 text-lg'>
+        Usá el carrito como una lista de pedido. No es compromiso de compra
+      </p>
+    </div>
+    <div class='max-w-[350px]'>
+      <p class='text-3xl'>3️⃣</p>
+      <p class='font-semibold mt-2 text-orange-300 text-xl'>
+        Enviá tu solicitud:
+      </p>
+      <p>
+        <p class='text-muted-foreground mt-2 text-lg'>
+          Completá tus datos y recibí un presupuesto personalizado en poco
+          tiempo
+        </p>
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class='section-container'>
   <div class='flex flex-col items-center gap-12 lg:gap-12'>
     <div class='text-center w-full'>
       <Subtitle subtitle={featuredProducts.title} />
