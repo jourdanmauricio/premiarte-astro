@@ -29,8 +29,6 @@ const NewsletterPage = () => {
     },
   });
 
-  console.log('data', data);
-
   const deleteMutation = useMutation({
     mutationFn: (newsletterId: number) =>
       newsletterService.deleteNewsletter(newsletterId),

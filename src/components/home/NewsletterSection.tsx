@@ -72,7 +72,7 @@ const Newsletter = () => {
               </span>{' '}
               <span className='text-gray-200'>a nuestro boletín</span>
             </h2>
-            <p className='max-w-2xl text-lg leading-relaxed text-gray-300 md:text-xl'>
+            <p className='max-w-3xl text-lg leading-relaxed text-muted-foreground md:text-xl'>
               Suscríbete para recibir ofertas especiales, obsequios y consejos
               para tus agasajos.
             </p>

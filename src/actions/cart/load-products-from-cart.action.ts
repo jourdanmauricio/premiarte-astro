@@ -10,15 +10,7 @@ import type {
 // las actions poseen acceso a las cookies, no necesitamos el input
 export const loadProductsFromCart = defineAction({
   accept: 'json',
-  //   input: z.object({
-  //     cart: z.array(z.object({
-  //       productId: z.string(),
-  //       quantity: z.string(),
-  //     })),
-  //   }),
   handler: async (_, ctx) => {
-    // console.log('context', ctx);
-    // console.log('cookies', ctx.cookies.get('cart'));
     const cart = JSON.parse(
       ctx.cookies.get('cart')?.value ?? '[]'
     ) as CartItem[];

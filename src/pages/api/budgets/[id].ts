@@ -88,8 +88,6 @@ export const PUT: APIRoute = async (context) => {
     // Verificar que el presupuesto existe
     const existingBudget = await Database.getBudgetById(budgetId);
 
-    console.log('existingBudget', existingBudget, budgetId);
-
     if (!existingBudget) {
       return new Response(
         JSON.stringify({ error: 'Presupuesto no encontrado' }),

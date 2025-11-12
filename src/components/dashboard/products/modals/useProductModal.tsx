@@ -130,9 +130,6 @@ const useProductModal = (product: Product | null, closeModal: () => void) => {
     };
   };
 
-  // console.log('Form data', form.getValues());
-  // console.log('Errors', form.formState.errors);
-
   return {
     mode,
     form,

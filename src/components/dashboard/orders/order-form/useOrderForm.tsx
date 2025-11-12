@@ -140,7 +140,6 @@ export const useOrderForm = () => {
   );
 
   const handleCalculateTotal = () => {
-    console.log('handleCalculateTotal');
     let totalAmount = 0;
     const items = form.getValues('items')!;
     const updatedItems = items.map((item) => {

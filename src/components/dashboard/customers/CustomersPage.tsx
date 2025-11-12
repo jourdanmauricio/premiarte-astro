@@ -29,8 +29,6 @@ const CustomersPage = () => {
     },
   });
 
-  // console.log('data', data);
-
   const deleteMutation = useMutation({
     mutationFn: (customerId: number) =>
       customersService.deleteCustomer(customerId),

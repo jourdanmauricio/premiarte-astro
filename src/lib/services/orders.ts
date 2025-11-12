@@ -2,7 +2,6 @@ import { turso } from '../turso';
 
 export class OrderService {
   static async getAllOrders() {
-    console.log('getAllOrders');
     const { rows } = await turso.execute({
       sql: `SELECT 
         o.*,
@@ -14,7 +13,6 @@ export class OrderService {
       ORDER BY o.createdAt DESC`,
       args: [],
     });
-    console.log('getAllOrders', rows);
     return rows;
   }
 

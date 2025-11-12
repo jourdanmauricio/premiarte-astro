@@ -77,7 +77,6 @@ const UpdatePriceModal = ({
   });
 
   const onSubmit = (data: z.infer<typeof ProductFromSchema>) => {
-    console.log(data);
     const productData = {
       products: data.products.map((product) => parseInt(product)),
       percentage: parseInt(data.percentage),

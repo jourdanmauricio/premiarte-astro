@@ -38,7 +38,6 @@ const useProductsPage = () => {
     },
     refetchOnWindowFocus: false,
   });
-  // console.log('productsData', productsData);
 
   // Los datos ya vienen completos del backend, solo necesitamos mapearlos al tipo esperado
   const data = useMemo(() => {

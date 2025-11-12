@@ -43,7 +43,6 @@ const FooterPanel = ({ form, images }: FooterPanelProps) => {
 
   const handleEditSocialLink = useCallback(
     (socialLink: SocialLink) => {
-      console.log('handleEditSocialLink', socialLink);
       const index =
         socialLinks.socialLinks?.findIndex(
           (link) =>
