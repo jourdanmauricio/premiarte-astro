@@ -13,5 +13,6 @@ import { ContactForm } from '@/components/contact/ContactForm';
       por WhatsApp o agregando los productos deseados a tu carrito.
     </p>
   </div>
-  <ContactForm client:idle />
+  <!-- <ContactForm client:idle /> -->
+  <ContactForm client:only='react' />
 </div>
