@@ -1,4 +1,5 @@
 ---
+import { Card } from '@/components/ui/card';
 import MainLayout from '@/layouts/MainLayout.astro';
 import { actions } from 'astro:actions';
 
@@ -18,20 +19,27 @@ const products = data;
 ---
 
 <MainLayout title='Carrito de compras'>
-  <section class='max-w-[1200px] container mx-auto my-20 px-4 md:px-0'>
-    <h2 class='text-2xl font-semibold'>Solicitar presupuesto</h2>
+  <section class='max-w-[1200px] container mx-auto mt-12 mb-20 px-4 md:px-0'>
+    <h2 class='text-2xl font-semibold text-orange-500'>
+      Solicitud de presupuesto
+    </h2>
     <!-- <a href='javascript:history.back()' class='hover: underline text-orange-500'
       >Regresar</a
     > -->
-    <div class='grid grid-cols-1 md:grid-cols-2 gap-12 my-20'>
+    <p class='text-slate-300 mt-8'>
+      Estás a un paso de solicitar tu presupuesto personalizado. Revisa los
+      productos que has seleccionado y haz clic en 'Solicitar Presupuesto'. Nos
+      contactaremos contigo a la mayor brevedad para confirmar disponibilidades,
+      métodos de pago y costos de envío, sin que esto te genere obligación de
+      compra.
+    </p>
+    <div class='grid grid-cols-1 md:grid-cols-2 gap-12 my-12'>
       <!-- products -->
 
-      <article
-        class='order-2 sm:order-1 bg-slate-50 p-6 rounded-lg shadow-lg text-slate-900 h-fit'
-      >
+      <Card className='order-2 sm:order-1 p-6 text-slate-900 h-fit'>
         {
           products.map((product) => (
-            <div
+            <article
               class='flex gap-8 mt-4 w-full border-b pb-4 border-gray-200 last:border-b-0'
               data-product-id={product.productId}
             >
@@ -40,7 +48,7 @@ const products = data;
                 alt={product.image.alt}
                 class='w-28 h-28 object-contain rounded-md border'
               />
-              <div class='flex flex-col gap-2 justify-between items-start w-full'>
+              <div class='flex flex-col gap-2 justify-between items-start w-full text-white'>
                 <a href={`/productos/${product.slug}`} class='hover: underline'>
                   {product.name}
                 </a>
@@ -50,7 +58,7 @@ const products = data;
                     <button
                       type='button'
                       class='btn-quantity-decrement flex items-center justify-center w-8 h-8 cursor-pointer font-medium py-3 px-4 rounded-md shadow-sm transition-colors duration-200 
-                         bg-blue-600 hover:bg-blue-700 text-white'
+                         bg-orange-500 hover:bg-orange-600 text-white'
                       data-product-id={product.productId}
                     >
                       -
@@ -64,7 +72,7 @@ const products = data;
                     />
                     <button
                       class='btn-quantity-increment flex items-center justify-center w-8 h-8 cursor-pointer font-medium py-3 px-4 rounded-md shadow-sm transition-colors duration-200 
-                         bg-blue-600 hover:bg-blue-700 text-white'
+                         bg-orange-500 hover:bg-orange-600 text-white'
                       data-product-id={product.productId}
                       type='button'
                     >
@@ -79,23 +87,20 @@ const products = data;
                   Remover
                 </button>
               </div>
-            </div>
+            </article>
           ))
         }
         <p class='text-slate-500 ml-auto text-end mt-4'>
           <!-- Cantidad de productos: {products.length} -->
-          <a href='/categoria/productos' class='hover: underline text-blue-600'
-            >Agregar más productos</a
+          <a
+            href='/categoria/productos'
+            class='hover: underline text-orange-500'>Agregar más productos</a
           >
         </p>
-      </article>
+      </Card>
 
       <!-- presupuesto -->
-      <article
-        class='bg-slate-50 text-slate-500 p-6 rounded-lg shadow-lg order-1 h-fit sticky top-0'
-      >
-        <h2 class='text-lg font-semibold mb-4'>Solicitud de presupuesto</h2>
-
+      <Card className='p-6 order-1 h-fit sticky top-0'>
         <p class='mb-4'>
           Por favor, complete los siguientes datos para solicitar su
           presupuesto.
@@ -103,7 +108,7 @@ const products = data;
 
         <form id='budget-form' class='space-y-4' novalidate>
           <div class='space-y-1'>
-            <label for='name' class='block text-sm font-medium text-slate-700'>
+            <label for='name' class='block text-sm font-medium'>
               Nombre y Apellido *
             </label>
             <input
@@ -124,7 +129,7 @@ const products = data;
           </div>
 
           <div class='space-y-1'>
-            <label for='email' class='block text-sm font-medium text-slate-700'>
+            <label for='email' class='block text-sm font-medium'>
               Correo electrónico *
             </label>
             <input
@@ -145,7 +150,7 @@ const products = data;
           </div>
 
           <div class='space-y-1'>
-            <label for='phone' class='block text-sm font-medium text-slate-700'>
+            <label for='phone' class='block text-sm font-medium'>
               Teléfono *
             </label>
             <input
@@ -165,10 +170,7 @@ const products = data;
           </div>
 
           <div class='space-y-1'>
-            <label
-              for='message'
-              class='block text-sm font-medium text-slate-700'
-            >
+            <label for='message' class='block text-sm font-medium'>
               Mensaje adicional
             </label>
             <textarea
@@ -187,7 +189,7 @@ const products = data;
               class={`w-full cursor-pointer font-medium py-3 px-4 rounded-md shadow-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                 products.length === 0
                   ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                  : 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500'
+                  : 'bg-orange-500 hover:bg-orange-600 text-white focus:ring-orange-500'
               }`}
               disabled={products.length === 0}
             >
@@ -203,7 +205,7 @@ const products = data;
             * Campos obligatorios
           </p>
         </form>
-      </article>
+      </Card>
     </div>
   </section>
 </MainLayout>
