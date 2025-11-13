@@ -539,8 +539,8 @@ const { user } = Astro.props as CartPageProps;
           itemsInCart.set(0);
 
           // Ocultar el formulario
-          const budgetForm = document.getElementById(
-            'budget-form'
+          const budgetForm = document.querySelector(
+            '.budget-form'
           ) as HTMLFormElement;
           budgetForm.classList.add('hidden');
 
