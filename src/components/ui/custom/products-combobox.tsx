@@ -41,7 +41,7 @@ export default function ProductsCombobox({
   const { getFieldState, formState } = useFormContext();
   const fieldState = getFieldState(name, formState);
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['productsCombobox'],
     queryFn: async () => {
       const response = await productsService.getProducts();
@@ -66,11 +66,12 @@ export default function ProductsCombobox({
           <ComboboxForm
             form={form}
             name={name}
-            placeholder={placeholder}
+            placeholder={isLoading ? 'Cargando...' : placeholder}
             field={field}
             filters={queryParams}
             data={data || []}
             onChange={onChange}
+            isLoading={isLoading}
           />
           <div
             className={`relative transition-all duration-300 ease-in-out ${fieldState.invalid ? 'opacity-100' : 'opacity-0'}`}

@@ -37,7 +37,6 @@ interface ComboboxFormProps<T extends ComboboxItem = ComboboxItem> {
   filters?: ComboboxFilter;
   data?: T[];
   onChange?: (item: T) => void;
-  isLoading?: boolean;
 }
 
 export function ComboboxForm<T extends ComboboxItem = ComboboxItem>({ 
@@ -46,8 +45,7 @@ export function ComboboxForm<T extends ComboboxItem = ComboboxItem>({
   placeholder, 
   field, 
   data,
-  onChange,
-  isLoading = false
+  onChange
 }: ComboboxFormProps<T>) {
 
   const [open, setOpen] = useState(false);
@@ -83,8 +81,6 @@ export function ComboboxForm<T extends ComboboxItem = ComboboxItem>({
     }
   }, [open]);
 
-  
-
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -96,7 +92,7 @@ export function ComboboxForm<T extends ComboboxItem = ComboboxItem>({
               !field.value && "text-muted-foreground"
             )}
           >
-            {isLoading ? 'Cargando...' : field.value
+            {field.value
               ? data?.find(
                 (item) => item.value === field.value
               )?.label
@@ -127,15 +123,6 @@ export function ComboboxForm<T extends ComboboxItem = ComboboxItem>({
               scrollBehavior: 'smooth'
             }}
           >
-             {isLoading ? (
-              <div className="py-6 text-center text-sm text-muted-foreground">
-                <div className="flex flex-col items-center gap-2">
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                  <span>Cargando opciones...</span>
-                </div>
-              </div>
-            ) : (
-              <>
             <CommandEmpty>No se encontraron resultados</CommandEmpty>
             <CommandGroup className="w-full">
               {filteredData.map((item) => (
@@ -165,8 +152,6 @@ export function ComboboxForm<T extends ComboboxItem = ComboboxItem>({
                 </CommandItem>
               ))}
             </CommandGroup>
-            </>
-            )}
           </CommandList>
         </Command>
       </PopoverContent>
