@@ -35,7 +35,7 @@ const { user } = Astro.props as CartPageProps;
   </p>
   <div class='flex flex-col lg:flex-row gap-12 my-12'>
     <!-- Message sent successfully -->
-    <Card className='p-6 text-slate-900 h-fit hidden'>
+    <Card className='p-6 text-slate-900 h-fit hidden w-full'>
       <div class='mb-6 rounded-lg p-4 text-orange-500'>
         <h3 class='mb-2 text-lg font-semibold'>
           Presupuesto enviado exitosamente!
@@ -48,7 +48,7 @@ const { user } = Astro.props as CartPageProps;
     </Card>
 
     <!-- products -->
-    <Card className='p-6 text-slate-900 h-fit'>
+    <Card className='p-6 text-slate-900 h-fit w-full'>
       {
         products.length === 0 ? (
           <p class='text-white text-center'>
@@ -117,7 +117,7 @@ const { user } = Astro.props as CartPageProps;
     </Card>
 
     <!-- presupuesto -->
-    <Card className='p-6 h-fit'>
+    <Card className='p-6 h-fit w-full'>
       <p class='mb-4'>
         Por favor, complete los siguientes datos para solicitar su presupuesto.
       </p>
@@ -537,6 +537,18 @@ const { user } = Astro.props as CartPageProps;
 
           // Actualizar contador del carrito
           itemsInCart.set(0);
+
+          // Ocultar el formulario
+          const budgetForm = document.getElementById(
+            'budget-form'
+          ) as HTMLFormElement;
+          budgetForm.classList.add('hidden');
+
+          // Ocultar Card de productos
+          const productsCard = document.querySelector(
+            '.products-card'
+          ) as HTMLDivElement;
+          productsCard.classList.add('hidden');
 
           // Opcional: redirigir después de un delay
           setTimeout(() => {
