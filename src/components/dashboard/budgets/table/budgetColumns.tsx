@@ -1,4 +1,4 @@
-import { EditIcon, FileText, PackagePlus, Trash2Icon } from 'lucide-react';
+import { EditIcon, FileText, InfoIcon, PackagePlus, Trash2Icon } from 'lucide-react';
 import { type ColumnDef } from '@tanstack/react-table';
 
 import type { Budget } from '@/shared/types';
@@ -7,6 +7,7 @@ import { TruncatedCell } from '@/components/ui/custom/truncatedCell';
 import { budgetStatusList } from '@/shared/consts';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 type DataTableColumnsProps = {
   onDelete: (budget: Budget) => void;
@@ -102,7 +103,8 @@ export const getBudgetColumns = ({
       const budget = row.original;
       return (
         <div className='flex items-center justify-center w-full gap-2'>
-          <Button
+          {budget.responsibleId && budget.totalAmount > 0 ? (
+            <Button
             variant='ghost'
             size='sm'
             onClick={() => onCreateOrder(budget)}
@@ -111,15 +113,34 @@ export const getBudgetColumns = ({
           >
             <PackagePlus className='h-4 w-4 text-green-800' />
           </Button>
+          ) : (<Tooltip>
+            <TooltipTrigger>
+            <Button
+            variant='ghost'
+            size='sm'
+            onClick={() => onCreateOrder(budget)}
+            className='h-8 w-8 p-0 hover:bg-green-50'
+            type='button'
+            disabled
+          >
+            <PackagePlus className='h-4 w-4 text-green-800' />
+          </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              El presupuesto no tiene un responsable asignado o el total es 0
+            </TooltipContent>
+          </Tooltip>)}
           <Button
             variant='ghost'
             size='sm'
             onClick={() => onView(budget)}
             className='h-8 w-8 p-0 hover:bg-slate-50'
             type='button'
+            disabled={budget.totalAmount === 0 || budget.responsibleId === null}
           >
             <FileText className='h-4 w-4 text-slate-800' />
           </Button>
+          {budget.totalAmount > 0 && budget.responsibleId ? (
           <Button
             variant='ghost'
             size='sm'
@@ -129,6 +150,14 @@ export const getBudgetColumns = ({
           >
             <EditIcon className='h-4 w-4 text-blue-600' />
           </Button>
+          ) : (<Tooltip>
+            <TooltipTrigger>
+              <EditIcon className='h-4 w-4 text-blue-600' />
+            </TooltipTrigger>
+            <TooltipContent>
+              El presupuesto no tiene un responsable asignado o el total es 0
+            </TooltipContent>
+          </Tooltip>)}
           <Button
             variant='ghost'
             size='sm'

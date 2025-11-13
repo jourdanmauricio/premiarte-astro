@@ -99,6 +99,8 @@ const BudgetsPage = () => {
 
   const handleConfirmAddOrder = useCallback(
     (budget: Budget) => {
+
+      console.log('budget', budget);
       setCurrentBudget(budget);
       setAddOrderModalIsOpen(true);
     },
