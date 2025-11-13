@@ -64,7 +64,7 @@ const ContactForm = () => {
         <Card>
           <CardContent className='p-6'>
             {isSubmitted ? (
-              <div className='mb-6 rounded-lg bg-orange-500/10 p-4 text-orange-500'>
+              <div className='mb-6 rounded-lg  p-4 text-orange-500'>
                 <h3 className='mb-2 text-lg font-semibold'>
                   Gracias por contactarnos!
                 </h3>
@@ -169,12 +169,7 @@ const ContactForm = () => {
                 <div>
                   <h3 className='font-medium'>Teléfono</h3>
                   <p className='text-muted-foreground'>
-                    <span
-                    // href='tel:+(221) 619-6520'
-                    // className='hover:text-orange-500'
-                    >
-                      (221) 619-6520
-                    </span>
+                    <span>(221) 619-6520</span>
                   </p>
                 </div>
               </div>
@@ -208,7 +203,7 @@ const ContactForm = () => {
               <div className='flex gap-4'>
                 <a
                   href='#'
-                  className='flex h-10 w-10 items-center justify-center rounded-full bg-orange-500/10 text-orange-500 transition-colors hover:bg-orange-500 hover:text-orange-500-foreground'
+                  className='flex h-10 w-10 items-center justify-center rounded-full bg-orange-500/10 text-orange-500'
                 >
                   <svg
                     xmlns='http://www.w3.org/2000/svg'
@@ -228,7 +223,7 @@ const ContactForm = () => {
                 </a>
                 <a
                   href='#'
-                  className='flex h-10 w-10 items-center justify-center rounded-full bg-orange-500/10 text-orange-500 transition-colors hover:bg-orange-500 hover:text-orange-500-foreground'
+                  className='flex h-10 w-10 items-center justify-center rounded-full bg-orange-500/10 text-orange-500'
                 >
                   <svg
                     xmlns='http://www.w3.org/2000/svg'
@@ -257,7 +252,7 @@ const ContactForm = () => {
                 </a>
                 <a
                   href='#'
-                  className='flex h-10 w-10 items-center justify-center rounded-full bg-orange-500/10 text-orange-500 transition-colors hover:bg-orange-500 hover:text-orange-500-foreground'
+                  className='flex h-10 w-10 items-center justify-center rounded-full bg-orange-500/10 text-orange-500'
                 >
                   <svg
                     xmlns='http://www.w3.org/2000/svg'
@@ -277,7 +272,7 @@ const ContactForm = () => {
                 </a>
                 <a
                   href='#'
-                  className='flex h-10 w-10 items-center justify-center rounded-full bg-orange-500/10 text-orange-500 transition-colors hover:bg-orange-500 hover:text-orange-500-foreground'
+                  className='flex h-10 w-10 items-center justify-center rounded-full bg-orange-500/10 text-orange-500'
                 >
                   <svg
                     xmlns='http://www.w3.org/2000/svg'
