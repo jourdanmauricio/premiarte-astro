@@ -5,6 +5,8 @@ import type { Budget } from '@/shared/types';
 import { Button } from '@/components/ui/button';
 import { TruncatedCell } from '@/components/ui/custom/truncatedCell';
 import { budgetStatusList } from '@/shared/consts';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 type DataTableColumnsProps = {
   onDelete: (budget: Budget) => void;
@@ -35,35 +37,32 @@ export const getBudgetColumns = ({
   {
     accessorKey: 'status',
     header: 'ESTADO',
-    size: 100,
+    size: 130,
     cell: ({ row }) => {
       const budget = row.original;
 
       let color = 'text-neutral-700';
+      let bgColor = 'bg-transparent';
 
-      if (
-        budget.status === 'sent' &&
-        budget.expiresAt &&
-        new Date(budget.expiresAt) < new Date()
-      )
-        'text-red-500';
+      if (budget.status === 'sent') {
+        color = 'text-green-900';
+        bgColor = 'bg-green-400';
+      }
 
-      if (
-        budget.status === 'pending' &&
-        budget.createdAt &&
-        new Date(budget.createdAt) <
-          new Date(new Date().setDate(new Date().getDate() - 1))
-      ) {
-        color = 'text-yellow-500';
+      if (budget.status === 'pending') {
+        color = 'text-yellow-900';
+        bgColor = 'bg-yellow-400';
       }
 
       return (
-        <span className={color}>
-          {
-            budgetStatusList.find((status) => status.id === budget.status)
-              ?.description
-          }
-        </span>
+        <div className='mx-auto'>
+          <Badge variant='outline' className={cn('text-xs', color, bgColor)}>
+            {
+              budgetStatusList.find((status) => status.id === budget.status)
+                ?.description
+            }
+          </Badge>
+        </div>
       );
     },
   },

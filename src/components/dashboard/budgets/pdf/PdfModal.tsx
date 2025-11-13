@@ -32,7 +32,7 @@ const PdfModal = ({ open, closeModal, budget }: PdfModalProps) => {
   });
 
   const { data: budgetData } = useQuery({
-    queryKey: ['budget', budget.id],
+    queryKey: ['budget', budget.id.toString()],
     queryFn: () => budgetsService.getBudgetById(budget.id),
   });
 

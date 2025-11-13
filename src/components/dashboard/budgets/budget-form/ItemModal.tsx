@@ -18,6 +18,7 @@ import { BudgetItemFormSchema } from '@/shared/schemas';
 import TextareaField from '@/components/ui/custom/textarea-field';
 import ProductsCombobox from '@/components/ui/custom/products-combobox';
 import InputNumberField from '@/components/ui/custom/input-number-field';
+import { useEffect } from 'react';
 
 interface ItemModalProps {
   open: boolean;
@@ -52,6 +53,8 @@ const ItemModal = ({
 }: ItemModalProps) => {
   const mode = item ? 'EDIT' : 'CREATE';
 
+  console.log('EDIT item', item);
+
   const form = useForm<z.infer<typeof BudgetItemFormSchema>>({
     resolver: zodResolver(BudgetItemFormSchema),
     defaultValues:
@@ -74,10 +77,17 @@ const ItemModal = ({
         : defaultValues,
   });
 
+  useEffect(() => {
+    if (mode === 'EDIT' && item) {
+      form.reset(item);
+    }
+  }, [mode, item]);
+
   const onSubmit = (data: z.infer<typeof BudgetItemFormSchema>) => {
     if (mode === 'CREATE') {
       addItem(data);
     } else {
+      console.log('Submit EDIT item', data);
       editItem(data);
     }
     closeModal();
@@ -85,7 +95,7 @@ const ItemModal = ({
 
   const handleProductChange = (product: ProductWithDetails) => {
     const { price, retailPrice, wholesalePrice } = setPrices(type, product);
-    form.setValue('id', product.id);
+    form.setValue('id', item?.id);
     form.setValue('price', price);
     form.setValue('wholesalePrice', wholesalePrice);
     form.setValue('retailPrice', retailPrice);

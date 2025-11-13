@@ -185,6 +185,8 @@ export const useBudgetForm = () => {
 
   const handleEditItem = (item: BudgetItemRow) => {
     const items = form.getValues('items')!;
+    console.log('item', item);
+    console.log('items', items);
     const updatedItems = items.map((i) => (i.id === item.id ? item : i));
     form.setValue('items', updatedItems, {
       shouldDirty: true,

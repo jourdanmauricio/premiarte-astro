@@ -42,7 +42,7 @@ export default function ProductsCombobox({
   const fieldState = getFieldState(name, formState);
 
   const { data } = useQuery({
-    queryKey: ['products'],
+    queryKey: ['productsCombobox'],
     queryFn: async () => {
       const response = await productsService.getProducts();
       return response.map((product: Product) => ({
