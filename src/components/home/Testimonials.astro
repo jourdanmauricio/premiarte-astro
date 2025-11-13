@@ -20,7 +20,7 @@ const { testimonials } = Astro.props;
   <div class='flex flex-wrap justify-center gap-8 pt-24'>
     {
       testimonials.testimonials.map((testimonial: Testimonial) => (
-        <Card className='bg-background w-64'>
+        <Card className='bg-background w-96'>
           <CardContent className='p-6'>
             <div class='mb-4 flex flex-col gap-2'>
               <h3 class='text-lg font-semibold'>{testimonial.name}</h3>
