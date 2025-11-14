@@ -65,19 +65,17 @@ export default function Dropdown({
       name={name}
       render={({ field }) => {
         return (
-          <FormItem className={className}>
+          <FormItem className={cn(className, 'relative')}>
             <FormLabel className={`font-normal ${labelClassName}`}>
               {label}
             </FormLabel>
             {enableClean && field.value && (
-              <div className='relative w-full'>
                 <div
                   className='absolute right-1 -top-2 -translate-y-1/2 transform cursor-pointer'
                   onClick={() => field.onChange('')}
                 >
                   <XCircle className='h-4 w-4 text-red-500' />
                 </div>
-              </div>
             )}
             <Select
               onValueChange={(value) => {

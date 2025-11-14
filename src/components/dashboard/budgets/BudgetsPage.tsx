@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import type { Budget, CreateOrderData } from '@/shared/types';
+import type { Budget, CreateOrderData, Product } from '@/shared/types';
 import { CustomTable } from '@/components/ui/custom/CustomTable';
 import CustomAlertDialog from '@/components/ui/custom/custom-alert-dialog';
 import type { SortingState } from '@tanstack/react-table';
@@ -15,6 +15,8 @@ import { navigate } from 'astro/virtual-modules/transitions-router.js';
 import { PdfModal } from '@/components/dashboard/budgets/pdf/PdfModal';
 import { ordersService } from '@/lib/services';
 import CustomConfirmDialog from '@/components/ui/custom/custom-confirm-dialog';
+import { FilterBudgets } from '@/components/dashboard/budgets/table/FilterBugets';
+import { budgetStatusList } from '@/shared/consts';
 
 const BudgetsPage = () => {
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
@@ -23,6 +25,11 @@ const BudgetsPage = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pageIndex, setPageIndex] = useState(0);
   const [addOrderModalIsOpen, setAddOrderModalIsOpen] = useState(false);
+  const [globalFilter, setGlobalFilter] = useState<{
+    search: string;
+    status: string;
+  }>({ search: '', status: 'pending' });
+
 
   const queryClient = useQueryClient();
 
@@ -99,8 +106,6 @@ const BudgetsPage = () => {
 
   const handleConfirmAddOrder = useCallback(
     (budget: Budget) => {
-
-      console.log('budget', budget);
       setCurrentBudget(budget);
       setAddOrderModalIsOpen(true);
     },
@@ -146,7 +151,11 @@ const BudgetsPage = () => {
     ]
   );
 
-  const handleDownload = () => {
+  const translateBudgetStatus = (status: string) => {
+    return budgetStatusList.find((status) => status.id === status.id)?.description;
+  };
+
+  const handleDownload = async () => {
     if (!data || data.length === 0) {
       toast.error('No hay presupuestos para descargar');
       return;
@@ -161,7 +170,7 @@ const BudgetsPage = () => {
         Telefono: budget.phone,
         Tipo: budget.type === 'wholesale' ? 'Mayorista' : 'Minorista',
         Total: budget.totalAmount,
-        Status: budget.status,
+        Status: translateBudgetStatus(budget.status),
         CreatedAt: budget.createdAt
           ? new Date(budget.createdAt).toLocaleDateString()
           : '',
@@ -211,16 +220,52 @@ const BudgetsPage = () => {
 
       // Generar archivo y descargar
       const fileName = `presupuestos-${new Date().toISOString().split('T')[0]}.xlsx`;
-      XLSX.writeFile(wb, fileName);
+      await XLSX.writeFile(wb, fileName);
 
-      toast.success('Presupuestos descargados exitosamente');
-    } catch (error) {
+} catch (error) {
       toast.error('Error al descargar los presupuestos');
     }
   };
 
   const handleAddBudget = () => {
     navigate('/dashboard/budgets/new');
+  };
+
+  const checkStatus = (status: string) => {
+    if (status === 'approved') {
+      return <span className='text-red-500'>Atención! El presupuesto está aprobado, se ha creado un pedido de compra anteriormente</span>;
+    }
+    if (status === 'closed') {
+      return <span className='text-red-500'>Atención! Está cerrado, verificar el precio de los productos antes de crear un nuevo pedido</span>;
+    }
+    return '';
+  };
+
+  const globalFilterFn = (row: any) => {
+    const budget = row.original as Budget;
+    if (Object.keys(globalFilter).length === 0) return true;
+
+    if (Object.values(globalFilter).every((value) => value === '')) return true;
+
+    // Evaluar todas las condiciones y que todas se cumplan
+    let matchesCategory = true;
+    let matchesSearch = true;
+
+    // Si hay filtro de categoría, verificar que coincida
+    if (globalFilter.status && globalFilter.status !== '') {
+      matchesCategory =
+        budget.status === globalFilter.status;
+    }
+
+    // Si hay filtro de búsqueda, verificar que coincida en nombre o SKU
+    if (globalFilter.search && globalFilter.search !== '') {
+      const searchTerm = globalFilter.search.toLowerCase();
+      matchesSearch =
+        budget.name.toLowerCase().includes(searchTerm) 
+    }
+
+    // Solo retorna true si ambas condiciones se cumplen
+    return matchesCategory && matchesSearch;
   };
 
   return (
@@ -232,6 +277,10 @@ const BudgetsPage = () => {
           </h2>
 
           <div className='flex items-center gap-4'>
+            <FilterBudgets
+              globalFilter={globalFilter}
+              handleSearch={(key, value) => setGlobalFilter({ ...globalFilter, [key]: value })}
+            />
             <Button variant='outline' onClick={handleDownload}>
               <DownloadIcon className='size-5' />
             </Button>
@@ -250,8 +299,8 @@ const BudgetsPage = () => {
           handleSorting={setSorting}
           pageIndex={pageIndex}
           setPageIndex={setPageIndex}
-          globalFilter={''}
-          globalFilterFn={() => true}
+          globalFilter={globalFilter}
+          globalFilterFn={globalFilterFn}
         />
       </div>
 
@@ -289,9 +338,13 @@ const BudgetsPage = () => {
           onContinueClick={() => handleAddOrder(currentBudget)}
           onCancelClick={() => setAddOrderModalIsOpen(false)}
           description={
-            <span>
-              ¿Estás seguro de querer crear un pedido para el presupuesto "
-              {currentBudget.name}"?
+            <span className='text-gray-900'>
+              ¿Estás seguro de querer crear un pedido para el presupuesto {currentBudget.name}"?
+              <br />
+              <br />
+
+              {checkStatus(currentBudget.status)}
+
             </span>
           }
           cancelButtonText='Cancelar'

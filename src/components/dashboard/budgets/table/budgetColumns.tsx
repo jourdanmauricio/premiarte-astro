@@ -98,49 +98,51 @@ export const getBudgetColumns = ({
   {
     id: 'actions',
     header: 'ACCIONES',
-    size: 160,
+    size: 180,
     cell: ({ row }) => {
       const budget = row.original;
       return (
         <div className='flex items-center justify-center w-full gap-2'>
-          {budget.responsibleId && budget.totalAmount > 0 ? (
-            <Button
-            variant='ghost'
-            size='sm'
-            onClick={() => onCreateOrder(budget)}
-            className='h-8 w-8 p-0 hover:bg-green-50'
-            type='button'
-          >
-            <PackagePlus className='h-4 w-4 text-green-800' />
-          </Button>
-          ) : (<Tooltip>
+          {/* Crear orden */}
+          <Tooltip>
             <TooltipTrigger>
             <Button
             variant='ghost'
             size='sm'
             onClick={() => onCreateOrder(budget)}
-            className='h-8 w-8 p-0 hover:bg-green-50'
+            className='h-8 w-8 p-0 hover:bg-green-50 disabled:opacity-50 disabled:cursor-not-allowed'
             type='button'
-            disabled
+            disabled={budget.totalAmount === 0 || budget.responsibleId === null}
           >
             <PackagePlus className='h-4 w-4 text-green-800' />
           </Button>
-            </TooltipTrigger>
+          </TooltipTrigger>
             <TooltipContent>
-              El presupuesto no tiene un responsable asignado o el total es 0
+              {budget.totalAmount === 0 || budget.responsibleId === null ? 'El presupuesto no tiene un total asignado o el total es 0' : 'Crear pedido de compra'}
             </TooltipContent>
-          </Tooltip>)}
+          </Tooltip>
+
+          {/* Ver presupuesto */}
+          <Tooltip>
+            <TooltipTrigger>
           <Button
             variant='ghost'
             size='sm'
             onClick={() => onView(budget)}
-            className='h-8 w-8 p-0 hover:bg-slate-50'
+            className='h-8 w-8 p-0 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed'
             type='button'
             disabled={budget.totalAmount === 0 || budget.responsibleId === null}
           >
             <FileText className='h-4 w-4 text-slate-800' />
           </Button>
-          {budget.totalAmount > 0 && budget.responsibleId ? (
+          </TooltipTrigger>
+            <TooltipContent>
+            {budget.totalAmount === 0 || budget.responsibleId === null ? 'El presupuesto no tiene un total asignado o el total es 0' : 'Generar presupuesto en PDF'}
+            </TooltipContent>
+          </Tooltip>
+
+          {/* Editar presupuesto */}
+
           <Button
             variant='ghost'
             size='sm'
@@ -150,14 +152,7 @@ export const getBudgetColumns = ({
           >
             <EditIcon className='h-4 w-4 text-blue-600' />
           </Button>
-          ) : (<Tooltip>
-            <TooltipTrigger>
-              <EditIcon className='h-4 w-4 text-blue-600' />
-            </TooltipTrigger>
-            <TooltipContent>
-              El presupuesto no tiene un responsable asignado o el total es 0
-            </TooltipContent>
-          </Tooltip>)}
+          {/* Eliminar presupuesto */}
           <Button
             variant='ghost'
             size='sm'
