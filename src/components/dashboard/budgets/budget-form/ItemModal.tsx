@@ -53,8 +53,6 @@ const ItemModal = ({
 }: ItemModalProps) => {
   const mode = item ? 'EDIT' : 'CREATE';
 
-  console.log('EDIT item', item);
-
   const form = useForm<z.infer<typeof BudgetItemFormSchema>>({
     resolver: zodResolver(BudgetItemFormSchema),
     defaultValues:

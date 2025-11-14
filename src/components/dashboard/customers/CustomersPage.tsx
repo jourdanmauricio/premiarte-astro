@@ -12,6 +12,7 @@ import type { SortingState } from '@tanstack/react-table';
 import { customersService } from '@/lib/services/customersServices';
 import { getCustomerColumns } from '@/components/dashboard/customers/table/columns';
 import { CustomerModal } from '@/components/dashboard/customers/CustomerModal';
+import CustomerFilter from '@/components/dashboard/customers/table/CustomerFilter';
 
 const CustomersPage = () => {
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
@@ -19,6 +20,12 @@ const CustomersPage = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pageIndex, setPageIndex] = useState(0);
   const [customerModalIsOpen, setCustomerModalIsOpen] = useState(false);
+  const [globalFilter, setGlobalFilter] = useState<{
+    search: string;
+    type: string;
+  }>({ search: '', type: '' });
+
+
   const queryClient = useQueryClient();
 
   const { data, error, isLoading } = useQuery({
@@ -143,6 +150,36 @@ const CustomersPage = () => {
     setCustomerModalIsOpen(true);
   };
 
+  const globalFilterFn = (row: any) => {
+    const customer = row.original as Customer;
+    if (Object.keys(globalFilter).length === 0) return true;
+
+    if (Object.values(globalFilter).every((value) => value === '')) return true;
+
+    // Evaluar todas las condiciones y que todas se cumplan
+    let matchesType = true;
+    let matchesSearch = true;
+
+    // Si hay filtro de categoría, verificar que coincida
+    if (globalFilter.type && globalFilter.type !== '') {
+      matchesType =
+        customer.type === globalFilter.type;
+    }
+
+    // Si hay filtro de búsqueda, verificar que coincida en nombre o SKU
+    if (globalFilter.search && globalFilter.search !== '') {
+      const searchTerm = globalFilter.search.toLowerCase();
+      matchesSearch =
+        customer.name.toLowerCase().includes(searchTerm) ||
+        customer.email.toLowerCase().includes(searchTerm) ||
+        customer.document?.toLowerCase().includes(searchTerm) ||  
+        false;
+    }
+
+    // Solo retorna true si ambas condiciones se cumplen
+    return matchesType && matchesSearch;
+  };
+
   return (
     <>
       <div className='bg-white rounded-lg shadow-md py-6 p-6 w-full'>
@@ -152,6 +189,10 @@ const CustomersPage = () => {
           </h2>
 
           <div className='flex items-center gap-4'>
+            <CustomerFilter
+              globalFilter={globalFilter}
+              handleSearch={(key: string, value: string) => setGlobalFilter({ ...globalFilter, [key]: value })}
+            />
             <Button variant='outline' onClick={handleDownload}>
               <DownloadIcon className='size-5' />
             </Button>
@@ -170,9 +211,9 @@ const CustomersPage = () => {
           handleSorting={setSorting}
           pageIndex={pageIndex}
           setPageIndex={setPageIndex}
-          globalFilter={''}
-          globalFilterFn={() => true}
-        />
+          globalFilter={globalFilter}
+          globalFilterFn={globalFilterFn}
+        />  
       </div>
 
       {/* Modal de confirmación de eliminación */}

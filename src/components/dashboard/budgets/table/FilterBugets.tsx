@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { CategoriesDropdown } from '@/components/ui/custom/dropdowns/CategoriesDropdown';
 import InputForm from '@/components/ui/custom/input-field';
 import { Form } from '@/components/ui/form';
 import { SearchIcon } from 'lucide-react';
