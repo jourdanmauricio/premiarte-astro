@@ -204,6 +204,8 @@ export const useBudgetForm = () => {
   };
 
   const onSubmit = async (data: z.infer<typeof BudgetFormSchema>) => {
+
+    console.log('data!!!!', data);
     const budgetData = {
       ...data,
       customerId: data.customerId || 0,

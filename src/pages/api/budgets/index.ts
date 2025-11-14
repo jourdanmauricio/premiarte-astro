@@ -65,6 +65,16 @@ export const POST: APIRoute = async (context) => {
       );
     }
 
+    console.log('body!!!!', body);
+    console.log('customerId!!!!', customerId);
+    console.log('type!!!!', type);
+    console.log('status!!!!', status);
+    console.log('totalAmount!!!!', totalAmount);
+    console.log('observation!!!!', observation);
+    console.log('expiresAt!!!!', expiresAt);
+    console.log('userId!!!!', authResult.user.id);
+    console.log('items!!!!', items);
+    console.log('responsibleId!!!!', responsibleId);
     const budget = await Database.createBudget({
       customerId,
       type,

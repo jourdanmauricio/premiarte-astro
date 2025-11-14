@@ -14,7 +14,7 @@ import CustomAlertDialog from '@/components/ui/custom/custom-alert-dialog';
 import { CustomDatePicker } from '@/components/ui/custom/custom-date-picker';
 import { ItemModal } from '@/components/dashboard/budgets/budget-form/ItemModal';
 import { useBudgetForm } from '@/components/dashboard/budgets/budget-form/useBudgetForm';
-import CustomersCombobox from '@/components/ui/custom/customer-combobox';
+import CustomersCombobox from '@/components/ui/custom/combobox/customer-combobox';
 import { CustomerModal } from '@/components/dashboard/customers/CustomerModal';
 import { ResponsibilityDropdown } from '@/components/ui/custom/dropdowns/ResponsibilityDropdown';
 

@@ -146,8 +146,8 @@ export class BudgetService {
       `,
       args: [
         data.customerId,
-        data.observation || null,
         data.responsibleId || null,
+        data.observation || null,
         data.userId || null,
         data.totalAmount,
         data.type,

@@ -16,7 +16,7 @@ import { Form } from '@/components/ui/form';
 import { setPrices } from '@/shared/functions';
 import { BudgetItemFormSchema } from '@/shared/schemas';
 import TextareaField from '@/components/ui/custom/textarea-field';
-import ProductsCombobox from '@/components/ui/custom/products-combobox';
+import ProductsCombobox from '@/components/ui/custom/combobox/products-combobox';
 import InputNumberField from '@/components/ui/custom/input-number-field';
 import { useEffect } from 'react';
 
