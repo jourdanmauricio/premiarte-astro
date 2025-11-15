@@ -21,7 +21,7 @@ const defaultValues = {
   type: 'retail' as 'retail' | 'wholesale',
   createdAt: new Date(),
   expiresAt: new Date(new Date().setDate(new Date().getDate() + 15)),
-  status: 'pending' as 'pending' | 'approved' | 'rejected' | 'expired',
+  status: 'pending' as 'pending' | 'delivered' | 'cancelled',
   observation: '',
   totalAmount: '',
   items: [],
@@ -67,7 +67,7 @@ export const useOrderForm = () => {
           observation: order.observation ?? '',
           totalAmount: order.totalAmount ? order.totalAmount.toString() : '0',
           type: order.type || 'retail',
-          status: order.status,
+          status: order.status as 'pending' | 'delivered' | 'cancelled',
           createdAt: order.createdAt ? new Date(order.createdAt) : undefined,
         };
         form.reset(orderData);
@@ -98,7 +98,7 @@ export const useOrderForm = () => {
       };
 
       if (mode === 'EDIT' && order?.id) {
-        return ordersService.updateOrder(order.id, orderData);
+        return ordersService.updateOrder(order.id, orderData );
       } else {
         return ordersService.createOrder(orderData);
       }

@@ -59,7 +59,7 @@ export interface CreateOrderItemData {
 export interface UpdateOrderData {
   customerId?: number;
   observation?: string;
-  status?: 'pending' | 'approved' | 'rejected' | 'expired';
+  status?: 'pending' | 'delivered' | 'cancelled';
   items?: CreateOrderItemData[];
 }
 

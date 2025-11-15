@@ -1,7 +1,4 @@
 import {
-  EyeIcon,
-  FileText,
-  PackagePlus,
   PencilIcon,
   Trash2Icon,
 } from 'lucide-react';
@@ -9,8 +6,10 @@ import { type ColumnDef } from '@tanstack/react-table';
 
 import { Button } from '@/components/ui/button';
 import { TruncatedCell } from '@/components/ui/custom/truncatedCell';
-import { budgetStatusList } from '@/shared/consts';
+import {  orderStatusList } from '@/shared/consts';
 import type { Order } from '@/shared/types';
+import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 type DataTableColumnsProps = {
   onDelete: (order: Order) => void;
@@ -30,30 +29,36 @@ export const getOrderColumns = ({
   {
     id: 'name',
     header: 'CLIENTE',
-    size: 200,
+    size: 250,
     cell: ({ row }) => <TruncatedCell value={row.original.name} linesMax={2} />,
   },
-  // {
-  //   accessorKey: 'email',
-  //   header: 'EMAIL',
-  //   size: 250,
-  //   cell: ({ row }) => (
-  //     <TruncatedCell value={row.original.email} linesMax={2} />
-  //   ),
-  // },
-  // {
-  //   accessorKey: 'phone',
-  //   header: 'TELÉFONO',
-  //   size: 150,
-  //   cell: ({ row }) => row.original.phone || 'No especificado',
-  // },
   {
     accessorKey: 'status',
     header: 'ESTADO',
-    size: 100,
-    cell: ({ row }) =>
-      budgetStatusList.find((status) => status.id === row.original.status)
-        ?.description,
+    size: 130,
+    cell: ({ row }) => {
+      const order = row.original;
+
+      let color = 'text-neutral-700';
+      let bgColor = 'bg-transparent';
+
+
+      if (order.status === 'pending') {
+        color = 'text-yellow-900';
+        bgColor = 'bg-yellow-400';
+      }
+
+      return (
+        <div className='mx-auto'>
+          <Badge variant='outline' className={cn('text-xs', color, bgColor)}>
+            {
+              orderStatusList.find((status) => status.id === order.status)
+                ?.description
+            }
+          </Badge>
+        </div>
+      );
+    },
   },
   {
     accessorKey: 'type',
@@ -86,7 +91,7 @@ export const getOrderColumns = ({
   {
     id: 'actions',
     header: 'ACCIONES',
-    size: 150,
+    size: 90,
     cell: ({ row }) => {
       const order = row.original;
       return (
