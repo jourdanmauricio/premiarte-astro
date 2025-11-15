@@ -50,3 +50,9 @@ export interface UpdateProductData
   categories: (number | undefined)[] | null;
   isPriceUpdated?: boolean;
 }
+
+// Tipo para productos resumidos (usado en listados y selectores)
+export interface ProductResume {
+  id: number;
+  name: string;
+}

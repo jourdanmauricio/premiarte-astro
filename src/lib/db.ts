@@ -47,6 +47,7 @@ export class Database {
 
   // PRODUCTOS
   static getAllProducts = ProductService.getAllProducts;
+  static getResumeProducts = ProductService.getResumeProducts;
   static getAllProductsByCategory = ProductService.getAllProductsByCategory;
   static countProductsByCategory = ProductService.countProductsByCategory;
   static countProducts = ProductService.countProducts;

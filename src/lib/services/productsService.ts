@@ -1,5 +1,6 @@
 import type {
   Product,
+  ProductResume,
   CreateProductData,
   UpdateProductData,
 } from '@/shared/types';
@@ -10,6 +11,14 @@ class ProductsService {
   // Obtener todos los productos
   async getProducts(): Promise<Product[]> {
     const response = await fetch(this.baseUrl);
+    if (!response.ok) {
+      throw new Error('Error al obtener los productos');
+    }
+    return response.json();
+  }
+
+  async getResumeProducts(): Promise<ProductResume[]> {
+    const response = await fetch(`${this.baseUrl}/resume`);
     if (!response.ok) {
       throw new Error('Error al obtener los productos');
     }

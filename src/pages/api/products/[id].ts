@@ -1,6 +1,5 @@
 import { Database } from '@/lib/db';
 import type { APIRoute } from 'astro';
-import { clerkClient } from '@clerk/astro/server';
 import { verifyAdminAuth } from '@/lib/utils';
 
 // PUT - Actualizar producto existente

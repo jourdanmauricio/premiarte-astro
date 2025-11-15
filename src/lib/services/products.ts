@@ -1,6 +1,14 @@
 import { turso } from '../turso';
 
 export class ProductService {
+  static async getResumeProducts() {
+    const { rows } = await turso.execute({
+      sql: 'SELECT id, name FROM Product',
+      args: [],
+    });
+    return rows.map((row) => ({ id: row.id, name: row.name })).sort((a, b) => String(a.name ?? '').localeCompare(String(b.name ?? '')));
+  }
+
   static async getAllProducts({
     categoryId,
     featured,

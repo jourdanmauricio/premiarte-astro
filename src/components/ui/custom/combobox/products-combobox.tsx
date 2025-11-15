@@ -6,7 +6,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { productsService } from '@/lib/services/productsService';
-import type { Product } from '@/shared/types';
+import type { Product, ProductResume } from '@/shared/types';
 import { useQuery } from '@tanstack/react-query';
 
 import { useFormContext, type UseFormReturn } from 'react-hook-form';
@@ -44,12 +44,10 @@ export default function ProductsCombobox({
   const { data, isLoading } = useQuery({
     queryKey: ['productsCombobox'],
     queryFn: async () => {
-      const response = await productsService.getProducts();
-      return response.map((product: Product) => ({
-        ...product,
+      const response = await productsService.getResumeProducts();
+      return response.map((product: ProductResume) => ({
         label: product.name,
         value: product.id,
-        detImages: product.images || [],
       }));
     },
   });
