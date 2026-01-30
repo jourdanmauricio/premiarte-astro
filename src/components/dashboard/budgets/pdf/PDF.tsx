@@ -383,7 +383,7 @@ export const PDF = ({ budget, responsible, customerData }: PDFProps) => {
             La Plata, Buenos Aires - C.P. 1900
           </Text>
           <Text style={styles.localText}>Teléfono: (221) 619-6520</Text>
-          <Text style={styles.localText}>Email: info@premiarte.com.ar</Text>
+          <Text style={styles.localText}>Email: premiartelp@gmail.com</Text>
           <Text style={styles.localText}>www.premiarte.com.ar</Text>
         </View>
       </Page>

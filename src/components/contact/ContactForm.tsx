@@ -182,10 +182,10 @@ const ContactForm = () => {
                   <h3 className='font-medium'>Email</h3>
                   <p className='text-muted-foreground'>
                     <a
-                      href='mailto:info@premiarte.com.ar'
+                      href='mailto:premiartelp@gmail.com'
                       className='hover:text-orange-500'
                     >
-                      info@premiarte.com.ar
+                      premiartelp@gmail.com
                     </a>
                   </p>
                 </div>
