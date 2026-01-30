@@ -14,6 +14,98 @@ interface PDFProps {
   customerData: Customer | undefined;
 }
 
+// Función para convertir números a palabras en español
+const numberToWords = (num: number): string => {
+  const units = ['', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
+  const teens = ['diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve'];
+  const tens = ['', '', 'veinte', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'];
+  const hundreds = ['', 'ciento', 'doscientos', 'trescientos', 'cuatrocientos', 'quinientos', 'seiscientos', 'setecientos', 'ochocientos', 'novecientos'];
+
+  const convertHundreds = (n: number): string => {
+    if (n === 0) return '';
+    if (n === 100) return 'cien';
+    
+    let result = '';
+    const h = Math.floor(n / 100);
+    const remainder = n % 100;
+    
+    if (h > 0) {
+      result += hundreds[h];
+      if (remainder > 0) result += ' ';
+    }
+    
+    if (remainder > 0) {
+      if (remainder < 10) {
+        result += units[remainder];
+      } else if (remainder < 20) {
+        result += teens[remainder - 10];
+      } else {
+        const t = Math.floor(remainder / 10);
+        const u = remainder % 10;
+        if (t === 2 && u > 0) {
+          result += 'veinti' + units[u];
+        } else if (u === 0) {
+          result += tens[t];
+        } else {
+          result += tens[t] + ' y ' + units[u];
+        }
+      }
+    }
+    
+    return result;
+  };
+
+  const convertThousands = (n: number): string => {
+    if (n === 0) return 'cero';
+    if (n === 1000) return 'mil';
+    
+    let result = '';
+    
+    // Millones
+    if (n >= 1000000) {
+      const millions = Math.floor(n / 1000000);
+      if (millions === 1) {
+        result += 'un millón';
+      } else {
+        result += convertHundreds(millions) + ' millones';
+      }
+      n %= 1000000;
+      if (n > 0) result += ' ';
+    }
+    
+    // Miles
+    if (n >= 1000) {
+      const thousands = Math.floor(n / 1000);
+      if (thousands === 1) {
+        result += 'mil';
+      } else {
+        result += convertHundreds(thousands) + ' mil';
+      }
+      n %= 1000;
+      if (n > 0) result += ' ';
+    }
+    
+    // Cientos
+    if (n > 0) {
+      result += convertHundreds(n);
+    }
+    
+    return result;
+  };
+
+  // Separar parte entera y decimal
+  const integerPart = Math.floor(num);
+  const decimalPart = Math.round((num - integerPart) * 100);
+  
+  const integerWords = convertThousands(integerPart);
+  const centavos = decimalPart.toString().padStart(2, '0');
+  
+  // Capitalizar primera letra
+  const capitalizedWords = integerWords.charAt(0).toUpperCase() + integerWords.slice(1);
+  
+  return `Son pesos ${capitalizedWords} con ${centavos}/100.-`;
+};
+
 const styles = StyleSheet.create({
   page: {
     padding: 40,
@@ -361,10 +453,10 @@ export const PDF = ({ budget, responsible, customerData }: PDFProps) => {
                   {item.quantity}
                 </Text>
                 <Text style={[styles.tableCell, styles.cellPrice]}>
-                  {item.price}
+                  {Number(item.price).toFixed(2)}
                 </Text>
                 <Text style={[styles.tableCell, styles.cellTotal]}>
-                  {item.amount}
+                  {item.amount.toFixed(2)}
                 </Text>
               </View>
             ))}
@@ -373,8 +465,13 @@ export const PDF = ({ budget, responsible, customerData }: PDFProps) => {
 
         {/* Total del presupuesto */}
         <View style={styles.totalContainer}>
-          <Text style={styles.totalText}>Total: {budget.totalAmount}</Text>
+          <Text style={styles.totalText}>Total: {budget.totalAmount.toFixed(2)}</Text>
         </View>
+
+        {/* Total en letras */}
+        <Text style={[styles.text, { marginTop: 10 }]}>
+          {numberToWords(budget.totalAmount)}
+        </Text>
 
         {/* Datos del local */}
         <View style={styles.localContainer}>
