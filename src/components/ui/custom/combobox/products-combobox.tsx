@@ -6,7 +6,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { productsService } from '@/lib/services/productsService';
-import type { Product, ProductResume } from '@/shared/types';
+import type { Product, ProductWithDetails } from '@/shared/types';
 import { useQuery } from '@tanstack/react-query';
 
 import { useFormContext, type UseFormReturn } from 'react-hook-form';
@@ -17,7 +17,7 @@ type DropdownProps = {
   placeholder: string;
   form: UseFormReturn<any>;
   className?: string;
-  onChange?: (value: any) => void;
+  onChange?: (value: ProductWithDetails) => void;
   labelClassName?: string;
   disabled?: boolean;
   setDefaultValue?: 'last' | 'first' | null;
@@ -44,10 +44,11 @@ export default function ProductsCombobox({
   const { data, isLoading } = useQuery({
     queryKey: ['productsCombobox'],
     queryFn: async () => {
-      const response = await productsService.getResumeProducts();
-      return response.map((product: ProductResume) => ({
+      const products = await productsService.getProductsWithDetails();
+      return products.map((product: Product) => ({
         label: product.name,
         value: product.id,
+        fullProduct: product,
       }));
     },
   });
@@ -68,7 +69,11 @@ export default function ProductsCombobox({
             field={field}
             filters={queryParams}
             data={data || []}
-            onChange={onChange}
+            onChange={(item) => {
+              if (onChange && item.fullProduct) {
+                onChange(item.fullProduct as ProductWithDetails);
+              }
+            }}
             isLoading={isLoading}
           />
           <div

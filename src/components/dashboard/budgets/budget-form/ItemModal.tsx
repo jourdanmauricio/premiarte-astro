@@ -30,6 +30,7 @@ interface ItemModalProps {
 }
 
 const defaultValues = {
+  productId: undefined,
   name: '',
   slug: '',
   sku: '',
@@ -93,13 +94,14 @@ const ItemModal = ({
 
   const handleProductChange = (product: ProductWithDetails) => {
     const { price, retailPrice, wholesalePrice } = setPrices(type, product);
+    
     form.setValue('id', item?.id);
     form.setValue('price', price);
     form.setValue('wholesalePrice', wholesalePrice);
     form.setValue('retailPrice', retailPrice);
     form.setValue('productId', product.id);
-    form.setValue('imageUrl', product?.detImages?.[0]?.url || '');
-    form.setValue('imageAlt', product?.detImages?.[0]?.alt || '');
+    form.setValue('imageUrl', (product?.images as any)?.[0]?.url || '');
+    form.setValue('imageAlt', (product?.images as any)?.[0]?.alt || '');
     form.setValue('name', product.name);
     form.setValue('slug', product.slug);
     form.setValue('sku', product.sku || '');

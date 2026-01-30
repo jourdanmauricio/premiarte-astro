@@ -25,6 +25,15 @@ class ProductsService {
     return response.json();
   }
 
+  // Obtener todos los productos con detalles (para combobox)
+  async getProductsWithDetails(): Promise<Product[]> {
+    const response = await fetch(`${this.baseUrl}`);
+    if (!response.ok) {
+      throw new Error('Error al obtener los productos');
+    }
+    return response.json();
+  }
+
   // Obtener un producto por ID
   async getProductById(id: number): Promise<Product> {
     const response = await fetch(`${this.baseUrl}/${id}`);
